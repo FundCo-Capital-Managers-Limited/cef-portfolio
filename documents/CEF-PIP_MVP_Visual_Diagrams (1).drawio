@@ -1,0 +1,462 @@
+<mxfile host="Electron" modified="2026-06-19T19:41:27.710Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/22.1.2 Chrome/114.0.5735.289 Electron/25.9.4 Safari/537.36" etag="NW4X2HFGnVu78lByO3yN" version="22.1.2" type="device" pages="4">
+  <diagram id="timeline" name="4. 6-Week Build Timeline">
+    <mxGraphModel dx="1404" dy="806" grid="0" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="0" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg4" value="" style="rounded=0;fillColor=#1C2833;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1920" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="t4" value="CEF-PIP — 6-Week Build Roadmap" style="text;html=1;align=center;fontSize=28;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="20" width="1120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="wk1h" value="WEEK 1" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="220" y="80" width="240" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="wk2h" value="WEEK 2" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="480" y="80" width="240" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="wk3h" value="WEEK 3" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="740" y="80" width="240" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="wk4h" value="WEEK 4" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="80" width="240" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="wk5h" value="WEEK 5" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="80" width="240" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="wk6h" value="WEEK 6" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#922B21;strokeColor=none;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1520" y="80" width="240" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="row1l" value="FOUNDATIONS" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="148" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row2l" value="&amp;nbsp;EVENT INGESTION API" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="208" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row3l" value="CASHFLOW ENGINE" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="268" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row4l" value="ALERT ENGINE" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="328" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row5l" value="&amp;nbsp;DASHBOARD" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="388" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row6l" value="ASSET REGISTRY" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="448" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row7l" value="&amp;nbsp;RECONCILIATION" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="508" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row8l" value="&amp;nbsp;DEMOSOLAR TESTS" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#AAB7B8;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="568" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="row9l" value="&amp;nbsp;LIVE ASSETCO" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#E74C3C;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="628" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b1" value="Accounts, repos, DB schema, Supabase setup" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="222" y="148" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b2" value="POST /api/v1/events — HMAC auth, schema validation, CI" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E67E22;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="222" y="208" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b3" value="payment.received / missed / defaulted handlers, DB updates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="482" y="268" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b4" value="Email alerts on default/fault via Resend" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="482" y="328" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b5" value="Next.js on Vercel — portfolio view, auth, all dashboard pages" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="742" y="388" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b6" value="Asset lifecycle events, registry UI in dashboard" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5DADE2;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1002" y="448" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b7" value="Nightly pull job — GET endpoints, discrepancy detection" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C3483;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1002" y="508" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b8" value="Build DemoSolar harness, run full E2E lifecycle test, UAT, fix bugs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#148F77;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1262" y="568" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="b9" value="🚀 First real AssetCo onboarded. Live data in dashboard." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#922B21;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1522" y="628" width="235" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cc-row-l" value="&amp;nbsp;CLAUDE CODE" style="text;html=1;align=right;fontSize=12;fontStyle=1;fontColor=#8E44AD;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="690" width="160" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cc-bar" value="AI pair-programming — code generation, review, docs, debugging — every week, every developer" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8E44AD;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="222" y="690" width="1535" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="ms1" value="🏁 API LIVE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#E67E22;strokeColor=#D35400;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="415" y="750" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ms2" value="🏁 ENGINES LIVE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=#922B21;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="673" y="750" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ms3" value="🏁 DASHBOARD LIVE" style="ellipse;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=#1F3864;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="930" y="750" width="140" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ms4" value="🏁 UAT PASSED" style="ellipse;whiteSpace=wrap;html=1;fillColor=#148F77;strokeColor=#0E6655;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1193" y="750" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ms5" value="🚀 MVP DELIVERED" style="ellipse;whiteSpace=wrap;html=1;fillColor=#922B21;strokeColor=#7B241C;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1503" y="742" width="170" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="cost-box" value="💰 Infrastructure Cost: $0/mo for Weeks 1–5 (all free tiers)&lt;br&gt;$7/mo from Week 6 (Render Starter — always-on for live AssetCo)&lt;br&gt;+ Claude Code: &amp;lt;$80/mo AI assistant" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2C3E50;strokeColor=#17202A;fontColor=#ECF0F1;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="220" y="840" width="1000" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="vs-box" value="vs. External dev team: $30,000–$80,000" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#922B21;strokeColor=#7B241C;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="840" width="500" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="how-it-works" name="2. MVP Stack">
+    <mxGraphModel dx="3120" dy="1791" grid="0" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="0" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="eIpud8bT95IKfTYzIIWJ-1" value="" style="group;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" vertex="1" connectable="0" parent="1">
+          <mxGeometry width="1920" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="bg2" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F0F3F4;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry width="1920" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="t2" value="The MVP Stack at Week 6" style="text;html=1;align=center;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#1F3864;strokeColor=none;fillColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="400" y="24" width="1120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="rl1" value="ASSETCO SIDE" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#FFFFFF;fillColor=#27AE60;strokeColor=none;rotation=-90;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1757" y="102.5" width="121" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="rl2" value="CEF-PIP BACKEND" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#FFFFFF;fillColor=#1F3864;strokeColor=none;rotation=-90;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1733" y="445" width="121" height="240" as="geometry" />
+        </mxCell>
+        <mxCell id="rl3" value="CEF USERS" style="text;html=1;align=center;verticalAlign=middle;fontSize=13;fontStyle=1;fontColor=#FFFFFF;fillColor=#2874A6;strokeColor=none;rotation=-90;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1752" y="717.5" width="100" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="demo" value="🧪 DemoSolar&#xa;(Fictional Test AssetCo)" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#7F8C8D;strokeColor=#5D6D7E;fontColor=#FFFFFF;fontSize=13;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="150" y="165" width="210" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="demo-sub" value="Weeks 1–5: Simulates all events&#xa;so we can test everything safely" style="text;html=1;align=center;fontSize=10;fontColor=#5D6D7E;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="130" y="247" width="250" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="live-sub" value="Their platform sends events&#xa;to our API automatically" style="text;html=1;align=center;fontSize=10;fontColor=#27AE60;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="400" y="247" width="250" height="36" as="geometry" />
+        </mxCell>
+        <mxCell id="future-ac" value="(soon) Future AssetCos&#xa;(Phase 2)" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#BDC3C7;strokeColor=#7F8C8D;fontColor=#5D6D7E;fontSize=13;fontStyle=2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="690" y="165" width="210" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="events-box" value="Events they send us:&#xa;payment.received  |  payment.missed  |  payment.defaulted&#xa;asset.deployed  |  asset.fault.detected  |  asset.fault.resolved&#xa;sync.heartbeat" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#FDFEFE;strokeColor=#27AE60;strokeWidth=2;fontSize=12;fontFamily=Courier New;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="950" y="155" width="560" height="105" as="geometry" />
+        </mxCell>
+        <mxCell id="ae1" value="HTTPS + HMAC signed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#E67E22;fontColor=#E67E22;fontSize=11;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="demo" target="api-gw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="api-gw" value="🚪 Event Ingestion API&#xa;POST /api/v1/events" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#E67E22;strokeColor=#D35400;fontColor=#FFFFFF;fontSize=14;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="390" y="420" width="270" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="api-sub" value="Verifies HMAC signature&#xa;Validates payload schema&#xa;Hosted on Render (Node.js)" style="text;html=1;align=center;fontSize=10;fontColor=#D35400;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="370" y="500" width="310" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cf-eng" value="💰 Cashflow Engine" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=#17202A;fontColor=#FFFFFF;fontSize=14;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="150" y="590" width="210" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="cf-sub" value="Tracks collections,&#xa;outstanding balances,&#xa;default status per asset" style="text;html=1;align=center;fontSize=10;fontColor=#1F3864;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="130" y="660" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="al-sub" value="Sends email to CEF team&#xa;on defaults &amp; faults&#xa;via Resend" style="text;html=1;align=center;fontSize=10;fontColor=#C0392B;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="400" y="660" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-sub" value="Tracks every CEF-funded asset:&#xa;status, customer, last sync,&#xa;deployment date" style="text;html=1;align=center;fontSize=10;fontColor=#2874A6;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="670" y="660" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="recon" value="🔄 Reconciliation&#xa;(Nightly)" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#6C3483;strokeColor=#4A235A;fontColor=#FFFFFF;fontSize=14;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="960" y="590" width="210" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="recon-sub" value="Pulls data nightly from AssetCo&#xa;REST endpoints to catch&#xa;any missed events" style="text;html=1;align=center;fontSize=10;fontColor=#6C3483;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="940" y="660" width="250" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="db" value="🗄 Supabase (PostgreSQL)" style="shape=mxgraph.flowchart.database;whiteSpace=wrap;html=1;fillColor=#148F77;strokeColor=#0E6655;fontColor=#FFFFFF;fontSize=13;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1280" y="520" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="db-sub" value="All data lives here:&#xa;payments . faults . assets . events . users" style="text;html=1;align=center;fontSize=10;fontColor=#148F77;fillColor=none;strokeColor=none;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1260" y="617" width="260" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e-cf" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1F3864;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="api-gw" target="cf-eng" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-al" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#C0392B;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="api-gw" target="al-eng" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-ar" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2874A6;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="api-gw" target="ar-eng" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-db1" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#148F77;dashed=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="cf-eng" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e-db3" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#148F77;dashed=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="ar-eng" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1226" y="623" />
+              <mxPoint x="1226" y="565" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e-db4" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#6C3483;dashed=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="recon" target="db" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="dash" value="📱 CEF-PIP Dashboard&#xa;(Next.js on Vercel)" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=#1F3864;fontColor=#FFFFFF;fontSize=15;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="390" y="780" width="270" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="e-dash" value="reads live data" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2874A6;fontColor=#2874A6;fontSize=11;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="db" target="dash" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="u-exec" value="👤 CEF Executive" style="ellipse;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=#17202A;fontColor=#FFFFFF;fontSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="192" y="896" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="u-fin" value="👤 Finance Analyst" style="ellipse;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=#1F3864;fontColor=#FFFFFF;fontSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="435" y="900" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="u-ops" value="👤 Operations" style="ellipse;whiteSpace=wrap;html=1;fillColor=#5DADE2;strokeColor=#2874A6;fontColor=#FFFFFF;fontSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="678" y="900" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="eu1" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#1F3864;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="dash" target="u-exec" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu2" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#2874A6;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="dash" target="u-fin" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="eu3" value="" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#5DADE2;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="dash" target="u-ops" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="gh" value="⚙ GitHub + GitHub Actions&#xa;All code . Auto-deploy on push" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2C3E50;strokeColor=#17202A;fontColor=#FFFFFF;fontSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1280" y="780" width="260" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="cc" value="🤖 Claude Code&#xa;AI pair-programmer throughout" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#8E44AD;strokeColor=#6C3483;fontColor=#FFFFFF;fontSize=12;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="1280" y="880" width="260" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="live-ac" value="✅ First Real AssetCo&#xa;(Onboarded Week 6)" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=#1E8449;fontColor=#FFFFFF;fontSize=13;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="420" y="165" width="210" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="ae2" value="HTTPS + HMAC signed" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;fontColor=#27AE60;fontSize=11;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" source="live-ac" target="api-gw" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="al-eng" value="🚨 Alert Engine" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=#922B21;fontColor=#FFFFFF;fontSize=14;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="420" y="590" width="210" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="ar-eng" value="📋 Asset Registry" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=#1F3864;fontColor=#FFFFFF;fontSize=14;fontStyle=1;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="eIpud8bT95IKfTYzIIWJ-1" vertex="1">
+          <mxGeometry x="690" y="590" width="210" height="65" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="big-picture" name="1. The Big Picture">
+    <mxGraphModel dx="2808" dy="1612" grid="0" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="0" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#F8F9FA;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1920" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="CEF-PIP: Real-Time Intelligence Implementation" style="text;html=1;align=center;verticalAlign=middle;fontSize=28;fontStyle=1;fontColor=#1F3864;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="28" width="1120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="kaG0zClBMDX5FbV0YiZX-1" value="" style="group" vertex="1" connectable="0" parent="1">
+          <mxGeometry x="570" y="106" width="789" height="958" as="geometry" />
+        </mxCell>
+        <mxCell id="future-bg" value="" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;strokeWidth=3;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry width="789.0000000000001" height="958.0000000000001" as="geometry" />
+        </mxCell>
+        <mxCell id="future-label" value="WITH CEF-PIP — Live Intelligence" style="text;html=1;align=center;verticalAlign=middle;fontSize=20;fontStyle=1;fontColor=#27AE60;strokeColor=none;fillColor=none;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry y="8.515555555555556" width="789.0000000000001" height="42.57777777777778" as="geometry" />
+        </mxCell>
+        <mxCell id="gs-fut" value="GroSolar" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=#1E8449;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="79.83333333333334" width="170.5945945945946" height="58.54444444444445" as="geometry" />
+        </mxCell>
+        <mxCell id="eml-fut" value="EML" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=#1E8449;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="277.21621621621625" y="79.83333333333334" width="170.5945945945946" height="58.54444444444445" as="geometry" />
+        </mxCell>
+        <mxCell id="ssm-fut" value="SSM" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=#1E8449;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="511.78378378378386" y="79.83333333333334" width="170.5945945945946" height="58.54444444444445" as="geometry" />
+        </mxCell>
+        <mxCell id="a-gs2" value="Real-time events" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;fontColor=#27AE60;fontSize=11;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" source="gs-fut" target="pip-core" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-eml2" value="Real-time events" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;fontColor=#27AE60;fontSize=11;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" source="eml-fut" target="pip-core" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="a-ssm2" value="Real-time events" style="edgeStyle=orthogonalEdgeStyle;strokeColor=#27AE60;fontColor=#27AE60;fontSize=11;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" source="ssm-fut" target="pip-core" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="pip-core" value="CEF-PIP Platform" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=#17202A;fontColor=#FFFFFF;fontSize=16;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="223.90540540540542" y="234.1777777777778" width="277.21621621621625" height="74.51111111111112" as="geometry" />
+        </mxCell>
+        <mxCell id="ben1" value="⚡  Payment events arrive within seconds of customer paying" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;fontSize=13;align=left;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="361.91111111111115" width="661.0540540540541" height="51.093333333333334" as="geometry" />
+        </mxCell>
+        <mxCell id="ben2" value="🚨  Default alerts fired automatically — CEF notified instantly" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;fontSize=13;align=left;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="425.7777777777778" width="661.0540540540541" height="51.093333333333334" as="geometry" />
+        </mxCell>
+        <mxCell id="ben3" value="🔧  Equipment faults visible on dashboard the moment they occur" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;fontSize=13;align=left;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="489.6444444444445" width="661.0540540540541" height="51.093333333333334" as="geometry" />
+        </mxCell>
+        <mxCell id="ben4" value="📊  One dashboard — all AssetCos, all assets, live data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;fontSize=13;align=left;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="553.5111111111112" width="661.0540540540541" height="51.093333333333334" as="geometry" />
+        </mxCell>
+        <mxCell id="ben5" value="💰  Cashflow tracked per asset, per customer, per AssetCo" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;fontSize=13;align=left;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="617.3777777777779" width="661.0540540540541" height="51.093333333333334" as="geometry" />
+        </mxCell>
+        <mxCell id="ben6" value="✅  Nightly reconciliation catches anything the real-time push missed" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D5F5E3;strokeColor=#27AE60;fontSize=13;align=left;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="681.2444444444445" width="661.0540540540541" height="51.093333333333334" as="geometry" />
+        </mxCell>
+        <mxCell id="result" value="RESULT: CEF makes faster, better decisions. Defaults caught early." style="rounded=2;whiteSpace=wrap;html=1;fillColor=#1E8449;strokeColor=#145A32;fontColor=#FFFFFF;fontSize=15;fontStyle=1;" parent="kaG0zClBMDX5FbV0YiZX-1" vertex="1">
+          <mxGeometry x="42.64864864864865" y="766.4000000000001" width="661.0540540540541" height="63.866666666666674" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="dashboard-view" name="6. What CEF Staff See — Dashboard">
+    <mxGraphModel dx="2160" dy="1240" grid="0" gridSize="10" guides="1" tooltips="1" connect="0" arrows="0" fold="0" page="1" pageScale="1" pageWidth="1920" pageHeight="1080" math="0" shadow="1">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg6" value="" style="rounded=0;fillColor=#17202A;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1920" height="1080" as="geometry" />
+        </mxCell>
+        <mxCell id="t6" value="What CEF Staff Actually See — The Dashboard" style="text;html=1;align=center;fontSize=26;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="400" y="18" width="1120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="tier1-bg" value="" style="rounded=2;fillColor=#1A2940;strokeColor=#2874A6;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="60" y="80" width="1800" height="280" as="geometry" />
+        </mxCell>
+        <mxCell id="tier1-hd" value="TIER 1 — Portfolio Dashboard  (seen by: CEF Executive, Management)" style="text;html=1;align=left;fontSize=15;fontStyle=1;fontColor=#5DADE2;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="80" y="88" width="800" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi1" value="💰 Total Collected&#xa;This Month&#xa;&#xa;N124,500,000" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=none;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="128" width="215" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi2" value="⏳ Outstanding&#xa;Balances&#xa;&#xa;N38,200,000" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#E67E22;strokeColor=none;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="310" y="128" width="215" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi3" value="🔴 Active Defaults&#xa;&#xa;&#xa;7 customers" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=none;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="540" y="128" width="215" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi4" value="🔧 Open Faults&#xa;&#xa;&#xa;3 assets" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#8E44AD;strokeColor=none;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="770" y="128" width="215" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi5" value="✅ Healthy Assets&#xa;&#xa;&#xa;187 / 197" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#148F77;strokeColor=none;fontColor=#FFFFFF;fontSize=14;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1000" y="128" width="215" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="kpi6" value="📡 Data Freshness&#xa;&#xa;Last sync: 4 min ago&#xa;All AssetCos ✓" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=14;" parent="1" vertex="1">
+          <mxGeometry x="1230" y="128" width="215" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ac1-card" value="GroSolar&#xa;N74M collected | 2 defaults | 1 fault" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="1460" y="128" width="380" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ac2-card" value="EML&#xa;N31M collected | 3 defaults | 1 fault" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="1460" y="183" width="380" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="ac3-card" value="SSM&#xa;N19M collected | 2 defaults | 1 fault" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="1460" y="238" width="380" height="45" as="geometry" />
+        </mxCell>
+        <mxCell id="tier2-bg" value="" style="rounded=2;fillColor=#1A3020;strokeColor=#27AE60;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="60" y="380" width="860" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tier2-hd" value="TIER 2 — AssetCo Dashboard" style="text;html=1;align=left;fontSize=14;fontStyle=1;fontColor=#ABEBC6;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="80" y="388" width="800" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-1" value="Total Assets Deployed&#xa;127" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#27AE60;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="80" y="425" width="185" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-2" value="This Month&#39;s Collections&#xa;N74,200,000" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="280" y="425" width="185" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-3" value="Defaulting Customers&#xa;2 (of 127)" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="480" y="425" width="185" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-4" value="Open Faults&#xa;1 asset" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#8E44AD;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="680" y="425" width="185" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-table-hd" value="Customer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="80" y="525" width="185" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-table-hd2" value="This Month" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="275" y="525" width="130" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-table-hd3" value="Status" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="415" y="525" width="100" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-r1c1" value="Amara Ibrahim" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAFAF1;strokeColor=none;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="80" y="555" width="185" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-r1c2" value="N15,000 ✓" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAFAF1;strokeColor=none;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="275" y="555" width="130" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-r1c3" value="✅ Current" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAFAF1;strokeColor=none;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="415" y="555" width="100" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-r2c1" value="Chidi Okafor" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEDEC;strokeColor=none;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="80" y="583" width="185" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-r2c2" value="N0 — missed" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEDEC;strokeColor=none;fontSize=12;fontColor=#C0392B;" parent="1" vertex="1">
+          <mxGeometry x="275" y="583" width="130" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t2-r2c3" value="🔴 Default" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEDEC;strokeColor=none;fontSize=12;fontColor=#C0392B;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="415" y="583" width="100" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="tier3-bg" value="" style="rounded=2;fillColor=#1C1430;strokeColor=#8E44AD;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="940" y="380" width="920" height="310" as="geometry" />
+        </mxCell>
+        <mxCell id="tier3-hd" value="TIER 3 — Individual Asset View  (click an asset &amp;#x2192; GS-1001)" style="text;html=1;align=left;fontSize=14;fontStyle=1;fontColor=#D7BDE2;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="960" y="388" width="880" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-id" value="Asset: GS-1001&#xa;Type: 200W Solar System&#xa;Deployed: Jan 2024&#xa;Customer: Chidi Okafor" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2C3E50;strokeColor=none;fontColor=#FFFFFF;fontSize=13;align=left;" parent="1" vertex="1">
+          <mxGeometry x="960" y="425" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-fin" value="Loan Amount: N180,000&#xa;Total Paid: N135,000&#xa;Outstanding: N45,000&#xa;Status: 🔴 DEFAULTED" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=none;fontColor=#FFFFFF;fontSize=13;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1245" y="425" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="t3-fault" value="Latest Fault:&#xa;⚠ Panel output low&#xa;Detected: 3 days ago&#xa;Status: Open" style="rounded=2;whiteSpace=wrap;html=1;fillColor=#8E44AD;strokeColor=none;fontColor=#FFFFFF;fontSize=13;align=left;" parent="1" vertex="1">
+          <mxGeometry x="1530" y="425" width="270" height="100" as="geometry" />
+        </mxCell>
+        <mxCell id="ph-hd" value="Payment History" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="960" y="545" width="820" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ph-r1" value="Mar 2024: N15,000  ✅" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAFAF1;strokeColor=none;fontSize=12;align=left;" parent="1" vertex="1">
+          <mxGeometry x="960" y="573" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ph-r2" value="Apr 2024: N15,000  ✅" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#EAFAF1;strokeColor=none;fontSize=12;align=left;" parent="1" vertex="1">
+          <mxGeometry x="960" y="601" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ph-r3" value="May 2024: N0  🔴 MISSED" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEDEC;strokeColor=none;fontSize=12;align=left;fontColor=#C0392B;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="573" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="ph-r4" value="Jun 2024: N0  🔴 DEFAULT" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#FDEDEC;strokeColor=none;fontSize=12;align=left;fontColor=#C0392B;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1350" y="601" width="380" height="28" as="geometry" />
+        </mxCell>
+        <mxCell id="alerts-bg" value="" style="rounded=2;fillColor=#1A0A0A;strokeColor=#C0392B;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry x="60" y="710" width="1800" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="alerts-hd" value="🚨 Live Alert Feed" style="text;html=1;align=left;fontSize=15;fontStyle=1;fontColor=#E74C3C;fillColor=none;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="80" y="718" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="al1" value="DEFAULT  |  14:32 today  |  GroSolar — Chidi Okafor  |  Asset GS-1001  |  Amount at risk: N45,000" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#C0392B;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="80" y="758" width="1720" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="al2" value="MISSED PAYMENT  |  Yesterday 09:15  |  EML — James Eze  |  Asset EML-0042  |  Overdue: N8,500" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E67E22;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="80" y="808" width="1720" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="al3" value="&amp;nbsp;FAULT  |  3 days ago  |  GroSolar — Asset GS-1001  |  Panel output low  |  Status: OPEN" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#8E44AD;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="80" y="858" width="1720" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="al4" value="RESOLVED  |  5 days ago  |  SSM — Asset SSM-0018  |  GPS signal restored  |  Downtime: 2 hrs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#148F77;strokeColor=none;fontColor=#FFFFFF;fontSize=13;" parent="1" vertex="1">
+          <mxGeometry x="80" y="908" width="1720" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="login-note" value="All staff log in via email + password (MVP) → then see only what their role allows. No shared logins." style="rounded=2;whiteSpace=wrap;html=1;fillColor=#2C3E50;strokeColor=none;fontColor=#AAB7B8;fontSize=13;fontStyle=2;" parent="1" vertex="1">
+          <mxGeometry x="80" y="965" width="1720" height="40" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
