@@ -13,7 +13,7 @@ module.exports = {
   port: process.env.PORT || 4000,
   nodeEnv: process.env.NODE_ENV || 'development',
   supabaseUrl: required('SUPABASE_URL'),
-  supabaseServiceRoleKey: required('SUPABASE_SERVICE_ROLE_KEY'),
+  supabaseSecretKey: required('SUPABASE_SECRET_KEY'),
   resendApiKey: required('RESEND_API_KEY'),
   alertRecipients: (process.env.ALERT_RECIPIENT_EMAILS || '').split(',').map((s) => s.trim()).filter(Boolean),
 };

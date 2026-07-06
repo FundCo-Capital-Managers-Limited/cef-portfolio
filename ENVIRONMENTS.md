@@ -44,10 +44,10 @@ api/src/db/migrations/001_init.sql
 api/src/db/migrations/002_rls_policies.sql
 ```
 
-From each project's **Settings → API**, collect:
+From each project's **Settings → API Keys**, collect (Supabase's current key format — `sb_publishable_...` / `sb_secret_...` — replaces the older `anon` / `service_role` JWT-style keys, but both client libraries here accept it as a drop-in):
 - `Project URL` → `SUPABASE_URL` (backend) / `NEXT_PUBLIC_SUPABASE_URL` (frontend)
-- `anon public` key → `NEXT_PUBLIC_SUPABASE_ANON_KEY` (frontend only)
-- `service_role` key → `SUPABASE_SERVICE_ROLE_KEY` (backend only — never expose to the frontend)
+- `sb_publishable_...` key → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (frontend only — safe to expose, RLS enforces access)
+- `sb_secret_...` key → `SUPABASE_SECRET_KEY` (backend only — bypasses RLS, never expose to the frontend)
 
 ## 3. Vercel (dashboard)
 
@@ -69,7 +69,7 @@ Render doesn't split env vars by branch within one service, so use **two service
 
 1. **`cef-pip-api`** (production)
    - Branch: `main`
-   - Env vars: `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` from `cef-pip-prod`, real `RESEND_API_KEY`
+   - Env vars: `SUPABASE_URL` / `SUPABASE_SECRET_KEY` from `cef-pip-prod`, real `RESEND_API_KEY`
    - Plan: Starter ($7/mo) once a live AssetCo is onboarded (see MVP plan Week 6); free tier until then
 2. **`cef-pip-api-staging`** (dev/staging)
    - Branch: `develop`
