@@ -16,4 +16,5 @@ module.exports = {
   supabaseSecretKey: required('SUPABASE_SECRET_KEY'),
   resendApiKey: required('RESEND_API_KEY'),
   alertRecipients: (process.env.ALERT_RECIPIENT_EMAILS || '').split(',').map((s) => s.trim()).filter(Boolean),
+  internalTriggerToken: process.env.INTERNAL_TRIGGER_TOKEN,
 };

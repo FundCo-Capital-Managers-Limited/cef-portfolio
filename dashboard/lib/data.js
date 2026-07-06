@@ -103,6 +103,30 @@ export async function getAssetCoDetail(assetCoId) {
 }
 
 /**
+ * Asset Registry (SO-5): the unified, authoritative list of every CEF-funded
+ * asset across all AssetCos, with sync freshness and default/fault flags —
+ * portfolio-level, not scoped to a single AssetCo like the Tier 2 dashboard.
+ */
+export async function getAssetRegistry() {
+  const supabase = createClient();
+
+  const [{ data: assets }, { data: cashflow }, { data: openFaults }] = await Promise.all([
+    supabase.from('assets').select('*').order('assetco_id').order('id'),
+    supabase.from('cashflow_state').select('asset_id, is_defaulted'),
+    supabase.from('faults').select('asset_id').eq('status', 'open'),
+  ]);
+
+  const defaultedAssetIds = new Set((cashflow || []).filter((c) => c.is_defaulted).map((c) => c.asset_id));
+  const openFaultAssetIds = new Set((openFaults || []).map((f) => f.asset_id));
+
+  return (assets || []).map((a) => ({
+    ...a,
+    isDefaulted: defaultedAssetIds.has(a.id),
+    hasOpenFault: openFaultAssetIds.has(a.id),
+  }));
+}
+
+/**
  * Tier 3 — Individual Asset View: identity, financial performance, payment
  * history, and fault log for a single asset.
  */

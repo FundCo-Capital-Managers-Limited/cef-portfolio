@@ -1,8 +1,9 @@
 /**
  * Minimal in-memory stand-in for @supabase/supabase-js's query builder, covering
- * only the chain shapes actually used by the codebase (select/eq/order/limit +
- * maybeSingle/single, insert with optional .select().single(), upsert, update).
- * Not a general Supabase mock — extend it if a service starts using a new shape.
+ * only the chain shapes actually used by the codebase (select/eq/gte/lte/order/
+ * limit + maybeSingle/single/direct-await, insert with optional .select().single(),
+ * upsert, update). Not a general Supabase mock — extend it if a service starts
+ * using a new shape.
  */
 function createFakeSupabase(seed = {}) {
   const store = JSON.parse(JSON.stringify(seed));
@@ -17,9 +18,37 @@ function createFakeSupabase(seed = {}) {
     let orderSpec = null;
     let limitN = null;
 
+    function resolve() {
+      let rows = table(name).filter((r) =>
+        filters.every(({ type, col, val }) => {
+          if (type === 'eq') return r[col] === val;
+          if (type === 'gte') return r[col] >= val;
+          if (type === 'lte') return r[col] <= val;
+          return true;
+        })
+      );
+      if (orderSpec) {
+        rows = [...rows].sort((a, b) => {
+          if (a[orderSpec.col] === b[orderSpec.col]) return 0;
+          const dir = a[orderSpec.col] > b[orderSpec.col] ? 1 : -1;
+          return orderSpec.ascending ? dir : -dir;
+        });
+      }
+      if (limitN) rows = rows.slice(0, limitN);
+      return rows;
+    }
+
     const chain = {
       eq(col, val) {
-        filters.push([col, val]);
+        filters.push({ type: 'eq', col, val });
+        return chain;
+      },
+      gte(col, val) {
+        filters.push({ type: 'gte', col, val });
+        return chain;
+      },
+      lte(col, val) {
+        filters.push({ type: 'lte', col, val });
         return chain;
       },
       order(col, { ascending } = {}) {
@@ -38,20 +67,12 @@ function createFakeSupabase(seed = {}) {
         const rows = resolve();
         return { data: rows[0] || null, error: null };
       },
+      // Allows `await supabase.from(x).select(...).eq(...)` without a terminal
+      // maybeSingle()/single() call — resolves to the full matching array.
+      then(onResolve) {
+        onResolve({ data: resolve(), error: null });
+      },
     };
-
-    function resolve() {
-      let rows = table(name).filter((r) => filters.every(([c, v]) => r[c] === v));
-      if (orderSpec) {
-        rows = [...rows].sort((a, b) => {
-          if (a[orderSpec.col] === b[orderSpec.col]) return 0;
-          const dir = a[orderSpec.col] > b[orderSpec.col] ? 1 : -1;
-          return orderSpec.ascending ? dir : -dir;
-        });
-      }
-      if (limitN) rows = rows.slice(0, limitN);
-      return rows;
-    }
 
     return chain;
   }

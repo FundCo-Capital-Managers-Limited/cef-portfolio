@@ -5,6 +5,8 @@ const morgan = require('morgan');
 
 const healthRoutes = require('./routes/health');
 const eventsRoutes = require('./routes/events');
+const mockAssetcoRoutes = require('./routes/mockAssetco');
+const reconciliationRoutes = require('./routes/reconciliation');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -25,6 +27,8 @@ app.use(express.json({
 
 app.use('/health', healthRoutes);
 app.use('/api/v1/events', eventsRoutes);
+app.use('/mock-assetco', mockAssetcoRoutes);
+app.use('/internal/reconciliation', reconciliationRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
