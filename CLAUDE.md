@@ -31,8 +31,18 @@ Monorepo (decided over two separate repos, for MVP simplicity):
 - `dashboard/` — Next.js frontend: Portfolio / AssetCo / Asset dashboards. Deploys to Vercel.
 - `documents/` — architecture report, MVP plan, FRD, TRS, RFP, diagrams. Reference only, not code.
 
-Both connect to the same Supabase project (Postgres + Auth). DB schema lives at
-`api/src/db/migrations/001_init.sql` — this is the single source of truth for table shapes.
+Both connect to a Supabase project (Postgres + Auth) — see "Environments" below, there are two
+projects, not one. DB schema lives at `api/src/db/migrations/` (applied in numeric order) — this is
+the single source of truth for table shapes.
+
+## Environments
+
+`main` → production (`cef-pip-prod` Supabase project, Vercel Production, Render `cef-pip-api`).
+`develop` → dev/staging (`cef-pip-dev` Supabase project, Vercel Preview, Render
+`cef-pip-api-staging`) — this is what gets demoed to the team and seeded with fake data via
+`api/src/db/seed.sql`. Full setup steps are in `ENVIRONMENTS.md`. Never run `seed.sql` against prod.
+Automated Jest tests use an in-memory fake Supabase client regardless of branch — no real project
+is ever touched in CI.
 
 ## How the event pipeline works
 
