@@ -15,10 +15,10 @@ async function getAsset(assetId) {
 }
 
 /**
- * Upserts an asset row, preserving customer_id from the existing row when the
- * incoming event doesn't carry one — asset.deployed/decommissioned events may
- * not repeat the customerId that asset.created already established, and a
- * naive upsert would otherwise null it out.
+ * Upserts an asset row, preserving customer_id and OEM/remote-control fields
+ * from the existing row when the incoming event doesn't carry them —
+ * asset.deployed/decommissioned events may not repeat what asset.created
+ * already established, and a naive upsert would otherwise null them out.
  */
 async function upsertAsset(payload, fields) {
   const existing = await getAsset(payload.assetId);
@@ -27,6 +27,11 @@ async function upsertAsset(payload, fields) {
       id: payload.assetId,
       assetco_id: payload.assetCoId,
       customer_id: payload.customerId || existing?.customer_id || null,
+      oem_model: payload.oemModel ?? existing?.oem_model ?? null,
+      oem_manufacturer: payload.oemManufacturer ?? existing?.oem_manufacturer ?? null,
+      oem_remote_control_api_available:
+        payload.oemRemoteControlApiAvailable ?? existing?.oem_remote_control_api_available ?? false,
+      remote_control_supported: payload.remoteControlSupported ?? existing?.remote_control_supported ?? false,
       ...fields,
       ...syncFields(payload),
     },

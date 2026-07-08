@@ -27,6 +27,10 @@ export default async function AssetDetailPage({ params }) {
             <div className="flex justify-between"><span className="text-gray-500">Deployed</span><span>{formatDateTime(asset.deployed_at)}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Sync status</span><span>{asset.sync_status}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Last synced</span><span>{timeAgo(asset.last_synced_at)}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Ownership model</span><span>{asset.ownership_model}</span></div>
+            {(asset.oem_model || asset.oem_manufacturer) && (
+              <div className="flex justify-between"><span className="text-gray-500">OEM</span><span>{[asset.oem_manufacturer, asset.oem_model].filter(Boolean).join(' — ')}</span></div>
+            )}
           </div>
         </div>
 
@@ -47,6 +51,53 @@ export default async function AssetDetailPage({ params }) {
               </span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Remote Control</h2>
+        <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+          {asset.remote_control_supported ? (
+            <div className="space-y-2">
+              <p className="text-gray-600">
+                This asset supports remote control. Control actions (dual-approval, audit trail) are a
+                Phase 2 capability — these buttons are inert for now.
+              </p>
+              <div className="flex gap-2">
+                <button
+                  disabled
+                  title="Remote control actions are Phase 2 — flag tracking only for now"
+                  className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-400 cursor-not-allowed"
+                >
+                  Disable Asset
+                </button>
+                <button
+                  disabled
+                  title="Remote control actions are Phase 2 — flag tracking only for now"
+                  className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-400 cursor-not-allowed"
+                >
+                  Enable Asset
+                </button>
+              </div>
+            </div>
+          ) : asset.oem_remote_control_api_available ? (
+            <div className="bg-amber-50 text-amber-800 rounded p-3">
+              <p>
+                Remote control is supported by this OEM{asset.oem_model ? ` (${asset.oem_model})` : ''} but the
+                integration has not yet been enabled for {asset.assetco_id}.
+              </p>
+              <p className="text-xs mt-1">Contact the IT team to request this feature.</p>
+            </div>
+          ) : (
+            <div className="bg-blue-50 text-blue-800 rounded p-3">
+              <p>Remote control is not available for this asset.</p>
+              <p className="text-xs mt-1">
+                {asset.oem_model
+                  ? `(${asset.oem_model}${asset.oem_manufacturer ? ` by ${asset.oem_manufacturer}` : ''} does not support remote commands.)`
+                  : '(The OEM hardware for this asset does not support remote commands.)'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
 

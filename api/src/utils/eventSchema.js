@@ -18,6 +18,12 @@ const VALID_EVENT_TYPES = [
 /**
  * Validates the CEF Integration Standard base event payload.
  * Returns { valid: boolean, errors: string[] }
+ *
+ * asset.created / asset.deployed also accept optional fields introduced by
+ * Feature 4 (Mid-Sprint Change Spec) — oemModel, oemManufacturer,
+ * oemRemoteControlApiAvailable, remoteControlSupported. Not validated here
+ * (all optional, default false/null in assetRegistry.js) since an AssetCo
+ * may not know remote-control capability at first registration.
  */
 function validateEventPayload(body) {
   const errors = [];

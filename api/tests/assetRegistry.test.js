@@ -83,6 +83,55 @@ describe('Asset Registry handlers', () => {
     expect(asset.deployed_at).toBe('2026-01-10T00:00:00Z');
   });
 
+  it('persists OEM/remote-control fields on asset.created and preserves them when asset.deployed omits them', async () => {
+    const assetId = 'GS-3001';
+
+    await sendEvent({
+      eventType: 'asset.created',
+      assetCoId: 'DEMOSOLAR',
+      assetId,
+      timestamp: '2026-04-01T00:00:00Z',
+      oemModel: 'TankVolt EV Bike',
+      oemManufacturer: 'TankVolt',
+      oemRemoteControlApiAvailable: true,
+      remoteControlSupported: true,
+    });
+
+    let asset = mockSupabase._store.assets.find((a) => a.id === assetId);
+    expect(asset.oem_model).toBe('TankVolt EV Bike');
+    expect(asset.oem_manufacturer).toBe('TankVolt');
+    expect(asset.oem_remote_control_api_available).toBe(true);
+    expect(asset.remote_control_supported).toBe(true);
+
+    // asset.deployed omits all OEM fields — must not wipe what asset.created set
+    await sendEvent({
+      eventType: 'asset.deployed',
+      assetCoId: 'DEMOSOLAR',
+      assetId,
+      timestamp: '2026-04-05T00:00:00Z',
+    });
+
+    asset = mockSupabase._store.assets.find((a) => a.id === assetId);
+    expect(asset.oem_model).toBe('TankVolt EV Bike');
+    expect(asset.remote_control_supported).toBe(true);
+  });
+
+  it('defaults OEM/remote-control fields to false/null when never provided', async () => {
+    const assetId = 'GS-3002';
+
+    await sendEvent({
+      eventType: 'asset.created',
+      assetCoId: 'DEMOSOLAR',
+      assetId,
+      timestamp: '2026-04-01T00:00:00Z',
+    });
+
+    const asset = mockSupabase._store.assets.find((a) => a.id === assetId);
+    expect(asset.oem_model).toBeNull();
+    expect(asset.remote_control_supported).toBe(false);
+    expect(asset.oem_remote_control_api_available).toBe(false);
+  });
+
   it('processes sync.heartbeat and tracks last_heartbeat_at per AssetCo', async () => {
     await sendEvent({
       eventType: 'sync.heartbeat',
