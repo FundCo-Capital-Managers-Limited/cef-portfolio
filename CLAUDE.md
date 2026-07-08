@@ -23,6 +23,16 @@ When the two documents conflict, **the MVP plan wins** unless the user says othe
 deliberately deferring Entra ID SSO, the compliance engine, remote control actions, and 2nd/3rd
 AssetCo onboarding to Phase 2.
 
+Two more documents were added mid-sprint (after Week 4) and take priority over the original MVP plan
+for the features they cover: `CEF-PIP_MidSprint_Change_Specification.docx` (AssetCo pipeline stages,
+InfraCredit/DREEF tracking, CEF Series funding, remote control flag, customer pipeline visibility,
+manual data entry) and `CEF-PIP_Feature7_Facility_Repayment_Addendum.docx` (CEF's own loan book —
+facilities CEF extends to AssetCos and their repayments, distinct from the customer→AssetCo cashflow
+already tracked). Both assume a schema/stack that doesn't quite match this repo (UUID ids where we
+use TEXT natural keys, `asset_cos` vs our `assetcos`, shadcn/ui+TanStack vs our plain Tailwind/Server
+Components) — reconcile rather than copy verbatim; see chat history for the full compatibility
+mapping. Building these feature-by-feature, each committed separately, no feature skipped.
+
 ## Repo layout
 
 Monorepo (decided over two separate repos, for MVP simplicity):
@@ -70,7 +80,10 @@ heavier mocking library.
 
 ## Working conventions
 
-- **Commit at every important stage** — don't batch multiple weeks/features into one commit.
+- **Commit at every important stage** — don't batch multiple weeks/features into one commit. When
+  working through a multi-step build (foundations, then feature 1, then feature 2, ...), commit each
+  stage as soon as it's verified (tests passing / build clean), before moving to the next — don't wait
+  until everything is done to commit in bulk.
 - Node.js is installed at `C:\Program Files\nodejs` but may not be on PATH in every shell session —
   if `node`/`npm` aren't found, run `$env:Path += ";C:\Program Files\nodejs"` first (PowerShell) or
   check the user has restarted their terminal.

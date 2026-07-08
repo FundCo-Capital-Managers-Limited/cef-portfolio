@@ -14,6 +14,7 @@ module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   supabaseUrl: required('SUPABASE_URL'),
   supabaseSecretKey: required('SUPABASE_SECRET_KEY'),
+  supabaseJwksUrl: process.env.SUPABASE_JWKS_URL || `${process.env.SUPABASE_URL || ''}/auth/v1/.well-known/jwks.json`,
   resendApiKey: required('RESEND_API_KEY'),
   alertRecipients: (process.env.ALERT_RECIPIENT_EMAILS || '').split(',').map((s) => s.trim()).filter(Boolean),
   internalTriggerToken: process.env.INTERNAL_TRIGGER_TOKEN,

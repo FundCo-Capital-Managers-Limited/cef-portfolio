@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getCurrentUserProfile } from '../../lib/data';
 import SignOutButton from './SignOutButton';
+import NotificationBell from './NotificationBell';
 
 export default async function DashboardLayout({ children }) {
   const profile = await getCurrentUserProfile();
@@ -18,6 +19,7 @@ export default async function DashboardLayout({ children }) {
             </Link>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
+            <NotificationBell userId={profile?.id} />
             <span>
               {profile?.email} {profile?.role ? `· ${profile.role}` : ''}
             </span>
