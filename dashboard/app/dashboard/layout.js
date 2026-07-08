@@ -17,6 +17,9 @@ export default async function DashboardLayout({ children }) {
             <Link href="/dashboard/registry" className="text-sm text-gray-600 hover:text-gray-900">
               Asset Registry
             </Link>
+            <Link href="/dashboard/pipeline" className="text-sm text-gray-600 hover:text-gray-900">
+              Pipeline Board
+            </Link>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <NotificationBell userId={profile?.id} />

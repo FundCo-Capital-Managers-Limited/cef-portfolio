@@ -1,0 +1,119 @@
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getAssetcoProfile, getCurrentUserProfile } from '../../../../lib/data';
+import { formatDateTime, timeAgo } from '../../../../lib/format';
+import { PIPELINE_STAGE_LABELS } from '../../../../lib/constants';
+import AdvanceStageButton from '../../AdvanceStageButton';
+import InternalNotesEditor from '../../InternalNotesEditor';
+
+export default async function AssetcoProfilePage({ params }) {
+  const [{ assetco, stageLog }, profile] = await Promise.all([
+    getAssetcoProfile(params.assetco),
+    getCurrentUserProfile(),
+  ]);
+
+  if (!assetco) notFound();
+
+  const canManage = ['management', 'it_admin'].includes(profile?.role);
+  const daysInStage = assetco.stage_updated_at
+    ? Math.floor((Date.now() - new Date(assetco.stage_updated_at).getTime()) / 86400000)
+    : null;
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <Link href={`/dashboard/${assetco.id}`} className="text-sm text-gray-500 hover:text-gray-800">
+            ← {assetco.id} Dashboard
+          </Link>
+          <h1 className="text-xl font-semibold mt-1">{assetco.name} — Profile</h1>
+        </div>
+        <Link href="/dashboard/pipeline" className="text-sm text-gray-500 hover:text-gray-800">
+          Pipeline Board →
+        </Link>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Company Information</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
+            <div className="flex justify-between"><span className="text-gray-500">Trading name</span><span>{assetco.name}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Legal entity</span><span>{assetco.legal_entity_name || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Registration No.</span><span>{assetco.registration_number || '—'}</span></div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Website</span>
+              <span>{assetco.website ? <a href={assetco.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{assetco.website}</a> : '—'}</span>
+            </div>
+            <div className="flex justify-between"><span className="text-gray-500">Sector</span><span>{assetco.sector || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">HQ State</span><span>{assetco.hq_state || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Operating States</span><span>{(assetco.operating_states || []).join(', ') || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Asset Types</span><span>{(assetco.asset_types || []).join(', ') || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Customer Types</span><span>{(assetco.customer_types || []).join(', ') || '—'}</span></div>
+            {assetco.business_description && (
+              <p className="text-gray-600 pt-2 border-t">{assetco.business_description}</p>
+            )}
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Pipeline Status</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-lg font-semibold px-3 py-1 rounded-full bg-slate-900 text-white">
+                {PIPELINE_STAGE_LABELS[assetco.pipeline_stage] || assetco.pipeline_stage}
+              </span>
+              {canManage && <AdvanceStageButton assetcoId={assetco.id} currentStage={assetco.pipeline_stage} />}
+            </div>
+            <p className="text-gray-500">{daysInStage === null ? 'Stage not yet timestamped' : `${daysInStage} day(s) in current stage`}</p>
+
+            <div className="pt-2 border-t">
+              <p className="font-medium mb-2">Stage History</p>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {stageLog.length === 0 && <p className="text-gray-400 text-xs">No stage changes recorded yet.</p>}
+                {stageLog.map((entry) => (
+                  <div key={entry.id} className="text-xs border-b pb-2 last:border-b-0">
+                    <p>
+                      {entry.from_stage ? `${PIPELINE_STAGE_LABELS[entry.from_stage] || entry.from_stage} → ` : ''}
+                      <strong>{PIPELINE_STAGE_LABELS[entry.to_stage] || entry.to_stage}</strong>
+                    </p>
+                    <p className="text-gray-400">
+                      {entry.changed_by_name || 'Unknown'} · {timeAgo(entry.changed_at)}
+                    </p>
+                    {entry.notes && <p className="text-gray-500 mt-0.5">{entry.notes}</p>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Contact & Integration</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
+            <div className="flex justify-between"><span className="text-gray-500">Primary contact</span><span>{assetco.primary_contact_name || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Contact email</span><span>{assetco.primary_contact_email || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Contact phone</span><span>{assetco.primary_contact_phone || '—'}</span></div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Integration type</span>
+              <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{assetco.integration_type}</span>
+            </div>
+            <div className="flex justify-between"><span className="text-gray-500">Last sync</span><span>{formatDateTime(assetco.updated_at)}</span></div>
+          </div>
+        </div>
+
+        <div>
+          <h2 className="text-lg font-semibold mb-3">Internal Notes</h2>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm">
+            {canManage ? (
+              <InternalNotesEditor assetcoId={assetco.id} initialNotes={assetco.internal_notes} />
+            ) : (
+              <p className="text-gray-600 whitespace-pre-wrap">{assetco.internal_notes || 'No internal notes.'}</p>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

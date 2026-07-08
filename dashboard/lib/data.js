@@ -103,6 +103,53 @@ export async function getAssetCoDetail(assetCoId) {
 }
 
 /**
+ * Feature 1 — Pipeline Board: every AssetCo grouped by pipeline_stage, with
+ * live cashflow attached for those already in PORTFOLIO_MONITORING.
+ */
+export async function getPipelineBoard() {
+  const supabase = createClient();
+
+  const [{ data: assetcos }, { data: cashflow }] = await Promise.all([
+    supabase.from('assetcos').select('*').order('stage_updated_at', { ascending: true }),
+    supabase.from('cashflow_state').select('assetco_id, total_collected, outstanding_balance, is_defaulted'),
+  ]);
+
+  return (assetcos || []).map((co) => {
+    const coCashflow = (cashflow || []).filter((c) => c.assetco_id === co.id);
+    return {
+      ...co,
+      daysInStage: co.stage_updated_at
+        ? Math.floor((Date.now() - new Date(co.stage_updated_at).getTime()) / 86400000)
+        : null,
+      cashflowSummary:
+        co.pipeline_stage === 'PORTFOLIO_MONITORING'
+          ? {
+              totalCollected: coCashflow.reduce((sum, c) => sum + Number(c.total_collected || 0), 0),
+              totalOutstanding: coCashflow.reduce((sum, c) => sum + Number(c.outstanding_balance || 0), 0),
+              defaultCount: coCashflow.filter((c) => c.is_defaulted).length,
+            }
+          : null,
+    };
+  });
+}
+
+/**
+ * Feature 1 — AssetCo Profile page: company info, pipeline status + stage
+ * history. Later features (DREEF, CEF Series, Facility) attach their own
+ * panels to this same page.
+ */
+export async function getAssetcoProfile(assetCoId) {
+  const supabase = createClient();
+
+  const [{ data: assetco }, { data: stageLog }] = await Promise.all([
+    supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
+    supabase.from('assetco_stage_log').select('*').eq('assetco_id', assetCoId).order('changed_at', { ascending: false }),
+  ]);
+
+  return { assetco, stageLog: stageLog || [] };
+}
+
+/**
  * Asset Registry (SO-5): the unified, authoritative list of every CEF-funded
  * asset across all AssetCos, with sync freshness and default/fault flags —
  * portfolio-level, not scoped to a single AssetCo like the Tier 2 dashboard.

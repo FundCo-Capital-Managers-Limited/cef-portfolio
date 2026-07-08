@@ -12,11 +12,16 @@ export default async function AssetCoDashboardPage({ params }) {
 
   return (
     <div className="space-y-8">
-      <div>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
-          ← Portfolio
+      <div className="flex items-center justify-between">
+        <div>
+          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
+            ← Portfolio
+          </Link>
+          <h1 className="text-xl font-semibold mt-1">{assetco.name} Dashboard</h1>
+        </div>
+        <Link href={`/dashboard/${assetco.id}/profile`} className="text-sm text-gray-500 hover:text-gray-800">
+          Profile →
         </Link>
-        <h1 className="text-xl font-semibold mt-1">{assetco.name} Dashboard</h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

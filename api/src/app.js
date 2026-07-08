@@ -8,6 +8,7 @@ const eventsRoutes = require('./routes/events');
 const mockAssetcoRoutes = require('./routes/mockAssetco');
 const reconciliationRoutes = require('./routes/reconciliation');
 const notificationsRoutes = require('./routes/notifications');
+const assetcosRoutes = require('./routes/assetcos');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -31,6 +32,7 @@ app.use('/api/v1/events', eventsRoutes);
 app.use('/mock-assetco', mockAssetcoRoutes);
 app.use('/internal/reconciliation', reconciliationRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/assetcos', assetcosRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
