@@ -20,6 +20,9 @@ export default async function DashboardLayout({ children }) {
             <Link href="/dashboard/pipeline" className="text-sm text-gray-600 hover:text-gray-900">
               Pipeline Board
             </Link>
+            <Link href="/dashboard/dreef" className="text-sm text-gray-600 hover:text-gray-900">
+              DREEF Pipeline
+            </Link>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <NotificationBell userId={profile?.id} />

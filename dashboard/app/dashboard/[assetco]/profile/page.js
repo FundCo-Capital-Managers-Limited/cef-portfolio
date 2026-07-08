@@ -1,13 +1,23 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAssetcoProfile, getCurrentUserProfile } from '../../../../lib/data';
-import { formatDateTime, timeAgo } from '../../../../lib/format';
-import { PIPELINE_STAGE_LABELS } from '../../../../lib/constants';
+import { formatCurrency, formatDateTime, timeAgo } from '../../../../lib/format';
+import { PIPELINE_STAGE_LABELS, DREEF_STAGE_LABELS } from '../../../../lib/constants';
 import AdvanceStageButton from '../../AdvanceStageButton';
 import InternalNotesEditor from '../../InternalNotesEditor';
+import DreefEditButton from '../../DreefEditButton';
+
+const DREEF_BADGE_STYLES = {
+  MANDATED: 'bg-green-100 text-green-700',
+  UNDER_GUARANTEE: 'bg-green-100 text-green-700',
+  DISBURSED: 'bg-green-100 text-green-700',
+  INITIAL_ASSESSMENT: 'bg-amber-100 text-amber-700',
+  NOT_STARTED: 'bg-gray-100 text-gray-500',
+  NOT_APPLICABLE: 'bg-gray-100 text-gray-500',
+};
 
 export default async function AssetcoProfilePage({ params }) {
-  const [{ assetco, stageLog }, profile] = await Promise.all([
+  const [{ assetco, stageLog, infracredit }, profile] = await Promise.all([
     getAssetcoProfile(params.assetco),
     getCurrentUserProfile(),
   ]);
@@ -89,6 +99,33 @@ export default async function AssetcoProfilePage({ params }) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">InfraCredit / DREEF</h2>
+            {canManage && <DreefEditButton assetcoId={assetco.id} existing={infracredit} />}
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-gray-500">DREEF stage</span>
+              <span className={`text-xs px-2 py-0.5 rounded-full ${DREEF_BADGE_STYLES[infracredit?.dreef_stage] || 'bg-gray-100 text-gray-500'}`}>
+                {DREEF_STAGE_LABELS[infracredit?.dreef_stage] || 'Not Started'}
+              </span>
+            </div>
+            {infracredit ? (
+              <>
+                <div className="flex justify-between"><span className="text-gray-500">Reference</span><span>{infracredit.infracredit_reference || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Mandate date</span><span>{infracredit.mandate_date || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Guarantee type</span><span>{infracredit.guarantee_type || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Guarantee amount</span><span>{infracredit.guarantee_amount_ngn ? formatCurrency(infracredit.guarantee_amount_ngn) : '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">InfraCredit contact</span><span>{infracredit.infracredit_contact_name || '—'}</span></div>
+                {infracredit.dreef_notes && <p className="text-gray-600 pt-2 border-t">{infracredit.dreef_notes}</p>}
+              </>
+            ) : (
+              <p className="text-gray-500">No InfraCredit/DREEF record yet.</p>
+            )}
+          </div>
+        </div>
+
         <div>
           <h2 className="text-lg font-semibold mb-3">Contact & Integration</h2>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">

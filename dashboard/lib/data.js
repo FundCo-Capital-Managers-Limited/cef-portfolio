@@ -141,12 +141,32 @@ export async function getPipelineBoard() {
 export async function getAssetcoProfile(assetCoId) {
   const supabase = createClient();
 
-  const [{ data: assetco }, { data: stageLog }] = await Promise.all([
+  const [{ data: assetco }, { data: stageLog }, { data: infracredit }] = await Promise.all([
     supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
     supabase.from('assetco_stage_log').select('*').eq('assetco_id', assetCoId).order('changed_at', { ascending: false }),
+    supabase.from('infracredit_relationships').select('*').eq('assetco_id', assetCoId).maybeSingle(),
   ]);
 
-  return { assetco, stageLog: stageLog || [] };
+  return { assetco, stageLog: stageLog || [], infracredit: infracredit || null };
+}
+
+/**
+ * Feature 2 — DREEF Pipeline view: every AssetCo with an InfraCredit
+ * relationship, alongside their CEF pipeline stage and whether CEF has
+ * invested — portfolio-wide, not scoped to a single AssetCo.
+ */
+export async function getDreefPipeline() {
+  const supabase = createClient();
+
+  const { data: relationships } = await supabase
+    .from('infracredit_relationships')
+    .select('*, assetcos(id, name, sector, pipeline_stage)')
+    .order('dreef_stage');
+
+  return (relationships || []).map((r) => ({
+    ...r,
+    assetco: r.assetcos,
+  }));
 }
 
 /**
