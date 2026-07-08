@@ -23,6 +23,9 @@ export default async function DashboardLayout({ children }) {
             <Link href="/dashboard/dreef" className="text-sm text-gray-600 hover:text-gray-900">
               DREEF Pipeline
             </Link>
+            <Link href="/dashboard/series" className="text-sm text-gray-600 hover:text-gray-900">
+              CEF Series
+            </Link>
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <NotificationBell userId={profile?.id} />

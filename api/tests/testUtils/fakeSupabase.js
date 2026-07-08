@@ -24,6 +24,7 @@ function createFakeSupabase(seed = {}) {
           if (type === 'eq') return r[col] === val;
           if (type === 'gte') return r[col] >= val;
           if (type === 'lte') return r[col] <= val;
+          if (type === 'in') return val.includes(r[col]);
           return true;
         })
       );
@@ -49,6 +50,10 @@ function createFakeSupabase(seed = {}) {
       },
       lte(col, val) {
         filters.push({ type: 'lte', col, val });
+        return chain;
+      },
+      in(col, vals) {
+        filters.push({ type: 'in', col, val: vals });
         return chain;
       },
       order(col, { ascending } = {}) {
@@ -105,9 +110,9 @@ function createFakeSupabase(seed = {}) {
           return makeInsertResult(name, obj);
         },
         async upsert(obj, opts = {}) {
-          const key = opts.onConflict || 'id';
+          const keys = (opts.onConflict || 'id').split(',');
           const rows = table(name);
-          const idx = rows.findIndex((r) => r[key] === obj[key]);
+          const idx = rows.findIndex((r) => keys.every((k) => r[k] === obj[k]));
           if (idx >= 0) rows[idx] = { ...rows[idx], ...obj };
           else rows.push({ ...obj });
           return { error: null };

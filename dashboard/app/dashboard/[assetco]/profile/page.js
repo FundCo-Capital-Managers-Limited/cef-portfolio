@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAssetcoProfile, getCurrentUserProfile } from '../../../../lib/data';
+import { getAssetcoProfile, getCurrentUserProfile, getCefSeriesList } from '../../../../lib/data';
 import { formatCurrency, formatDateTime, timeAgo } from '../../../../lib/format';
 import { PIPELINE_STAGE_LABELS, DREEF_STAGE_LABELS } from '../../../../lib/constants';
 import AdvanceStageButton from '../../AdvanceStageButton';
 import InternalNotesEditor from '../../InternalNotesEditor';
 import DreefEditButton from '../../DreefEditButton';
+import LinkSeriesButton from '../../LinkSeriesButton';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -17,9 +18,10 @@ const DREEF_BADGE_STYLES = {
 };
 
 export default async function AssetcoProfilePage({ params }) {
-  const [{ assetco, stageLog, infracredit }, profile] = await Promise.all([
+  const [{ assetco, stageLog, infracredit, seriesLinks }, profile, allSeries] = await Promise.all([
     getAssetcoProfile(params.assetco),
     getCurrentUserProfile(),
+    getCefSeriesList(),
   ]);
 
   if (!assetco) notFound();
@@ -123,6 +125,25 @@ export default async function AssetcoProfilePage({ params }) {
             ) : (
               <p className="text-gray-500">No InfraCredit/DREEF record yet.</p>
             )}
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold">CEF Funding</h2>
+            {canManage && <LinkSeriesButton assetcoId={assetco.id} allSeries={allSeries} />}
+          </div>
+          <div className="bg-white rounded-lg border border-gray-200 divide-y text-sm">
+            {seriesLinks.length === 0 && <p className="p-4 text-gray-500">Not linked to any CEF series yet.</p>}
+            {seriesLinks.map((link) => (
+              <div key={link.id} className="p-3 flex justify-between items-center">
+                <div>
+                  <p className="font-medium">{link.series?.display_name || link.series_id}</p>
+                  <p className="text-xs text-gray-500">{link.instrument_type} · {link.status}</p>
+                </div>
+                <p>{link.disbursement_amount_ngn ? formatCurrency(link.disbursement_amount_ngn) : '—'}</p>
+              </div>
+            ))}
           </div>
         </div>
 

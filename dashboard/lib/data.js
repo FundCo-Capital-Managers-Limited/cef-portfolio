@@ -141,13 +141,47 @@ export async function getPipelineBoard() {
 export async function getAssetcoProfile(assetCoId) {
   const supabase = createClient();
 
-  const [{ data: assetco }, { data: stageLog }, { data: infracredit }] = await Promise.all([
+  const [{ data: assetco }, { data: stageLog }, { data: infracredit }, { data: seriesLinks }] = await Promise.all([
     supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
     supabase.from('assetco_stage_log').select('*').eq('assetco_id', assetCoId).order('changed_at', { ascending: false }),
     supabase.from('infracredit_relationships').select('*').eq('assetco_id', assetCoId).maybeSingle(),
+    supabase.from('assetco_series').select('*, cef_series(id, code, display_name, status)').eq('assetco_id', assetCoId),
   ]);
 
-  return { assetco, stageLog: stageLog || [], infracredit: infracredit || null };
+  return {
+    assetco,
+    stageLog: stageLog || [],
+    infracredit: infracredit || null,
+    seriesLinks: (seriesLinks || []).map((l) => ({ ...l, series: l.cef_series })),
+  };
+}
+
+export async function getCefSeriesList() {
+  const supabase = createClient();
+  const { data } = await supabase.from('cef_series').select('*').order('code');
+  return data || [];
+}
+
+/**
+ * Feature 3 — Series Overview page: every CEF series with fund size,
+ * computed total deployed, and the AssetCos linked to each.
+ */
+export async function getSeriesOverview() {
+  const supabase = createClient();
+
+  const [{ data: series }, { data: links }] = await Promise.all([
+    supabase.from('cef_series').select('*').order('code'),
+    supabase.from('assetco_series').select('*, assetcos(id, name)').order('created_at', { ascending: false }),
+  ]);
+
+  return (series || []).map((s) => {
+    const seriesLinks = (links || []).filter((l) => l.series_id === s.id);
+    return {
+      ...s,
+      totalDeployedNgn: seriesLinks.reduce((sum, l) => sum + Number(l.disbursement_amount_ngn || 0), 0),
+      links: seriesLinks.map((l) => ({ ...l, assetco: l.assetcos })),
+    };
+  });
 }
 
 /**
