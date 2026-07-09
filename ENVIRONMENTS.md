@@ -39,9 +39,8 @@ Supabase's free tier allows 2 projects, which maps exactly onto prod vs. everyth
 For each project, apply the schema in order:
 
 ```sql
--- In Supabase Studio → SQL Editor, run in order:
-api/src/db/migrations/001_init.sql
-api/src/db/migrations/002_rls_policies.sql
+-- In Supabase Studio → SQL Editor, run every file in api/src/db/migrations/
+-- in numeric order (001, 002, 003, ... up through the highest-numbered file present).
 ```
 
 From each project's **Settings → API Keys**, collect (Supabase's current key format — `sb_publishable_...` / `sb_secret_...` — replaces the older `anon` / `service_role` JWT-style keys, but both client libraries here accept it as a drop-in):

@@ -11,6 +11,10 @@ See `documents/CEF-PIP_MVP Implementation Plan.docx` for the 6-week build plan t
 See [`ENVIRONMENTS.md`](ENVIRONMENTS.md) for how dev/staging/prod are separated across
 Supabase projects, Vercel, and Render, and how to seed the dev project with demo data.
 
+See [`INTEGRATION_GUIDE.md`](INTEGRATION_GUIDE.md) for what an AssetCo's dev team needs to know to
+send events to CEF-PIP — endpoint, HMAC signing, event types, and the newer optional fields
+(customer status override, remote-control flags).
+
 ## Getting started
 
 Requires Node.js 20+.
@@ -25,9 +29,8 @@ npm run dev             # starts on http://localhost:4000
 npm test                 # runs Jest suite
 ```
 
-Apply the DB schema in order to your Supabase project (SQL editor or `supabase db push`):
-1. `api/src/db/migrations/001_init.sql`
-2. `api/src/db/migrations/002_rls_policies.sql`
+Apply the DB schema in order to your Supabase project (SQL editor or `supabase db push`) — run every
+file in `api/src/db/migrations/` in numeric order (001 through the highest-numbered file present).
 
 To populate a **dev** project with demo data for showing the team, also run `api/src/db/seed.sql`
 (never run this against production — see `ENVIRONMENTS.md`).
