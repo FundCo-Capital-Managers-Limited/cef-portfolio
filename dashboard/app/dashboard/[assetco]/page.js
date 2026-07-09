@@ -8,7 +8,7 @@ export default async function AssetCoDashboardPage({ params }) {
 
   if (!detail.assetco) notFound();
 
-  const { assetco, assets, openFaults, customerBreakdown, recentActivity } = detail;
+  const { assetco, assets, openFaults, customerBreakdown, recentActivity, pipelineCustomers, pipelineSummary } = detail;
 
   return (
     <div className="space-y-8">
@@ -73,6 +73,56 @@ export default async function AssetCoDashboardPage({ params }) {
             <div><p className="text-sm text-gray-500">1 month arrears</p><p className="text-xl font-semibold">{customerBreakdown.arrears1}</p></div>
             <div><p className="text-sm text-gray-500">2+ months arrears</p><p className="text-xl font-semibold">{customerBreakdown.arrears2Plus}</p></div>
             <div><p className="text-sm text-gray-500">Defaulted</p><p className="text-xl font-semibold">{customerBreakdown.defaulted}</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3">Customer Pipeline</h2>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <div className="grid grid-cols-3 md:grid-cols-6 gap-3 text-center text-sm mb-4">
+            <div>
+              <p className="text-xl font-semibold">{pipelineSummary.pipeline}</p>
+              <p className="text-gray-500 text-xs">Pipeline</p>
+            </div>
+            <div>
+              <p className="text-xl font-semibold">{pipelineSummary.assetOrdered}</p>
+              <p className="text-gray-500 text-xs">Asset Ordered</p>
+            </div>
+            <div>
+              <p className="text-xl font-semibold">{pipelineSummary.installationScheduled}</p>
+              <p className="text-gray-500 text-xs">Install Scheduled</p>
+            </div>
+            <div>
+              <p className="text-xl font-semibold">{pipelineSummary.active}</p>
+              <p className="text-gray-500 text-xs">Active</p>
+            </div>
+            <div>
+              <p className="text-xl font-semibold text-amber-600">{pipelineSummary.inArrears}</p>
+              <p className="text-gray-500 text-xs">In Arrears</p>
+            </div>
+            <div>
+              <p className="text-xl font-semibold text-red-600">{pipelineSummary.defaulted}</p>
+              <p className="text-gray-500 text-xs">Defaulted</p>
+            </div>
+          </div>
+          <p className="text-sm text-gray-600 mb-3">
+            Total Pipeline Value: <span className="font-medium">{formatCurrency(pipelineSummary.totalPipelineValueNgn)}</span>
+          </p>
+          <div className="border-t divide-y">
+            {pipelineCustomers.map((c) => (
+              <div key={c.id} className="py-2 text-sm flex justify-between">
+                <div>
+                  <p>{c.id} <span className="text-xs text-gray-400">· {c.customer_segment || 'segment n/a'}</span></p>
+                  <p className="text-xs text-gray-500">{c.location_state || 'state n/a'} · {c.status}</p>
+                </div>
+                <div className="text-right">
+                  <p>{c.expected_monthly_payment_ngn ? formatCurrency(c.expected_monthly_payment_ngn) : '—'}/mo</p>
+                  <p className="text-xs text-gray-500">expected install: {c.expected_installation_date || 'TBD'}</p>
+                </div>
+              </div>
+            ))}
+            {pipelineCustomers.length === 0 && <p className="py-3 text-sm text-gray-500">No customers in the pre-deployment pipeline.</p>}
           </div>
         </div>
       </div>

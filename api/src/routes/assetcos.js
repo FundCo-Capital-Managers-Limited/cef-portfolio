@@ -3,6 +3,7 @@ const verifySupabaseAuth = require('../middleware/verifySupabaseAuth');
 const { list, getOne, create, update, changeStage } = require('../controllers/assetcosController');
 const infracreditController = require('../controllers/infracreditController');
 const seriesController = require('../controllers/seriesController');
+const customerPipelineController = require('../controllers/customerPipelineController');
 
 const router = express.Router();
 
@@ -19,5 +20,8 @@ router.put('/:id/infracredit', infracreditController.update);
 
 router.get('/:id/series', seriesController.seriesForAssetco);
 router.post('/:id/series', seriesController.linkToSeries);
+
+router.get('/:id/customers/summary', customerPipelineController.summary);
+router.get('/:id/customers/pipeline', customerPipelineController.pipeline);
 
 module.exports = router;

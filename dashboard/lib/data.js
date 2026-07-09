@@ -23,13 +23,14 @@ export async function getCurrentUserProfile() {
 export async function getPortfolioSummary() {
   const supabase = createClient();
 
-  const [{ data: assetcos }, { data: cashflow }, { data: faults }, { data: alerts }, { data: syncState }] =
+  const [{ data: assetcos }, { data: cashflow }, { data: faults }, { data: alerts }, { data: syncState }, { data: customers }] =
     await Promise.all([
       supabase.from('assetcos').select('id, name, is_active'),
       supabase.from('cashflow_state').select('*'),
       supabase.from('faults').select('id, assetco_id, status'),
       supabase.from('alerts').select('*').order('sent_at', { ascending: false }).limit(10),
       supabase.from('sync_state').select('*'),
+      supabase.from('customers').select('assetco_id, status'),
     ]);
 
   const totalCollected = (cashflow || []).reduce((sum, c) => sum + Number(c.total_collected || 0), 0);
@@ -37,10 +38,13 @@ export async function getPortfolioSummary() {
   const defaultCount = (cashflow || []).filter((c) => c.is_defaulted).length;
   const openFaultCount = (faults || []).filter((f) => f.status === 'open').length;
 
+  const PIPELINE_STATUSES = ['PIPELINE', 'ASSET_ORDERED', 'INSTALLATION_SCHEDULED'];
+
   const assetCoCards = (assetcos || []).map((co) => {
     const coCashflow = (cashflow || []).filter((c) => c.assetco_id === co.id);
     const coFaults = (faults || []).filter((f) => f.assetco_id === co.id && f.status === 'open');
     const sync = (syncState || []).find((s) => s.assetco_id === co.id);
+    const coCustomers = (customers || []).filter((c) => c.assetco_id === co.id);
     return {
       id: co.id,
       name: co.name,
@@ -50,6 +54,7 @@ export async function getPortfolioSummary() {
       defaultCount: coCashflow.filter((c) => c.is_defaulted).length,
       openFaultCount: coFaults.length,
       lastSyncedAt: sync?.last_heartbeat_at || null,
+      pipelineCount: coCustomers.filter((c) => PIPELINE_STATUSES.includes(c.status)).length,
     };
   });
 
@@ -73,7 +78,7 @@ export async function getPortfolioSummary() {
 export async function getAssetCoDetail(assetCoId) {
   const supabase = createClient();
 
-  const [{ data: assetco }, { data: cashflow }, { data: faults }, { data: events }] = await Promise.all([
+  const [{ data: assetco }, { data: cashflow }, { data: faults }, { data: events }, { data: customers }] = await Promise.all([
     supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
     supabase.from('cashflow_state').select('*').eq('assetco_id', assetCoId),
     supabase.from('faults').select('*').eq('assetco_id', assetCoId),
@@ -83,6 +88,7 @@ export async function getAssetCoDetail(assetCoId) {
       .eq('assetco_id', assetCoId)
       .order('received_at', { ascending: false })
       .limit(20),
+    supabase.from('customers').select('*').eq('assetco_id', assetCoId),
   ]);
 
   const customerBreakdown = {
@@ -92,6 +98,24 @@ export async function getAssetCoDetail(assetCoId) {
     defaulted: (cashflow || []).filter((c) => c.is_defaulted).length,
   };
 
+  const PIPELINE_STATUSES = ['PIPELINE', 'ASSET_ORDERED', 'INSTALLATION_SCHEDULED'];
+  const pipelineCustomers = (customers || [])
+    .filter((c) => PIPELINE_STATUSES.includes(c.status))
+    .sort((a, b) => (a.expected_installation_date || '9999').localeCompare(b.expected_installation_date || '9999'));
+
+  const pipelineSummary = {
+    pipeline: (customers || []).filter((c) => c.status === 'PIPELINE').length,
+    assetOrdered: (customers || []).filter((c) => c.status === 'ASSET_ORDERED').length,
+    installationScheduled: (customers || []).filter((c) => c.status === 'INSTALLATION_SCHEDULED').length,
+    active: (customers || []).filter((c) => c.status === 'ACTIVE').length,
+    inArrears: (customers || []).filter((c) => c.status === 'IN_ARREARS').length,
+    defaulted: (customers || []).filter((c) => c.status === 'DEFAULTED').length,
+    totalPipelineValueNgn: pipelineCustomers.reduce(
+      (sum, c) => sum + Number(c.expected_monthly_payment_ngn || 0) * Number(c.contract_term_months || 0),
+      0
+    ),
+  };
+
   return {
     assetco,
     assets: cashflow || [],
@@ -99,6 +123,8 @@ export async function getAssetCoDetail(assetCoId) {
     openFaults: (faults || []).filter((f) => f.status === 'open'),
     customerBreakdown,
     recentActivity: events || [],
+    pipelineCustomers,
+    pipelineSummary,
   };
 }
 

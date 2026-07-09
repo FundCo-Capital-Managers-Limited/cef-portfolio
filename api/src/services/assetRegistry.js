@@ -1,4 +1,5 @@
 const supabase = require('../config/supabase');
+const { CUSTOMER_STATUSES } = require('../utils/assetcoEnums');
 
 function syncFields(payload) {
   return {
@@ -44,13 +45,28 @@ async function upsertAsset(payload, fields) {
  * customer.created: upsert the authoritative customer record. Payment/fault
  * handlers may have already created a placeholder stub (registryStubs.js) —
  * this overwrites it with real data once the AssetCo actually emits the event.
+ *
+ * status defaults to PIPELINE (a brand-new customer has no asset yet), but
+ * the AssetCo may explicitly set it — this matters for AssetCos onboarding
+ * with pre-existing active customers, who should send status: 'ACTIVE' (or
+ * whichever stage fits) rather than have every customer start as PIPELINE.
  */
 async function handleCustomerCreated(payload) {
+  const status = payload.status && CUSTOMER_STATUSES.includes(payload.status) ? payload.status : 'PIPELINE';
+
   const { error } = await supabase.from('customers').upsert(
     {
       id: payload.customerId,
       assetco_id: payload.assetCoId,
       name: payload.metadata?.name || null,
+      status,
+      contract_signed_date: payload.contractSignedDate || null,
+      expected_installation_date: payload.expectedInstallationDate || null,
+      expected_monthly_payment_ngn: payload.expectedMonthlyPaymentNgn ?? null,
+      contract_term_months: payload.contractTermMonths ?? null,
+      location_state: payload.locationState || null,
+      location_lga: payload.locationLga || null,
+      customer_segment: payload.customerSegment || null,
       ...syncFields(payload),
     },
     { onConflict: 'id' }

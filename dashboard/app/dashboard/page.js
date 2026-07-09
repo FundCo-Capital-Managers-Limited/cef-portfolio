@@ -40,13 +40,20 @@ export default async function PortfolioDashboardPage() {
             >
               <div className="flex items-center justify-between">
                 <h3 className="font-medium">{co.name}</h3>
-                <span
-                  className={`text-xs px-2 py-0.5 rounded-full ${
-                    co.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                  }`}
-                >
-                  {co.isActive ? 'active' : 'inactive'}
-                </span>
+                <div className="flex items-center gap-1">
+                  {co.pipelineCount > 0 && (
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
+                      Pipeline: {co.pipelineCount}
+                    </span>
+                  )}
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded-full ${
+                      co.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {co.isActive ? 'active' : 'inactive'}
+                  </span>
+                </div>
               </div>
               <dl className="mt-3 text-sm text-gray-600 space-y-1">
                 <div className="flex justify-between"><dt>Active assets</dt><dd>{co.activeAssets}</dd></div>
