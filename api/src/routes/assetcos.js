@@ -4,6 +4,7 @@ const { list, getOne, create, update, changeStage } = require('../controllers/as
 const infracreditController = require('../controllers/infracreditController');
 const seriesController = require('../controllers/seriesController');
 const customerPipelineController = require('../controllers/customerPipelineController');
+const facilityController = require('../controllers/facilityController');
 
 const router = express.Router();
 
@@ -23,5 +24,7 @@ router.post('/:id/series', seriesController.linkToSeries);
 
 router.get('/:id/customers/summary', customerPipelineController.summary);
 router.get('/:id/customers/pipeline', customerPipelineController.pipeline);
+
+router.get('/:id/facilities', facilityController.listForAssetco);
 
 module.exports = router;

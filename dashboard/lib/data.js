@@ -271,3 +271,57 @@ export async function getAssetDetail(assetId) {
 
   return { asset, cashflow, payments: payments || [], faults: faults || [] };
 }
+
+/**
+ * Feature 7 — CEF Loan Book panel on the Portfolio Dashboard: total capital
+ * deployed/repaid/outstanding across all AssetCo facilities, plus a
+ * per-AssetCo repayment health breakdown.
+ */
+export async function getLoanBook() {
+  const supabase = createClient();
+
+  const [{ data: facilities }, { data: assetcos }] = await Promise.all([
+    supabase.from('cef_facilities').select('*'),
+    supabase.from('assetcos').select('id, name'),
+  ]);
+
+  const all = facilities || [];
+  const totalFacilitiesNgn = all.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
+  const totalRepaidNgn = all.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
+  const statusPriority = ['IN_DEFAULT', 'IN_ARREARS', 'RESTRUCTURED', 'ACTIVE', 'WRITTEN_OFF', 'FULLY_REPAID'];
+
+  const byAssetCo = (assetcos || [])
+    .map((a) => {
+      const coFacilities = all.filter((f) => f.assetco_id === a.id);
+      if (coFacilities.length === 0) return null;
+      const totalFacilityNgn = coFacilities.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
+      const totalRepaid = coFacilities.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
+      const worstStatus = coFacilities.map((f) => f.facility_status).sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
+      return {
+        assetCoId: a.id,
+        assetCoName: a.name,
+        totalFacilityNgn,
+        totalRepaidNgn: totalRepaid,
+        outstandingNgn: totalFacilityNgn - totalRepaid,
+        facilityStatus: worstStatus,
+      };
+    })
+    .filter(Boolean);
+
+  return {
+    totalFacilitiesNgn,
+    totalRepaidNgn,
+    totalOutstandingNgn: totalFacilitiesNgn - totalRepaidNgn,
+    repaymentRatePercent: totalFacilitiesNgn > 0 ? (totalRepaidNgn / totalFacilitiesNgn) * 100 : 0,
+    byAssetCo,
+  };
+}
+
+/**
+ * Feature 7 — CEF Facility panel on the AssetCo Profile page.
+ */
+export async function getAssetcoFacilities(assetCoId) {
+  const supabase = createClient();
+  const { data } = await supabase.from('cef_facilities').select('*').eq('assetco_id', assetCoId).order('created_at', { ascending: false });
+  return data || [];
+}

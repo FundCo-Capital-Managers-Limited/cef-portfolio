@@ -12,6 +12,8 @@ const assetcosRoutes = require('./routes/assetcos');
 const seriesRoutes = require('./routes/series');
 const customersRoutes = require('./routes/customers');
 const manualRoutes = require('./routes/manual');
+const facilitiesRoutes = require('./routes/facilities');
+const portfolioRoutes = require('./routes/portfolio');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -39,6 +41,8 @@ app.use('/api/assetcos', assetcosRoutes);
 app.use('/api/series', seriesRoutes);
 app.use('/api/customers', customersRoutes);
 app.use('/api/manual', manualRoutes);
+app.use('/api/facilities', facilitiesRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });

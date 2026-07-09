@@ -1,12 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAssetcoProfile, getCurrentUserProfile, getCefSeriesList } from '../../../../lib/data';
+import { getAssetcoProfile, getCurrentUserProfile, getCefSeriesList, getAssetcoFacilities } from '../../../../lib/data';
 import { formatCurrency, formatDateTime, timeAgo } from '../../../../lib/format';
 import { PIPELINE_STAGE_LABELS, DREEF_STAGE_LABELS } from '../../../../lib/constants';
 import AdvanceStageButton from '../../AdvanceStageButton';
 import InternalNotesEditor from '../../InternalNotesEditor';
 import DreefEditButton from '../../DreefEditButton';
 import LinkSeriesButton from '../../LinkSeriesButton';
+import AddFacilityButton from '../../AddFacilityButton';
+import FacilityCard from '../../FacilityCard';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -18,10 +20,11 @@ const DREEF_BADGE_STYLES = {
 };
 
 export default async function AssetcoProfilePage({ params }) {
-  const [{ assetco, stageLog, infracredit, seriesLinks }, profile, allSeries] = await Promise.all([
+  const [{ assetco, stageLog, infracredit, seriesLinks }, profile, allSeries, facilities] = await Promise.all([
     getAssetcoProfile(params.assetco),
     getCurrentUserProfile(),
     getCefSeriesList(),
+    getAssetcoFacilities(params.assetco),
   ]);
 
   if (!assetco) notFound();
@@ -170,6 +173,23 @@ export default async function AssetcoProfilePage({ params }) {
               <p className="text-gray-600 whitespace-pre-wrap">{assetco.internal_notes || 'No internal notes.'}</p>
             )}
           </div>
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">CEF Facilities</h2>
+          {canManage && <AddFacilityButton assetcoId={assetco.id} allSeries={allSeries} />}
+        </div>
+        <div className="space-y-4">
+          {facilities.map((facility) => (
+            <FacilityCard key={facility.id} facility={facility} />
+          ))}
+          {facilities.length === 0 && (
+            <p className="text-sm text-gray-500 bg-white rounded-lg border border-gray-200 p-4">
+              No CEF facilities recorded for this AssetCo yet.
+            </p>
+          )}
         </div>
       </div>
     </div>

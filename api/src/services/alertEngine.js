@@ -4,7 +4,7 @@ const env = require('../config/env');
 
 const FROM_ADDRESS = 'CEF-PIP Alerts <alerts@cef-pip.dev>';
 
-async function logAlert({ alertType, assetCoId, assetId, customerId, message, eventId }) {
+async function logAlert({ alertType, assetCoId, assetId, customerId, message, eventId, facilityId, scheduleId }) {
   const { error } = await supabase.from('alerts').insert({
     alert_type: alertType,
     assetco_id: assetCoId,
@@ -12,6 +12,8 @@ async function logAlert({ alertType, assetCoId, assetId, customerId, message, ev
     customer_id: customerId || null,
     message,
     event_id: eventId || null,
+    facility_id: facilityId || null,
+    schedule_id: scheduleId || null,
   });
   if (error) throw error;
 }
@@ -52,4 +54,15 @@ async function sendFaultAlert(payload, eventId) {
   });
 }
 
-module.exports = { sendDefaultAlert, sendFaultAlert };
+/**
+ * Feature 7 (Facility & Repayment Addendum): ALT-14/15/16 — missed CEF
+ * facility repayment, 7-days-overdue escalation, approaching maturity.
+ * Recipients: CEF Management + Finance Analyst (env.alertRecipients is a
+ * single configured list for MVP — no per-role routing yet).
+ */
+async function sendFacilityAlert({ alertType, assetCoId, facilityId, scheduleId, message }) {
+  await sendEmail(`[CEF-PIP] ${alertType.replace(/_/g, ' ')}`, message);
+  await logAlert({ alertType, assetCoId, message, facilityId, scheduleId });
+}
+
+module.exports = { sendDefaultAlert, sendFaultAlert, sendFacilityAlert };

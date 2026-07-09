@@ -1,18 +1,25 @@
 import Link from 'next/link';
-import { getPortfolioSummary } from '../../lib/data';
+import { getPortfolioSummary, getLoanBook } from '../../lib/data';
 import { formatCurrency, timeAgo } from '../../lib/format';
+import { FACILITY_STATUS_STYLES } from '../../lib/constants';
 
-function StatCard({ label, value }) {
+function StatCard({ label, value, tone }) {
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4">
       <p className="text-sm text-gray-500">{label}</p>
-      <p className="text-2xl font-semibold mt-1">{value}</p>
+      <p className={`text-2xl font-semibold mt-1 ${tone || ''}`}>{value}</p>
     </div>
   );
 }
 
+function repaymentRateTone(rate) {
+  if (rate > 80) return 'text-green-600';
+  if (rate >= 50) return 'text-amber-600';
+  return 'text-red-600';
+}
+
 export default async function PortfolioDashboardPage() {
-  const summary = await getPortfolioSummary();
+  const [summary, loanBook] = await Promise.all([getPortfolioSummary(), getLoanBook()]);
 
   return (
     <div className="space-y-8">
@@ -67,6 +74,55 @@ export default async function PortfolioDashboardPage() {
           {summary.assetCoCards.length === 0 && (
             <p className="text-sm text-gray-500">No AssetCos onboarded yet.</p>
           )}
+        </div>
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3">CEF Loan Book</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+          <StatCard label="Total Capital Deployed" value={formatCurrency(loanBook.totalFacilitiesNgn)} />
+          <StatCard label="Total Repaid to CEF" value={formatCurrency(loanBook.totalRepaidNgn)} />
+          <StatCard label="Outstanding Loan Book" value={formatCurrency(loanBook.totalOutstandingNgn)} />
+          <StatCard
+            label="Repayment Rate"
+            value={`${loanBook.repaymentRatePercent.toFixed(1)}%`}
+            tone={repaymentRateTone(loanBook.repaymentRatePercent)}
+          />
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-gray-500 border-b">
+              <tr>
+                <th className="p-3">AssetCo</th>
+                <th className="p-3">Facility Amount</th>
+                <th className="p-3">Repaid</th>
+                <th className="p-3">Outstanding</th>
+                <th className="p-3">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {loanBook.byAssetCo.map((row) => (
+                <tr key={row.assetCoId}>
+                  <td className="p-3">
+                    <Link href={`/dashboard/${row.assetCoId}/profile`} className="text-blue-600 hover:underline">
+                      {row.assetCoName}
+                    </Link>
+                  </td>
+                  <td className="p-3">{formatCurrency(row.totalFacilityNgn)}</td>
+                  <td className="p-3">{formatCurrency(row.totalRepaidNgn)}</td>
+                  <td className="p-3">{formatCurrency(row.outstandingNgn)}</td>
+                  <td className="p-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${FACILITY_STATUS_STYLES[row.facilityStatus] || 'bg-gray-100 text-gray-500'}`}>
+                      {row.facilityStatus}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {loanBook.byAssetCo.length === 0 && (
+                <tr><td className="p-3 text-gray-500" colSpan={5}>No CEF facilities recorded yet.</td></tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
 

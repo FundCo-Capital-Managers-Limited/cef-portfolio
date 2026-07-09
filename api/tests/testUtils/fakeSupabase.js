@@ -82,9 +82,11 @@ function createFakeSupabase(seed = {}) {
     return chain;
   }
 
-  function makeInsertResult(name, row) {
-    const withId = { id: row.id || `${name}-${table(name).length + 1}`, ...row };
-    table(name).push(withId);
+  function makeInsertResult(name, rowOrRows) {
+    const rows = Array.isArray(rowOrRows) ? rowOrRows : [rowOrRows];
+    const withIds = rows.map((row) => ({ id: row.id || `${name}-${table(name).length + 1}`, ...row }));
+    withIds.forEach((row) => table(name).push(row));
+    const single = withIds[0];
     return {
       then(resolve) {
         resolve({ error: null });
@@ -92,7 +94,10 @@ function createFakeSupabase(seed = {}) {
       select() {
         return {
           async single() {
-            return { data: withId, error: null };
+            return { data: single, error: null };
+          },
+          then(resolve) {
+            resolve({ data: withIds, error: null });
           },
         };
       },
