@@ -125,6 +125,8 @@ export async function getAssetCoDetail(assetCoId) {
     recentActivity: events || [],
     pipelineCustomers,
     pipelineSummary,
+    allCustomers: (customers || []).map((c) => ({ id: c.id, name: c.name || c.id })),
+    allAssetIds: (cashflow || []).map((c) => c.asset_id),
   };
 }
 

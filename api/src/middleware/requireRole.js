@@ -27,4 +27,17 @@ function canAccessAssetco(user, assetCoId) {
   return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
 }
 
-module.exports = { requireRole, canAccessAssetco, CEF_WIDE_ROLES };
+/**
+ * True if the user can WRITE data for the given AssetCo: management/it_admin
+ * for any AssetCo, or the AssetCo's own assetco_admin. Narrower than
+ * canAccessAssetco (which also lets finance/ops/executive read) — used for
+ * manual entry, customer status changes, and other mutating endpoints where
+ * the spec restricts write access to "CEF_MANAGEMENT, ASSETCO_ADMIN (own
+ * AssetCo only)".
+ */
+function canManageAssetco(user, assetCoId) {
+  if (['management', 'it_admin'].includes(user.role)) return true;
+  return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
+}
+
+module.exports = { requireRole, canAccessAssetco, canManageAssetco, CEF_WIDE_ROLES };

@@ -1,4 +1,4 @@
-const { canAccessAssetco } = require('../middleware/requireRole');
+const { canAccessAssetco, canManageAssetco } = require('../middleware/requireRole');
 const customerPipelineService = require('../services/customerPipelineService');
 
 async function summary(req, res, next) {
@@ -28,16 +28,11 @@ async function pipeline(req, res, next) {
   }
 }
 
-function canWriteCustomerStatus(user, assetCoId) {
-  if (['management', 'it_admin'].includes(user.role)) return true;
-  return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
-}
-
 async function updateStatus(req, res, next) {
   try {
     const customer = await customerPipelineService.getCustomer(req.params.customerId);
     if (!customer) return res.status(404).json({ error: 'Customer not found' });
-    if (!canWriteCustomerStatus(req.user, customer.assetco_id)) {
+    if (!canManageAssetco(req.user, customer.assetco_id)) {
       return res.status(403).json({ error: 'Only CEF Management, IT Admin, or the AssetCo\'s own admin can update customer status' });
     }
 

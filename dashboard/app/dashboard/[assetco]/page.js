@@ -1,14 +1,19 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAssetCoDetail } from '../../../lib/data';
+import { getAssetCoDetail, getCurrentUserProfile } from '../../../lib/data';
 import { formatCurrency, timeAgo } from '../../../lib/format';
+import ManualEntryButton from '../ManualEntryButton';
+import { canManageAssetco } from '../../../lib/access';
 
 export default async function AssetCoDashboardPage({ params }) {
-  const detail = await getAssetCoDetail(params.assetco);
+  const [detail, profile] = await Promise.all([getAssetCoDetail(params.assetco), getCurrentUserProfile()]);
 
   if (!detail.assetco) notFound();
 
-  const { assetco, assets, openFaults, customerBreakdown, recentActivity, pipelineCustomers, pipelineSummary } = detail;
+  const { assetco, assets, openFaults, customerBreakdown, recentActivity, pipelineCustomers, pipelineSummary, allCustomers, allAssetIds } = detail;
+
+  const showManualEntry =
+    ['MANUAL', 'HYBRID'].includes(assetco.integration_type) && canManageAssetco(profile, assetco.id);
 
   return (
     <div className="space-y-8">
@@ -19,9 +24,12 @@ export default async function AssetCoDashboardPage({ params }) {
           </Link>
           <h1 className="text-xl font-semibold mt-1">{assetco.name} Dashboard</h1>
         </div>
-        <Link href={`/dashboard/${assetco.id}/profile`} className="text-sm text-gray-500 hover:text-gray-800">
-          Profile →
-        </Link>
+        <div className="flex items-center gap-3">
+          {showManualEntry && <ManualEntryButton assetcoId={assetco.id} customers={allCustomers} assetIds={allAssetIds} />}
+          <Link href={`/dashboard/${assetco.id}/profile`} className="text-sm text-gray-500 hover:text-gray-800">
+            Profile →
+          </Link>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
