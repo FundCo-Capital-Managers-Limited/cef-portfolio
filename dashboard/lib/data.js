@@ -290,6 +290,12 @@ export async function getAssetcoProfile(assetCoId) {
   };
 }
 
+export async function getAllAssetcoOptions() {
+  const supabase = createClient();
+  const { data } = await supabase.from('assetcos').select('id, name').order('name');
+  return data || [];
+}
+
 export async function getCefSeriesList() {
   const supabase = createClient();
   const { data } = await supabase.from('cef_series').select('*').order('code');

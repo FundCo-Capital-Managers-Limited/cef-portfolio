@@ -104,8 +104,21 @@ function createFakeSupabase(seed = {}) {
     };
   }
 
+  let authUserSeq = 0;
+
   return {
     _store: store,
+    auth: {
+      admin: {
+        async createUser({ email }) {
+          authUserSeq += 1;
+          return { data: { user: { id: `fake-auth-${authUserSeq}`, email } }, error: null };
+        },
+        async deleteUser() {
+          return { data: {}, error: null };
+        },
+      },
+    },
     from(name) {
       return {
         select() {

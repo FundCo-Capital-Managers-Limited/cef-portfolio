@@ -41,6 +41,17 @@ export const OWNERSHIP_MODEL_LABELS = {
   PAYG_METERED: 'Energy as a Service',
 };
 
+export const USER_ROLES = ['executive', 'management', 'finance', 'ops', 'it_admin', 'assetco_admin'];
+
+export const USER_ROLE_LABELS = {
+  executive: 'Executive',
+  management: 'Management',
+  finance: 'Finance',
+  ops: 'Operations',
+  it_admin: 'IT Admin',
+  assetco_admin: 'AssetCo Admin',
+};
+
 export const FACILITY_STATUS_STYLES = {
   ACTIVE: 'bg-blue-100 text-blue-700',
   IN_ARREARS: 'bg-amber-100 text-amber-700',
