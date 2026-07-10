@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAssetCoDetail, getAssetcoCustomers, getCurrentUserProfile } from '../../../lib/data';
+import { getAssetCoDetail, getAssetcoCustomers, getCurrentUserProfile, getMonthlyCollectionsTrend } from '../../../lib/data';
 import { formatCurrency, timeAgo } from '../../../lib/format';
 import { OWNERSHIP_MODEL_LABELS } from '../../../lib/constants';
 import ManualEntryButton from '../ManualEntryButton';
 import { canManageAssetco } from '../../../lib/access';
+import MonthlyTrendChart from '../charts/MonthlyTrendChart';
 
 export default async function AssetCoDashboardPage({ params }) {
-  const [detail, customers, profile] = await Promise.all([
+  const [detail, customers, profile, monthlyTrend] = await Promise.all([
     getAssetCoDetail(params.assetco),
     getAssetcoCustomers(params.assetco),
     getCurrentUserProfile(),
+    getMonthlyCollectionsTrend(params.assetco),
   ]);
 
   if (!detail.assetco) notFound();
@@ -90,6 +92,8 @@ export default async function AssetCoDashboardPage({ params }) {
           </div>
         </div>
       </div>
+
+      <MonthlyTrendChart data={monthlyTrend} scope={assetco.name} />
 
       <div>
         <h2 className="text-lg font-semibold mb-3">Customer Pipeline</h2>

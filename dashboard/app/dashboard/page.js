@@ -1,8 +1,11 @@
 import Link from 'next/link';
-import { getPortfolioSummary, getLoanBook } from '../../lib/data';
+import { getPortfolioSummary, getLoanBook, getMonthlyCollectionsTrend } from '../../lib/data';
 import { formatCurrency, timeAgo } from '../../lib/format';
 import { FACILITY_STATUS_STYLES } from '../../lib/constants';
 import { alertRoute } from '../../lib/entityRoutes';
+import MonthlyTrendChart from './charts/MonthlyTrendChart';
+import AssetCoComparisonChart from './charts/AssetCoComparisonChart';
+import LoanBookChart from './charts/LoanBookChart';
 
 function StatCard({ label, value, tone }) {
   return (
@@ -20,7 +23,11 @@ function repaymentRateTone(rate) {
 }
 
 export default async function PortfolioDashboardPage() {
-  const [summary, loanBook] = await Promise.all([getPortfolioSummary(), getLoanBook()]);
+  const [summary, loanBook, monthlyTrend] = await Promise.all([
+    getPortfolioSummary(),
+    getLoanBook(),
+    getMonthlyCollectionsTrend(),
+  ]);
 
   return (
     <div className="space-y-8">
@@ -78,6 +85,11 @@ export default async function PortfolioDashboardPage() {
         </div>
       </div>
 
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <MonthlyTrendChart data={monthlyTrend} />
+        <AssetCoComparisonChart assetCoCards={summary.assetCoCards} />
+      </div>
+
       <div>
         <h2 className="text-lg font-semibold mb-3">CEF Loan Book</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
@@ -124,6 +136,9 @@ export default async function PortfolioDashboardPage() {
               )}
             </tbody>
           </table>
+        </div>
+        <div className="mt-4">
+          <LoanBookChart byAssetCo={loanBook.byAssetCo} />
         </div>
       </div>
 

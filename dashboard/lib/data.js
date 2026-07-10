@@ -17,6 +17,41 @@ export async function getCurrentUserProfile() {
 }
 
 /**
+ * Monthly collections trend for charts — last 12 months of payment.received
+ * amounts, grouped by calendar month. Scoped to a single AssetCo when
+ * assetCoId is provided, otherwise portfolio-wide.
+ */
+export async function getMonthlyCollectionsTrend(assetCoId) {
+  const supabase = createClient();
+
+  const twelveMonthsAgo = new Date();
+  twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+  twelveMonthsAgo.setDate(1);
+
+  let query = supabase
+    .from('payments')
+    .select('amount, occurred_at')
+    .eq('status', 'received')
+    .gte('occurred_at', twelveMonthsAgo.toISOString());
+  if (assetCoId) query = query.eq('assetco_id', assetCoId);
+
+  const { data: payments } = await query;
+
+  const buckets = new Map();
+  for (let i = 0; i < 12; i += 1) {
+    const d = new Date(twelveMonthsAgo);
+    d.setMonth(d.getMonth() + i);
+    buckets.set(d.toISOString().slice(0, 7), 0);
+  }
+  for (const p of payments || []) {
+    const key = p.occurred_at.slice(0, 7);
+    if (buckets.has(key)) buckets.set(key, buckets.get(key) + Number(p.amount || 0));
+  }
+
+  return [...buckets.entries()].map(([month, amount]) => ({ month, amount }));
+}
+
+/**
  * Tier 1 — Portfolio Dashboard: cashflow totals, default tracker, fault
  * summary, and sync freshness, aggregated across all AssetCos.
  */
