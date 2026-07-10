@@ -79,4 +79,36 @@ async function createUser({ email, role, assetcoId, createdBy }) {
   return { user: userRow, tempPassword };
 }
 
-module.exports = { listUsers, createUser, ROLES, CEF_WIDE_ROLES };
+/**
+ * Admin-triggered reset: generates a fresh temporary password and sets it
+ * directly via the Admin API, rather than emailing a reset link — this repo
+ * has no auth-email templates configured yet, and it mirrors the same
+ * "show it once on screen" flow createUser already uses, so admins have one
+ * consistent way to hand a user working credentials.
+ */
+async function resetUserPassword(userId, resetBy) {
+  const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+  if (error) throw error;
+  if (!userRow) throw Object.assign(new Error('User not found'), { status: 404 });
+
+  const tempPassword = generateTempPassword();
+  const { error: authError } = await supabase.auth.admin.updateUserById(userRow.auth_user_id, {
+    password: tempPassword,
+  });
+  if (authError) throw Object.assign(new Error(authError.message), { status: 400 });
+
+  await supabase.from('audit_log').insert({
+    actor_type: 'user',
+    actor_user_id: resetBy?.id || null,
+    action: 'user_password_reset',
+    entity_type: 'user',
+    entity_id: userRow.id,
+    details: { email: userRow.email },
+  });
+
+  logger.info('User password reset by admin', { email: userRow.email, resetBy: resetBy?.email });
+
+  return { user: userRow, tempPassword };
+}
+
+module.exports = { listUsers, createUser, resetUserPassword, ROLES, CEF_WIDE_ROLES };

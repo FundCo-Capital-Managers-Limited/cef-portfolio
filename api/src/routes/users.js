@@ -9,5 +9,6 @@ router.use(verifySupabaseAuth);
 router.use(requireRole('it_admin', 'management'));
 router.get('/', usersController.list);
 router.post('/', usersController.create);
+router.post('/:id/reset-password', usersController.resetPassword);
 
 module.exports = router;

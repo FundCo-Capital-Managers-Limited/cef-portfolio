@@ -68,6 +68,23 @@ describe('User management endpoints', () => {
     expect(res.status).toBe(400);
   });
 
+  it('management can reset a user\'s password', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users/user-exec/reset-password'));
+    expect(res.status).toBe(200);
+    expect(res.body.tempPassword).toBeTruthy();
+    expect(res.body.user.email).toBe('exec@cef.example');
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'user_password_reset');
+    expect(auditEntry.entity_id).toBe('user-exec');
+  });
+
+  it('404s resetting a password for an unknown user', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users/does-not-exist/reset-password'));
+    expect(res.status).toBe(404);
+  });
+
   it('lists users', async () => {
     const withAuth = as('auth-mgmt');
     const res = await withAuth(request(app).get('/api/users'));

@@ -22,6 +22,8 @@ export default function UserManagementPanel({ assetcos }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [created, setCreated] = useState(null);
+  const [resetResult, setResetResult] = useState(null);
+  const [resettingId, setResettingId] = useState(null);
 
   async function loadUsers() {
     try {
@@ -56,6 +58,20 @@ export default function UserManagementPanel({ assetcos }) {
       setError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  }
+
+  async function handleResetPassword(user) {
+    setResettingId(user.id);
+    setError(null);
+    setResetResult(null);
+    try {
+      const data = await apiFetch(`/api/users/${user.id}/reset-password`, { method: 'POST' });
+      setResetResult(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setResettingId(null);
     }
   }
 
@@ -117,31 +133,55 @@ export default function UserManagementPanel({ assetcos }) {
         )}
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-left text-gray-500 border-b">
-            <tr>
-              <th className="p-3">Email</th>
-              <th className="p-3">Role</th>
-              <th className="p-3">AssetCo</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {(users || []).map((u) => (
-              <tr key={u.id}>
-                <td className="p-3">{u.email}</td>
-                <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
-                <td className="p-3">{u.assetco_id || '—'}</td>
+      <div className="space-y-3">
+        {resetResult && (
+          <div className="text-sm bg-green-50 border border-green-200 rounded p-2 text-green-800">
+            <p>Password reset for <strong>{resetResult.user.email}</strong>.</p>
+            <p className="mt-1">
+              New temporary password: <code className="bg-white px-1 py-0.5 rounded border">{resetResult.tempPassword}</code>
+            </p>
+            <p className="mt-1 text-xs text-green-700">
+              Share this with the user securely — it is shown only once. They should change it on first login.
+            </p>
+          </div>
+        )}
+
+        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="text-left text-gray-500 border-b">
+              <tr>
+                <th className="p-3">Email</th>
+                <th className="p-3">Role</th>
+                <th className="p-3">AssetCo</th>
+                <th className="p-3"></th>
               </tr>
-            ))}
-            {users && users.length === 0 && (
-              <tr><td className="p-3 text-gray-500" colSpan={3}>No users yet.</td></tr>
-            )}
-            {loadError && (
-              <tr><td className="p-3 text-red-600" colSpan={3}>{loadError}</td></tr>
-            )}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y">
+              {(users || []).map((u) => (
+                <tr key={u.id}>
+                  <td className="p-3">{u.email}</td>
+                  <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
+                  <td className="p-3">{u.assetco_id || '—'}</td>
+                  <td className="p-3 text-right">
+                    <button
+                      disabled={resettingId === u.id}
+                      onClick={() => handleResetPassword(u)}
+                      className="text-xs text-brand-blue hover:underline disabled:opacity-50"
+                    >
+                      {resettingId === u.id ? 'Resetting…' : 'Reset Password'}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+              {users && users.length === 0 && (
+                <tr><td className="p-3 text-gray-500" colSpan={4}>No users yet.</td></tr>
+              )}
+              {loadError && (
+                <tr><td className="p-3 text-red-600" colSpan={4}>{loadError}</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

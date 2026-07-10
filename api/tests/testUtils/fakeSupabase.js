@@ -117,6 +117,9 @@ function createFakeSupabase(seed = {}) {
         async deleteUser() {
           return { data: {}, error: null };
         },
+        async updateUserById(authUserId) {
+          return { data: { user: { id: authUserId } }, error: null };
+        },
       },
     },
     from(name) {

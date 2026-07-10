@@ -19,4 +19,13 @@ async function create(req, res, next) {
   }
 }
 
-module.exports = { list, create };
+async function resetPassword(req, res, next) {
+  try {
+    const { user, tempPassword } = await userService.resetUserPassword(req.params.id, req.user);
+    res.status(200).json({ user, tempPassword });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { list, create, resetPassword };
