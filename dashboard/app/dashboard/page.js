@@ -6,9 +6,9 @@ import { alertRoute } from '../../lib/entityRoutes';
 
 function StatCard({ label, value, tone }) {
   return (
-    <div className="bg-white rounded-lg border border-gray-200 p-4">
+    <div className="bg-white rounded-lg border border-gray-200 border-t-4 border-t-brand-blue p-4">
       <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-2xl font-semibold mt-1 ${tone || ''}`}>{value}</p>
+      <p className={`text-2xl font-semibold mt-1 ${tone || 'text-brand-navy'}`}>{value}</p>
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import { getCurrentUserProfile } from '../../lib/data';
 import SignOutButton from './SignOutButton';
 import NotificationBell from './NotificationBell';
@@ -8,22 +9,23 @@ export default async function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      <div className="h-1 bg-brand-gradient" />
       <header className="bg-white border-b border-gray-200">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link href="/dashboard" className="font-semibold text-lg">
-              CEF-PIP
+            <Link href="/dashboard" className="flex items-center gap-2">
+              <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={140} height={32} priority />
             </Link>
-            <Link href="/dashboard/registry" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/dashboard/registry" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
               Asset Registry
             </Link>
-            <Link href="/dashboard/pipeline" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/dashboard/pipeline" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
               Pipeline Board
             </Link>
-            <Link href="/dashboard/dreef" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/dashboard/dreef" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
               DREEF Pipeline
             </Link>
-            <Link href="/dashboard/series" className="text-sm text-gray-600 hover:text-gray-900">
+            <Link href="/dashboard/series" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
               CEF Series
             </Link>
           </div>

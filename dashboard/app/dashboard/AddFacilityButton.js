@@ -118,7 +118,7 @@ export default function AddFacilityButton({ assetcoId, allSeries }) {
               <button
                 onClick={handleSave}
                 disabled={submitting || !form.principalAmountNgn || !form.tenorMonths}
-                className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50"
+                className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
               >
                 {submitting ? 'Saving…' : 'Save'}
               </button>

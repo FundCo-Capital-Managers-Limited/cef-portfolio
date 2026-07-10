@@ -119,7 +119,7 @@ export default function DreefEditButton({ assetcoId, existing }) {
 
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setOpen(false)} className="text-sm px-3 py-1.5 rounded border border-gray-300">Cancel</button>
-              <button onClick={handleSave} disabled={submitting} className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50">
+              <button onClick={handleSave} disabled={submitting} className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50">
                 {submitting ? 'Saving…' : 'Save'}
               </button>
             </div>

@@ -57,7 +57,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded hover:bg-slate-800">
+      <button onClick={() => setOpen(true)} className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue">
         Add Data
       </button>
 
@@ -74,7 +74,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                 <button
                   key={t}
                   onClick={() => { setTab(t); setError(null); setSuccess(null); }}
-                  className={`px-2 py-1 rounded ${tab === t ? 'bg-slate-900 text-white' : 'bg-gray-100 text-gray-600'}`}
+                  className={`px-2 py-1 rounded ${tab === t ? 'bg-brand-navy text-white' : 'bg-gray-100 text-gray-600'}`}
                 >
                   {t}
                 </button>
@@ -108,7 +108,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                       state: customerForm.state || undefined,
                       status: customerForm.status || undefined,
                     }, () => setCustomerForm({ customerName: '', segment: '', state: '', status: '' }))}
-                    className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
                   >
                     {submitting ? 'Saving…' : 'Save Customer'}
                   </button>
@@ -145,7 +145,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <button
                     disabled={submitting || !assetForm.customerId}
                     onClick={() => submit('/api/manual/assets', { assetCoId: assetcoId, ...assetForm })}
-                    className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
                   >
                     {submitting ? 'Saving…' : 'Save Asset'}
                   </button>
@@ -180,7 +180,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                       status: paymentForm.status,
                       period: paymentForm.period,
                     })}
-                    className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
                   >
                     {submitting ? 'Saving…' : 'Save Payment'}
                   </button>
@@ -205,7 +205,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <button
                     disabled={submitting || !faultForm.assetId || !faultForm.faultDescription}
                     onClick={() => submit('/api/manual/faults', { assetCoId: assetcoId, ...faultForm })}
-                    className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
                   >
                     {submitting ? 'Saving…' : 'Save Fault'}
                   </button>
@@ -230,7 +230,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <button
                     disabled={submitting || !statusForm.customerId}
                     onClick={() => submit(`/api/customers/${statusForm.customerId}/status`, { status: statusForm.status, notes: statusForm.notes })}
-                    className="text-sm bg-slate-900 text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
                   >
                     {submitting ? 'Saving…' : 'Update Status'}
                   </button>

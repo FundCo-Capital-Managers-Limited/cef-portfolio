@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { createClient } from '../../lib/supabaseClient';
 
@@ -31,9 +32,11 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50">
-      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded-lg shadow space-y-4">
-        <h1 className="text-xl font-semibold text-center">CEF-PIP Sign In</h1>
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-8">
+      <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={220} height={50} priority />
+
+      <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded-lg shadow space-y-4 border-t-4 border-brand-blue">
+        <h1 className="text-xl font-semibold text-center text-brand-navy">CEF-PIP Sign In</h1>
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
@@ -43,7 +46,7 @@ export default function LoginPage() {
             required
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2"
+            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-blue"
           />
         </div>
 
@@ -55,7 +58,7 @@ export default function LoginPage() {
             required
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 w-full border border-gray-300 rounded px-3 py-2"
+            className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-blue"
           />
         </div>
 
@@ -64,7 +67,7 @@ export default function LoginPage() {
         <button
           type="submit"
           disabled={loading}
-          className="w-full bg-slate-900 text-white rounded py-2 font-medium disabled:opacity-50"
+          className="w-full bg-brand-navy hover:bg-brand-blue transition-colors text-white rounded py-2 font-medium disabled:opacity-50"
         >
           {loading ? 'Signing in…' : 'Sign in'}
         </button>

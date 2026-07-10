@@ -74,7 +74,7 @@ export default async function AssetcoProfilePage({ params }) {
           <h2 className="text-lg font-semibold mb-3">Pipeline Status</h2>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-lg font-semibold px-3 py-1 rounded-full bg-slate-900 text-white">
+              <span className="text-lg font-semibold px-3 py-1 rounded-full bg-brand-navy text-white">
                 {PIPELINE_STAGE_LABELS[assetco.pipeline_stage] || assetco.pipeline_stage}
               </span>
               {canManage && <AdvanceStageButton assetcoId={assetco.id} currentStage={assetco.pipeline_stage} />}
