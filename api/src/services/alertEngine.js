@@ -1,6 +1,7 @@
 const resend = require('../config/resend');
 const supabase = require('../config/supabase');
 const env = require('../config/env');
+const logger = require('../utils/logger');
 
 const FROM_ADDRESS = 'CEF-PIP Alerts <alerts@cef-pip.dev>';
 
@@ -16,16 +17,21 @@ async function logAlert({ alertType, assetCoId, assetId, customerId, message, ev
     schedule_id: scheduleId || null,
   });
   if (error) throw error;
+  logger.info('Alert recorded', { alertType, assetCoId, assetId, facilityId });
 }
 
 async function sendEmail(subject, text) {
-  if (!env.alertRecipients.length) return;
+  if (!env.alertRecipients.length) {
+    logger.warn('Alert email skipped: no ALERT_RECIPIENT_EMAILS configured', { subject });
+    return;
+  }
   await resend.emails.send({
     from: FROM_ADDRESS,
     to: env.alertRecipients,
     subject,
     text,
   });
+  logger.info('Alert email sent', { subject, recipients: env.alertRecipients.length });
 }
 
 async function sendDefaultAlert(payload, eventId) {

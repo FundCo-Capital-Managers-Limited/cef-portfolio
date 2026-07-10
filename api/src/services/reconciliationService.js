@@ -1,5 +1,6 @@
 const supabase = require('../config/supabase');
 const { fetchRemoteAssets, fetchRemotePayments, fetchRemoteFaults } = require('./reconciliationClient');
+const logger = require('../utils/logger');
 
 function compareAssets(localAssets, remoteAssets) {
   const localById = new Map(localAssets.map((a) => [a.id, a]));
@@ -84,9 +85,11 @@ async function runReconciliationForAssetCo(assetco) {
 
     const status = mismatches.length > 0 ? 'MISMATCH' : 'OK';
     await logRun(assetco.id, status, { mismatches });
+    logger.info('Reconciliation run complete', { assetCoId: assetco.id, status, mismatchCount: mismatches.length });
     return { assetCoId: assetco.id, status, mismatches };
   } catch (err) {
     await logRun(assetco.id, 'ERROR', { message: err.message });
+    logger.error('Reconciliation run failed', { assetCoId: assetco.id, error: err.message });
     return { assetCoId: assetco.id, status: 'ERROR', message: err.message };
   }
 }
@@ -103,8 +106,11 @@ async function runNightlyReconciliation() {
     .eq('is_active', true);
   if (error) throw error;
 
+  const eligible = (assetcos || []).filter((a) => a.base_url);
+  logger.info('Nightly reconciliation starting', { assetCoCount: eligible.length });
+
   const results = [];
-  for (const assetco of (assetcos || []).filter((a) => a.base_url)) {
+  for (const assetco of eligible) {
     // eslint-disable-next-line no-await-in-loop
     results.push(await runReconciliationForAssetCo(assetco));
   }

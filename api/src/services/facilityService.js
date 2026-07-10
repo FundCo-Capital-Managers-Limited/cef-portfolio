@@ -2,6 +2,7 @@ const supabase = require('../config/supabase');
 const { recordAudit } = require('./auditLog');
 const { sendFacilityAlert } = require('./alertEngine');
 const { MONTHS_PER_PERIOD } = require('../utils/facilityEnums');
+const logger = require('../utils/logger');
 
 function addMonths(dateStr, months) {
   const d = new Date(dateStr);
@@ -427,6 +428,7 @@ async function checkFacilityArrears() {
     results.approachingMaturity += 1;
   }
 
+  logger.info('Facility arrears check complete', results);
   return results;
 }
 

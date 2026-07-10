@@ -14,6 +14,8 @@ const {
   handleSyncHeartbeat,
 } = require('./assetRegistry');
 
+const logger = require('../utils/logger');
+
 const HANDLERS = {
   'customer.created': handleCustomerCreated,
   'asset.created': handleAssetCreated,
@@ -36,7 +38,10 @@ const HANDLERS = {
  */
 async function processEvent(payload, eventId) {
   const handler = HANDLERS[payload.eventType];
-  if (!handler) return;
+  if (!handler) {
+    logger.info('Event stored with no processing handler (Phase 2 event type)', { eventId, eventType: payload.eventType });
+    return;
+  }
   await handler(payload, eventId);
 }
 
