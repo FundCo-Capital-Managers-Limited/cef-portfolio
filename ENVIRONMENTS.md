@@ -52,10 +52,12 @@ From each project's **Settings → API Keys**, collect (Supabase's current key f
 
 1. Import the repo into Vercel, root directory `dashboard/`.
 2. In **Settings → Git**, set Production Branch to `main`.
-3. In **Settings → Environment Variables**, add the same two variable names twice, scoped
+3. In **Settings → Environment Variables**, add the same three variable names twice, scoped
    differently:
-   - Scope **Production** → values from `cef-pip-prod`
-   - Scope **Preview** (and, optionally, **Development**) → values from `cef-pip-dev`
+   - Scope **Production** → `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` from
+     `cef-pip-prod`, and `NEXT_PUBLIC_API_URL` pointing at the `cef-pip-api` Render service
+   - Scope **Preview** (and, optionally, **Development**) → the same two Supabase vars from
+     `cef-pip-dev`, and `NEXT_PUBLIC_API_URL` pointing at the `cef-pip-api-staging` Render service
 4. Vercel automatically deploys `main` to your production URL and every other branch/PR to its own
    preview URL using the Preview-scoped variables — that's what keeps dev data out of prod.
 5. Optional: assign a stable alias (e.g. `cef-pip-staging.vercel.app`) to the `develop` branch under
@@ -68,12 +70,21 @@ Render doesn't split env vars by branch within one service, so use **two service
 
 1. **`cef-pip-api`** (production)
    - Branch: `main`
-   - Env vars: `SUPABASE_URL` / `SUPABASE_SECRET_KEY` from `cef-pip-prod`, real `RESEND_API_KEY`
+   - Env vars: `SUPABASE_URL` / `SUPABASE_SECRET_KEY` from `cef-pip-prod`, real `RESEND_API_KEY`,
+     `CORS_ALLOWED_ORIGINS` = your production Vercel URL (e.g. `https://cef-pip.vercel.app`)
    - Plan: Starter ($7/mo) once a live AssetCo is onboarded (see MVP plan Week 6); free tier until then
 2. **`cef-pip-api-staging`** (dev/staging)
    - Branch: `develop`
-   - Env vars: from `cef-pip-dev`
-   - Plan: Free tier is fine — it's only for demos/QA
+   - Env vars: from `cef-pip-dev`, plus `CORS_ALLOWED_ORIGINS` = the staging Vercel alias (e.g.
+     `https://cef-pip-staging.vercel.app`) — and every Vercel *preview* URL you want to hit this
+     service from a browser (Preview deployments get a new URL per branch/PR, so add the stable
+     alias from step 3 below rather than chasing individual preview URLs)
+
+Each service's `CORS_ALLOWED_ORIGINS` must exactly match the origin(s) the dashboard is actually
+served from (scheme + host, no path, comma-separated for more than one) — the API only enforces this
+against browser requests (fetches from the dashboard's own JS); AssetCo webhooks and other
+server-to-server calls have no `Origin` header and are unaffected. Leaving it unset falls back to
+allowing any origin, which is fine for local dev but should never ship to a deployed environment.
 
 Both auto-deploy on push to their respective branch. Root directory for both: `api/`.
 

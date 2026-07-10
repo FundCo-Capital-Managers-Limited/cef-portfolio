@@ -15,6 +15,14 @@ module.exports = {
   supabaseUrl: required('SUPABASE_URL'),
   supabaseSecretKey: required('SUPABASE_SECRET_KEY'),
   supabaseJwksUrl: process.env.SUPABASE_JWKS_URL || `${process.env.SUPABASE_URL || ''}/auth/v1/.well-known/jwks.json`,
+  // Comma-separated list of exact origins allowed to call this API from a
+  // browser (the dashboard's Vercel URL(s) — production and, optionally, a
+  // stable staging alias). Empty means "no restriction" — fine for local
+  // dev, but every deployed environment should set this, since the API is
+  // otherwise reachable cross-origin from any web page (webhooks and
+  // server-to-server calls are unaffected either way — CORS only governs
+  // browser requests).
+  corsAllowedOrigins: (process.env.CORS_ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean),
   resendApiKey: required('RESEND_API_KEY'),
   alertRecipients: (process.env.ALERT_RECIPIENT_EMAILS || '').split(',').map((s) => s.trim()).filter(Boolean),
   internalTriggerToken: process.env.INTERNAL_TRIGGER_TOKEN,

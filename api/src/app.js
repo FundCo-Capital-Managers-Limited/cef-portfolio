@@ -17,11 +17,29 @@ const portfolioRoutes = require('./routes/portfolio');
 const usersRoutes = require('./routes/users');
 const applicationsRoutes = require('./routes/applications');
 const errorHandler = require('./middleware/errorHandler');
+const env = require('./config/env');
+const logger = require('./utils/logger');
 
 const app = express();
 
+if (env.nodeEnv === 'production' && env.corsAllowedOrigins.length === 0) {
+  logger.warn('CORS_ALLOWED_ORIGINS is not set in production — the API will accept browser requests from any origin.');
+}
+
+const corsOptions = env.corsAllowedOrigins.length
+  ? {
+      origin(origin, callback) {
+        // No Origin header means a non-browser caller (AssetCo webhook,
+        // server-to-server, curl) — CORS doesn't apply to those, only to
+        // browser fetches, so always allow.
+        if (!origin || env.corsAllowedOrigins.includes(origin)) return callback(null, true);
+        return callback(new Error(`Origin ${origin} not allowed by CORS`));
+      },
+    }
+  : undefined;
+
 app.use(helmet());
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(morgan(process.env.NODE_ENV === 'test' ? 'silent' : 'dev', {
   skip: () => process.env.NODE_ENV === 'test',
 }));
