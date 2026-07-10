@@ -120,6 +120,9 @@ function createFakeSupabase(seed = {}) {
         async updateUserById(authUserId) {
           return { data: { user: { id: authUserId } }, error: null };
         },
+        async generateLink({ email }) {
+          return { data: { properties: { action_link: `https://fake-recovery-link.example/${encodeURIComponent(email)}` } }, error: null };
+        },
       },
     },
     from(name) {
