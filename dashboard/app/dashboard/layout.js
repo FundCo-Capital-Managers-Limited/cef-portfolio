@@ -33,6 +33,11 @@ export default async function DashboardLayout({ children }) {
                 Users
               </Link>
             )}
+            {['executive', 'management', 'it_admin'].includes(profile?.role) && (
+              <Link href="/dashboard/admin/applications" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
+                Applications
+              </Link>
+            )}
           </div>
           <div className="flex items-center gap-4 text-sm text-gray-600">
             <NotificationBell userId={profile?.id} />

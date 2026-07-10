@@ -137,11 +137,29 @@ function createFakeSupabase(seed = {}) {
         },
         update(patch) {
           return {
-            async eq(col, val) {
+            eq(col, val) {
+              const updatedRows = [];
               table(name).forEach((r) => {
-                if (r[col] === val) Object.assign(r, patch);
+                if (r[col] === val) {
+                  Object.assign(r, patch);
+                  updatedRows.push(r);
+                }
               });
-              return { error: null };
+              return {
+                then(resolve) {
+                  resolve({ error: null });
+                },
+                select() {
+                  return {
+                    async single() {
+                      return { data: updatedRows[0] || null, error: null };
+                    },
+                    then(resolve) {
+                      resolve({ data: updatedRows, error: null });
+                    },
+                  };
+                },
+              };
             },
           };
         },

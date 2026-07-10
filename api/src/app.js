@@ -15,6 +15,7 @@ const manualRoutes = require('./routes/manual');
 const facilitiesRoutes = require('./routes/facilities');
 const portfolioRoutes = require('./routes/portfolio');
 const usersRoutes = require('./routes/users');
+const applicationsRoutes = require('./routes/applications');
 const errorHandler = require('./middleware/errorHandler');
 
 const app = express();
@@ -45,6 +46,7 @@ app.use('/api/manual', manualRoutes);
 app.use('/api/facilities', facilitiesRoutes);
 app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/users', usersRoutes);
+app.use('/api/applications', applicationsRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });

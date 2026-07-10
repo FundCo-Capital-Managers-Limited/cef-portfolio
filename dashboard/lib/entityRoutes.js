@@ -6,6 +6,10 @@
 // set to the AssetCo the mutated entity belongs to, not just the actor's own.
 
 export function notificationRoute(entry) {
+  if (entry.entity_type === 'assetco_application') {
+    return '/dashboard/admin/applications';
+  }
+
   const assetcoId = entry.actor_assetco_id;
   if (!assetcoId) return null;
 
