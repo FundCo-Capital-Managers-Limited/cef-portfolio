@@ -71,9 +71,11 @@ async function createAsset(body, user) {
     assetId,
     customerId: body.customerId,
     timestamp: body.deploymentDate ? new Date(body.deploymentDate).toISOString() : new Date().toISOString(),
+    assetType: body.assetType,
     oemModel: body.oemModel,
     oemManufacturer: body.oemManufacturer,
     remoteControlSupported: body.remoteControlSupported ?? false,
+    ownershipModel: body.ownershipModel,
   };
 
   await submitManualEvent(payload, user, 'MANUAL_ASSET_CREATED');

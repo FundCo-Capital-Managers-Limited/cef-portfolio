@@ -131,6 +131,77 @@ export async function getAssetCoDetail(assetCoId) {
 }
 
 /**
+ * Corrected hierarchy: assets belong to customers, so the AssetCo view is
+ * customer-first (name, asset type(s), deal type, estimated project value),
+ * not asset-first. Project value is the sum of total_collected +
+ * outstanding_balance across the customer's assets (their real contract
+ * value so far); for pipeline customers with no asset yet, it falls back to
+ * expected_monthly_payment_ngn * contract_term_months (the same estimate
+ * used for "Total Pipeline Value").
+ */
+export async function getAssetcoCustomers(assetCoId) {
+  const supabase = createClient();
+
+  const [{ data: customers }, { data: assets }, { data: cashflow }] = await Promise.all([
+    supabase.from('customers').select('*').eq('assetco_id', assetCoId).order('name'),
+    supabase.from('assets').select('*').eq('assetco_id', assetCoId),
+    supabase.from('cashflow_state').select('*').eq('assetco_id', assetCoId),
+  ]);
+
+  const cashflowByAsset = new Map((cashflow || []).map((c) => [c.asset_id, c]));
+
+  return (customers || []).map((customer) => {
+    const customerAssets = (assets || [])
+      .filter((a) => a.customer_id === customer.id)
+      .map((a) => ({ ...a, cashflow: cashflowByAsset.get(a.id) || null }));
+
+    const projectValueNgn = customerAssets.length
+      ? customerAssets.reduce((sum, a) => sum + Number(a.cashflow?.total_collected || 0) + Number(a.cashflow?.outstanding_balance || 0), 0)
+      : Number(customer.expected_monthly_payment_ngn || 0) * Number(customer.contract_term_months || 0);
+
+    return {
+      ...customer,
+      assets: customerAssets,
+      assetTypes: [...new Set(customerAssets.map((a) => a.asset_type).filter(Boolean))],
+      dealType: customerAssets[0]?.ownership_model || null,
+      isDefaulted: customerAssets.some((a) => a.cashflow?.is_defaulted),
+      projectValueNgn,
+    };
+  });
+}
+
+/**
+ * Customer Detail page: profile, deal type, and every asset under them.
+ */
+export async function getCustomerDetail(customerId) {
+  const supabase = createClient();
+
+  const { data: customer } = await supabase.from('customers').select('*').eq('id', customerId).maybeSingle();
+  if (!customer) return { customer: null, assets: [], payments: [], faults: [] };
+
+  const [{ data: assets }, { data: payments }] = await Promise.all([
+    supabase.from('assets').select('*').eq('customer_id', customerId),
+    supabase.from('payments').select('*').eq('customer_id', customerId).order('occurred_at', { ascending: false }),
+  ]);
+
+  const assetIds = (assets || []).map((a) => a.id);
+  const [{ data: cashflow }, { data: faults }] = assetIds.length
+    ? await Promise.all([
+        supabase.from('cashflow_state').select('*').in('asset_id', assetIds),
+        supabase.from('faults').select('*').in('asset_id', assetIds).order('detected_at', { ascending: false }),
+      ])
+    : [{ data: [] }, { data: [] }];
+  const cashflowByAsset = new Map((cashflow || []).map((c) => [c.asset_id, c]));
+
+  return {
+    customer,
+    assets: (assets || []).map((a) => ({ ...a, cashflow: cashflowByAsset.get(a.id) || null })),
+    payments: payments || [],
+    faults: faults || [],
+  };
+}
+
+/**
  * Feature 1 — Pipeline Board: every AssetCo grouped by pipeline_stage, with
  * live cashflow attached for those already in PORTFOLIO_MONITORING.
  */
@@ -239,17 +310,20 @@ export async function getDreefPipeline() {
 export async function getAssetRegistry() {
   const supabase = createClient();
 
-  const [{ data: assets }, { data: cashflow }, { data: openFaults }] = await Promise.all([
+  const [{ data: assets }, { data: cashflow }, { data: openFaults }, { data: customers }] = await Promise.all([
     supabase.from('assets').select('*').order('assetco_id').order('id'),
     supabase.from('cashflow_state').select('asset_id, is_defaulted'),
     supabase.from('faults').select('asset_id').eq('status', 'open'),
+    supabase.from('customers').select('id, name'),
   ]);
 
   const defaultedAssetIds = new Set((cashflow || []).filter((c) => c.is_defaulted).map((c) => c.asset_id));
   const openFaultAssetIds = new Set((openFaults || []).map((f) => f.asset_id));
+  const customerNameById = new Map((customers || []).map((c) => [c.id, c.name]));
 
   return (assets || []).map((a) => ({
     ...a,
+    customerName: customerNameById.get(a.customer_id) || a.customer_id,
     isDefaulted: defaultedAssetIds.has(a.id),
     hasOpenFault: openFaultAssetIds.has(a.id),
   }));

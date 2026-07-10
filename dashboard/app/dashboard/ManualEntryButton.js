@@ -27,7 +27,14 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
   const [submitting, setSubmitting] = useState(false);
 
   const [customerForm, setCustomerForm] = useState({ customerName: '', segment: '', state: '', status: '' });
-  const [assetForm, setAssetForm] = useState({ customerId: customers[0]?.id || '', oemModel: '', oemManufacturer: '', remoteControlSupported: false });
+  const [assetForm, setAssetForm] = useState({
+    customerId: customers[0]?.id || '',
+    assetType: '',
+    ownershipModel: 'LEASE_TO_OWN',
+    oemModel: '',
+    oemManufacturer: '',
+    remoteControlSupported: false,
+  });
   const [paymentForm, setPaymentForm] = useState({ assetId: assetIds[0] || '', amount: '', status: 'RECEIVED', period: '' });
   const [faultForm, setFaultForm] = useState({ assetId: assetIds[0] || '', faultDescription: '', severity: 'Medium' });
   const [statusForm, setStatusForm] = useState({ customerId: customers[0]?.id || '', status: 'ACTIVE', notes: '' });
@@ -113,6 +120,16 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <Field label="Customer">
                     <select className={inputCls} value={assetForm.customerId} onChange={(e) => setAssetForm((f) => ({ ...f, customerId: e.target.value }))}>
                       {customers.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Asset type">
+                    <input className={inputCls} placeholder="e.g. SOLAR_SYSTEM, METER, EV_BIKE" value={assetForm.assetType} onChange={(e) => setAssetForm((f) => ({ ...f, assetType: e.target.value }))} />
+                  </Field>
+                  <Field label="Deal type">
+                    <select className={inputCls} value={assetForm.ownershipModel} onChange={(e) => setAssetForm((f) => ({ ...f, ownershipModel: e.target.value }))}>
+                      <option value="OUTRIGHT_PURCHASE">Outright Purchase</option>
+                      <option value="LEASE_TO_OWN">Lease-to-Own</option>
+                      <option value="PAYG_METERED">Energy as a Service (metered)</option>
                     </select>
                   </Field>
                   <Field label="OEM model">

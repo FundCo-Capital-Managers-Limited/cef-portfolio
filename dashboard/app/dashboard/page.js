@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getPortfolioSummary, getLoanBook } from '../../lib/data';
 import { formatCurrency, timeAgo } from '../../lib/format';
 import { FACILITY_STATUS_STYLES } from '../../lib/constants';
+import { alertRoute } from '../../lib/entityRoutes';
 
 function StatCard({ label, value, tone }) {
   return (
@@ -141,13 +142,25 @@ export default async function PortfolioDashboardPage() {
             {summary.recentAlerts.length === 0 && (
               <p className="text-sm text-gray-500 p-4">No alerts yet.</p>
             )}
-            {summary.recentAlerts.map((alert) => (
-              <div key={alert.id} className="p-3 text-sm">
-                <p className="font-medium">{alert.alert_type}</p>
-                <p className="text-gray-600">{alert.message}</p>
-                <p className="text-xs text-gray-400 mt-1">{timeAgo(alert.sent_at)}</p>
-              </div>
-            ))}
+            {summary.recentAlerts.map((alert) => {
+              const route = alertRoute(alert);
+              const body = (
+                <>
+                  <p className="font-medium">{alert.alert_type}</p>
+                  <p className="text-gray-600">{alert.message}</p>
+                  <p className="text-xs text-gray-400 mt-1">{timeAgo(alert.sent_at)}</p>
+                </>
+              );
+              return route ? (
+                <Link key={alert.id} href={route} className="block p-3 text-sm hover:bg-gray-50 transition-colors">
+                  {body}
+                </Link>
+              ) : (
+                <div key={alert.id} className="p-3 text-sm">
+                  {body}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

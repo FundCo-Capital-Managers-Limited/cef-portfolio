@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAssetDetail } from '../../../../../lib/data';
 import { formatCurrency, formatDateTime, timeAgo } from '../../../../../lib/format';
+import { OWNERSHIP_MODEL_LABELS } from '../../../../../lib/constants';
 
 export default async function AssetDetailPage({ params }) {
   const { asset, cashflow, payments, faults } = await getAssetDetail(params.assetId);
@@ -11,9 +12,15 @@ export default async function AssetDetailPage({ params }) {
   return (
     <div className="space-y-8">
       <div>
-        <Link href={`/dashboard/${params.assetco}`} className="text-sm text-gray-500 hover:text-gray-800">
-          ← {params.assetco}
-        </Link>
+        {asset.customer_id ? (
+          <Link href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`} className="text-sm text-gray-500 hover:text-gray-800">
+            ← {asset.customer_id}
+          </Link>
+        ) : (
+          <Link href={`/dashboard/${params.assetco}`} className="text-sm text-gray-500 hover:text-gray-800">
+            ← {params.assetco}
+          </Link>
+        )}
         <h1 className="text-xl font-semibold mt-1">Asset {asset.id}</h1>
       </div>
 
@@ -22,12 +29,22 @@ export default async function AssetDetailPage({ params }) {
           <h2 className="text-lg font-semibold mb-3">Asset Identity</h2>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
             <div className="flex justify-between"><span className="text-gray-500">AssetCo</span><span>{asset.assetco_id}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Customer</span><span>{asset.customer_id || '—'}</span></div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Customer</span>
+              <span>
+                {asset.customer_id ? (
+                  <Link href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`} className="text-blue-600 hover:underline">
+                    {asset.customer_id}
+                  </Link>
+                ) : '—'}
+              </span>
+            </div>
+            <div className="flex justify-between"><span className="text-gray-500">Asset type</span><span>{asset.asset_type || '—'}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Status</span><span>{asset.status}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Deployed</span><span>{formatDateTime(asset.deployed_at)}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Sync status</span><span>{asset.sync_status}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Last synced</span><span>{timeAgo(asset.last_synced_at)}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Ownership model</span><span>{asset.ownership_model}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Deal type</span><span>{OWNERSHIP_MODEL_LABELS[asset.ownership_model] || asset.ownership_model}</span></div>
             {(asset.oem_model || asset.oem_manufacturer) && (
               <div className="flex justify-between"><span className="text-gray-500">OEM</span><span>{[asset.oem_manufacturer, asset.oem_model].filter(Boolean).join(' — ')}</span></div>
             )}

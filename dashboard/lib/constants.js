@@ -33,6 +33,14 @@ export const REPAYMENT_FREQUENCIES = ['MONTHLY', 'QUARTERLY', 'SEMI_ANNUAL', 'AN
 export const FACILITY_STATUSES = ['ACTIVE', 'FULLY_REPAID', 'IN_ARREARS', 'IN_DEFAULT', 'RESTRUCTURED', 'WRITTEN_OFF'];
 export const PAYMENT_TYPES = ['SCHEDULED', 'EARLY_REPAYMENT', 'PARTIAL', 'RESTRUCTURED_PAYMENT'];
 
+export const OWNERSHIP_MODELS = ['OUTRIGHT_PURCHASE', 'LEASE_TO_OWN', 'PAYG_METERED'];
+
+export const OWNERSHIP_MODEL_LABELS = {
+  OUTRIGHT_PURCHASE: 'Outright Purchase',
+  LEASE_TO_OWN: 'Lease-to-Own',
+  PAYG_METERED: 'Energy as a Service',
+};
+
 export const FACILITY_STATUS_STYLES = {
   ACTIVE: 'bg-blue-100 text-blue-700',
   IN_ARREARS: 'bg-amber-100 text-amber-700',

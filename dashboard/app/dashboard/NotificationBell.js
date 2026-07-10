@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '../../lib/supabaseClient';
 import { timeAgo } from '../../lib/format';
+import { notificationRoute } from '../../lib/entityRoutes';
 
 const POLL_INTERVAL_MS = 30000;
 
@@ -12,6 +14,7 @@ function describe(entry) {
 }
 
 export default function NotificationBell({ userId }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [items, setItems] = useState([]);
@@ -90,12 +93,31 @@ export default function NotificationBell({ userId }) {
         <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
           <div className="p-3 border-b text-sm font-medium">Recent changes</div>
           {items.length === 0 && <p className="p-4 text-sm text-gray-500">No recent activity.</p>}
-          {items.map((entry) => (
-            <div key={entry.id} className="p-3 text-sm border-b last:border-b-0">
-              <p>{describe(entry)}</p>
-              <p className="text-xs text-gray-400 mt-1">{timeAgo(entry.created_at)}</p>
-            </div>
-          ))}
+          {items.map((entry) => {
+            const route = notificationRoute(entry);
+            const content = (
+              <>
+                <p>{describe(entry)}</p>
+                <p className="text-xs text-gray-400 mt-1">{timeAgo(entry.created_at)}</p>
+              </>
+            );
+            return route ? (
+              <button
+                key={entry.id}
+                onClick={() => {
+                  setOpen(false);
+                  router.push(route);
+                }}
+                className="w-full text-left p-3 text-sm border-b last:border-b-0 hover:bg-gray-50 transition-colors"
+              >
+                {content}
+              </button>
+            ) : (
+              <div key={entry.id} className="p-3 text-sm border-b last:border-b-0">
+                {content}
+              </div>
+            );
+          })}
         </div>
       )}
     </div>

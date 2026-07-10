@@ -1,16 +1,21 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getAssetCoDetail, getCurrentUserProfile } from '../../../lib/data';
+import { getAssetCoDetail, getAssetcoCustomers, getCurrentUserProfile } from '../../../lib/data';
 import { formatCurrency, timeAgo } from '../../../lib/format';
+import { OWNERSHIP_MODEL_LABELS } from '../../../lib/constants';
 import ManualEntryButton from '../ManualEntryButton';
 import { canManageAssetco } from '../../../lib/access';
 
 export default async function AssetCoDashboardPage({ params }) {
-  const [detail, profile] = await Promise.all([getAssetCoDetail(params.assetco), getCurrentUserProfile()]);
+  const [detail, customers, profile] = await Promise.all([
+    getAssetCoDetail(params.assetco),
+    getAssetcoCustomers(params.assetco),
+    getCurrentUserProfile(),
+  ]);
 
   if (!detail.assetco) notFound();
 
-  const { assetco, assets, openFaults, customerBreakdown, recentActivity, pipelineCustomers, pipelineSummary, allCustomers, allAssetIds } = detail;
+  const { assetco, openFaults, customerBreakdown, recentActivity, pipelineCustomers, pipelineSummary, allCustomers, allAssetIds } = detail;
 
   const showManualEntry =
     ['MANUAL', 'HYBRID'].includes(assetco.integration_type) && canManageAssetco(profile, assetco.id);
@@ -34,40 +39,41 @@ export default async function AssetCoDashboardPage({ params }) {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-lg font-semibold mb-3">Asset Cashflow Performance</h2>
+          <h2 className="text-lg font-semibold mb-3">Customers</h2>
           <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-gray-500 border-b">
                 <tr>
-                  <th className="p-3">Asset</th>
-                  <th className="p-3">Collected</th>
-                  <th className="p-3">Outstanding</th>
-                  <th className="p-3">Missed</th>
+                  <th className="p-3">Customer</th>
+                  <th className="p-3">Deal Type</th>
+                  <th className="p-3">Asset Type(s)</th>
+                  <th className="p-3">Project Value</th>
                   <th className="p-3">Status</th>
                 </tr>
               </thead>
               <tbody className="divide-y">
-                {assets.map((a) => (
-                  <tr key={a.asset_id}>
+                {customers.map((c) => (
+                  <tr key={c.id} className="hover:bg-gray-50 transition-colors">
+
                     <td className="p-3">
-                      <Link href={`/dashboard/${assetco.id}/assets/${a.asset_id}`} className="text-blue-600 hover:underline">
-                        {a.asset_id}
+                      <Link href={`/dashboard/${assetco.id}/customers/${c.id}`} className="text-blue-600 hover:underline">
+                        {c.name || c.id}
                       </Link>
                     </td>
-                    <td className="p-3">{formatCurrency(a.total_collected)}</td>
-                    <td className="p-3">{formatCurrency(a.outstanding_balance)}</td>
-                    <td className="p-3">{a.missed_count}</td>
+                    <td className="p-3">{c.dealType ? OWNERSHIP_MODEL_LABELS[c.dealType] || c.dealType : '—'}</td>
+                    <td className="p-3">{c.assetTypes.length ? c.assetTypes.join(', ') : '—'}</td>
+                    <td className="p-3">{formatCurrency(c.projectValueNgn)}</td>
                     <td className="p-3">
-                      {a.is_defaulted ? (
+                      {c.isDefaulted ? (
                         <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">defaulted</span>
                       ) : (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">current</span>
+                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">{c.status}</span>
                       )}
                     </td>
                   </tr>
                 ))}
-                {assets.length === 0 && (
-                  <tr><td className="p-3 text-gray-500" colSpan={5}>No assets recorded yet.</td></tr>
+                {customers.length === 0 && (
+                  <tr><td className="p-3 text-gray-500" colSpan={5}>No customers recorded yet.</td></tr>
                 )}
               </tbody>
             </table>
@@ -140,10 +146,14 @@ export default async function AssetCoDashboardPage({ params }) {
           <h2 className="text-lg font-semibold mb-3">Open Faults ({openFaults.length})</h2>
           <div className="bg-white rounded-lg border border-gray-200 divide-y">
             {openFaults.map((f) => (
-              <div key={f.id} className="p-3 text-sm flex justify-between">
-                <span>{f.asset_id}</span>
+              <Link
+                key={f.id}
+                href={`/dashboard/${assetco.id}/assets/${f.asset_id}`}
+                className="p-3 text-sm flex justify-between hover:bg-gray-50 transition-colors"
+              >
+                <span className="text-blue-600 hover:underline">{f.asset_id}</span>
                 <span className="text-gray-500">{timeAgo(f.detected_at)}</span>
-              </div>
+              </Link>
             ))}
             {openFaults.length === 0 && <p className="text-sm text-gray-500 p-4">No open faults.</p>}
           </div>
@@ -152,12 +162,23 @@ export default async function AssetCoDashboardPage({ params }) {
         <div>
           <h2 className="text-lg font-semibold mb-3">Recent Activity</h2>
           <div className="bg-white rounded-lg border border-gray-200 divide-y max-h-80 overflow-y-auto">
-            {recentActivity.map((e) => (
-              <div key={e.id} className="p-3 text-sm flex justify-between">
-                <span>{e.event_type} — {e.asset_id || '—'}</span>
-                <span className="text-gray-500">{timeAgo(e.received_at)}</span>
-              </div>
-            ))}
+            {recentActivity.map((e) =>
+              e.asset_id ? (
+                <Link
+                  key={e.id}
+                  href={`/dashboard/${assetco.id}/assets/${e.asset_id}`}
+                  className="p-3 text-sm flex justify-between hover:bg-gray-50 transition-colors"
+                >
+                  <span>{e.event_type} — <span className="text-blue-600 hover:underline">{e.asset_id}</span></span>
+                  <span className="text-gray-500">{timeAgo(e.received_at)}</span>
+                </Link>
+              ) : (
+                <div key={e.id} className="p-3 text-sm flex justify-between">
+                  <span>{e.event_type}</span>
+                  <span className="text-gray-500">{timeAgo(e.received_at)}</span>
+                </div>
+              )
+            )}
             {recentActivity.length === 0 && <p className="text-sm text-gray-500 p-4">No events yet.</p>}
           </div>
         </div>

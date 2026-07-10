@@ -36,6 +36,7 @@ export default async function AssetRegistryPage() {
           <thead className="text-left text-gray-500 border-b">
             <tr>
               <th className="p-3">Asset</th>
+              <th className="p-3">Type</th>
               <th className="p-3">AssetCo</th>
               <th className="p-3">Customer</th>
               <th className="p-3">Status</th>
@@ -52,12 +53,19 @@ export default async function AssetRegistryPage() {
                     {a.id}
                   </Link>
                 </td>
+                <td className="p-3">{a.asset_type || '—'}</td>
                 <td className="p-3">
                   <Link href={`/dashboard/${a.assetco_id}`} className="hover:underline">
                     {a.assetco_id}
                   </Link>
                 </td>
-                <td className="p-3">{a.customer_id || '—'}</td>
+                <td className="p-3">
+                  {a.customer_id ? (
+                    <Link href={`/dashboard/${a.assetco_id}/customers/${a.customer_id}`} className="text-blue-600 hover:underline">
+                      {a.customerName}
+                    </Link>
+                  ) : '—'}
+                </td>
                 <td className="p-3">{a.status}</td>
                 <td className="p-3"><SyncBadge status={a.sync_status} /></td>
                 <td className="p-3 text-gray-500">{timeAgo(a.last_synced_at)}</td>
@@ -73,7 +81,7 @@ export default async function AssetRegistryPage() {
               </tr>
             ))}
             {assets.length === 0 && (
-              <tr><td className="p-3 text-gray-500" colSpan={7}>No assets registered yet.</td></tr>
+              <tr><td className="p-3 text-gray-500" colSpan={8}>No assets registered yet.</td></tr>
             )}
           </tbody>
         </table>

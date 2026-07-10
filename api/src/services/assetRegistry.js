@@ -28,11 +28,13 @@ async function upsertAsset(payload, fields) {
       id: payload.assetId,
       assetco_id: payload.assetCoId,
       customer_id: payload.customerId || existing?.customer_id || null,
+      asset_type: payload.assetType ?? existing?.asset_type ?? null,
       oem_model: payload.oemModel ?? existing?.oem_model ?? null,
       oem_manufacturer: payload.oemManufacturer ?? existing?.oem_manufacturer ?? null,
       oem_remote_control_api_available:
         payload.oemRemoteControlApiAvailable ?? existing?.oem_remote_control_api_available ?? false,
       remote_control_supported: payload.remoteControlSupported ?? existing?.remote_control_supported ?? false,
+      ownership_model: payload.ownershipModel || existing?.ownership_model || 'LEASE_TO_OWN',
       ...fields,
       ...syncFields(payload),
     },
