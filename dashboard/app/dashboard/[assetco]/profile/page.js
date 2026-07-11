@@ -9,6 +9,7 @@ import DreefEditButton from '../../DreefEditButton';
 import LinkSeriesButton from '../../LinkSeriesButton';
 import AddFacilityButton from '../../AddFacilityButton';
 import FacilityCard from '../../FacilityCard';
+import RegenerateSecretButton from '../../RegenerateSecretButton';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -161,6 +162,11 @@ export default async function AssetcoProfilePage({ params }) {
               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{assetco.integration_type}</span>
             </div>
             <div className="flex justify-between"><span className="text-gray-500">Last sync</span><span>{formatDateTime(assetco.updated_at)}</span></div>
+            {canManage && (
+              <div className="pt-2 border-t">
+                <RegenerateSecretButton assetcoId={assetco.id} />
+              </div>
+            )}
           </div>
         </div>
 

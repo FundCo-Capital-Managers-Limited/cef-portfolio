@@ -72,10 +72,12 @@ describe('AssetCo onboarding application endpoints', () => {
     expect(reviewRes.status).toBe(200);
     expect(reviewRes.body.application.status).toBe('APPROVED');
     expect(reviewRes.body.application.promoted_assetco_id).toBe('BRIGHTFUTURE');
+    expect(reviewRes.body.application.hmacSecret).toMatch(/^[0-9a-f]{64}$/);
 
     const assetco = mockSupabase._store.assetcos.find((a) => a.id === 'BRIGHTFUTURE');
     expect(assetco.pipeline_stage).toBe('ONBOARDING');
     expect(assetco.name).toBe('BrightFuture Energy');
+    expect(assetco.hmac_secret).toBe(reviewRes.body.application.hmacSecret);
   });
 
   it('rejects approval without an assetcoId', async () => {

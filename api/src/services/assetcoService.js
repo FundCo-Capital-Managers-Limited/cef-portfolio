@@ -1,6 +1,7 @@
 const supabase = require('../config/supabase');
 const { recordAudit } = require('./auditLog');
 const { PIPELINE_STAGES } = require('../utils/assetcoEnums');
+const { generateHmacSecret } = require('../utils/hmacSecret');
 
 async function listAssetcos(user) {
   let query = supabase.from('assetcos').select('*').order('name');
@@ -118,6 +119,38 @@ async function advanceStage(assetCoId, toStage, notes, user) {
   return getAssetco(assetCoId);
 }
 
+/**
+ * Rotates an AssetCo's HMAC signing secret — the old one stops verifying
+ * immediately, so this is a "coordinate with the AssetCo first" action, not
+ * a routine one. Returns the new secret once; it is never stored anywhere
+ * recoverable afterward (same one-time-reveal pattern as account creation
+ * and password reset).
+ */
+async function regenerateHmacSecret(assetCoId, user) {
+  const assetco = await getAssetco(assetCoId);
+  if (!assetco) {
+    const err = new Error('AssetCo not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const hmacSecret = generateHmacSecret();
+  const { error } = await supabase.from('assetcos').update({ hmac_secret: hmacSecret }).eq('id', assetCoId);
+  if (error) throw error;
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    actorAssetcoId: assetCoId,
+    action: 'ASSETCO_HMAC_SECRET_REGENERATED',
+    entityType: 'assetco',
+    entityId: assetCoId,
+    details: {},
+  });
+
+  return hmacSecret;
+}
+
 async function getStageLog(assetCoId) {
   const { data, error } = await supabase
     .from('assetco_stage_log')
@@ -128,4 +161,12 @@ async function getStageLog(assetCoId) {
   return data;
 }
 
-module.exports = { listAssetcos, getAssetco, createAssetco, updateAssetcoProfile, advanceStage, getStageLog };
+module.exports = {
+  listAssetcos,
+  getAssetco,
+  createAssetco,
+  updateAssetcoProfile,
+  advanceStage,
+  getStageLog,
+  regenerateHmacSecret,
+};

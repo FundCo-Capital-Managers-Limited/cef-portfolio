@@ -48,21 +48,50 @@ function ReviewForm({ application, onReviewed }) {
   const [notes, setNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [approvedSecret, setApprovedSecret] = useState(null);
 
   async function review(decision) {
     setSubmitting(true);
     setError(null);
     try {
-      await apiFetch(`/api/applications/${application.id}/review`, {
+      const data = await apiFetch(`/api/applications/${application.id}/review`, {
         method: 'PUT',
         body: { decision, notes, assetcoId: decision === 'APPROVED' ? assetcoId : undefined },
       });
-      onReviewed();
+      if (decision === 'APPROVED' && data.application?.hmacSecret) {
+        // Deliberately don't call onReviewed() yet — that reloads the list,
+        // which flips this application's status and unmounts this form
+        // before the reviewer has a chance to read/copy the one-time secret.
+        setApprovedSecret({ assetcoId, secret: data.application.hmacSecret });
+      } else {
+        onReviewed();
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setSubmitting(false);
     }
+  }
+
+  if (approvedSecret) {
+    return (
+      <div className="mt-3 pt-3 border-t border-gray-100 text-sm bg-green-50 border border-green-200 rounded p-3 text-green-800">
+        <p>Approved — <strong>{approvedSecret.assetcoId}</strong> is now live in Onboarding.</p>
+        <p className="mt-1">
+          HMAC signing secret: <code className="bg-white px-1 py-0.5 rounded border break-all">{approvedSecret.secret}</code>
+        </p>
+        <p className="mt-1 text-xs text-green-700">
+          Share this with the AssetCo's developers securely — it is shown only once. It's what they use to sign
+          every event they send to POST /api/v1/events (see the API Integration Guide).
+        </p>
+        <button
+          onClick={onReviewed}
+          className="mt-2 text-xs text-green-800 underline hover:no-underline"
+        >
+          I've saved it — refresh the queue
+        </button>
+      </div>
+    );
   }
 
   return (

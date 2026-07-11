@@ -2,6 +2,7 @@ const supabase = require('../config/supabase');
 const { recordAudit } = require('./auditLog');
 const logger = require('../utils/logger');
 const { SECTORS } = require('../utils/assetcoEnums');
+const { generateHmacSecret } = require('../utils/hmacSecret');
 
 const REQUIRED_FIELDS = ['companyName', 'primaryContactName', 'primaryContactEmail'];
 
@@ -94,14 +95,16 @@ async function reviewApplication(id, { decision, notes, assetcoId, reviewer }) {
   }
 
   let promotedAssetcoId = null;
+  let hmacSecret = null;
 
   if (decision === 'APPROVED') {
     if (!assetcoId) throw Object.assign(new Error('assetcoId is required to approve an application'), { status: 400 });
 
+    hmacSecret = generateHmacSecret();
     const { error: assetcoError } = await supabase.from('assetcos').insert({
       id: assetcoId,
       name: application.company_name,
-      hmac_secret: `pending-setup-${assetcoId.toLowerCase()}`,
+      hmac_secret: hmacSecret,
       is_active: true,
       legal_entity_name: application.legal_entity_name,
       registration_number: application.registration_number,
@@ -158,7 +161,7 @@ async function reviewApplication(id, { decision, notes, assetcoId, reviewer }) {
     details: { companyName: application.company_name, notes },
   });
 
-  return updated;
+  return { ...updated, hmacSecret };
 }
 
 module.exports = { submitApplication, listApplications, getApplication, reviewApplication };

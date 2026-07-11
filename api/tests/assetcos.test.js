@@ -98,4 +98,26 @@ describe('AssetCo pipeline endpoints', () => {
     const res = await withAuth(request(app).patch('/api/assetcos/GROSOLAR').send({ sector: 'NOT_A_SECTOR' }));
     expect(res.status).toBe(400);
   });
+
+  it('management can regenerate an AssetCo HMAC secret, and the old one stops verifying', async () => {
+    const withAuth = as('auth-mgmt');
+    const before = mockSupabase._store.assetcos.find((a) => a.id === 'GROSOLAR').hmac_secret;
+
+    const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/regenerate-secret'));
+    expect(res.status).toBe(200);
+    expect(res.body.hmacSecret).toMatch(/^[0-9a-f]{64}$/);
+    expect(res.body.hmacSecret).not.toBe(before);
+
+    const after = mockSupabase._store.assetcos.find((a) => a.id === 'GROSOLAR').hmac_secret;
+    expect(after).toBe(res.body.hmacSecret);
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'ASSETCO_HMAC_SECRET_REGENERATED');
+    expect(auditEntry.entity_id).toBe('GROSOLAR');
+  });
+
+  it('assetco_admin cannot regenerate their own HMAC secret', async () => {
+    const withAuth = as('auth-groadmin');
+    const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/regenerate-secret'));
+    expect(res.status).toBe(403);
+  });
 });

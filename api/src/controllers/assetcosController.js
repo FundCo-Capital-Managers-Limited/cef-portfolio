@@ -109,4 +109,16 @@ async function changeStage(req, res, next) {
   }
 }
 
-module.exports = { list, getOne, create, update, changeStage };
+async function regenerateSecret(req, res, next) {
+  try {
+    if (!['management', 'it_admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management or IT Admin can regenerate a signing secret' });
+    }
+    const hmacSecret = await assetcoService.regenerateHmacSecret(req.params.id, req.user);
+    return res.status(200).json({ hmacSecret });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { list, getOne, create, update, changeStage, regenerateSecret };
