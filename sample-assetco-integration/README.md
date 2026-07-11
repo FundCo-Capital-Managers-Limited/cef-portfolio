@@ -1,9 +1,10 @@
 # CEF-PIP Sample AssetCo Integration
 
-A minimal, dependency-free reference implementation showing how to send events to CEF's
-Portfolio Intelligence Platform (CEF-PIP). Use this to test your sandbox credentials and as a
-copy-paste starting point for your own integration — it's not a library you install, just a
-worked example.
+A minimal reference implementation showing how to send events to CEF's Portfolio Intelligence
+Platform (CEF-PIP). Use this to test your sandbox credentials and as a copy-paste starting point
+for your own integration — it's not a library you install, just a worked example. There are two
+ways to use it: a dependency-free CLI (`send-event.js`) or a small local web UI (`server.js`) for
+walking through the integration interactively.
 
 See the full [API Integration Guide](../documents/API_Integration_Guide.md) for the complete
 event reference; this README only covers running the sample itself.
@@ -11,7 +12,8 @@ event reference; this README only covers running the sample itself.
 ## Requirements
 
 - Node.js 18 or later (for the built-in `fetch`)
-- No npm install needed — this uses only Node's built-in modules
+- The CLI (`send-event.js`) needs no npm install at all — pure Node built-ins.
+- The web UI (`server.js`) needs one dependency (`express`) — run `npm install` first.
 
 ## Setup
 
@@ -26,7 +28,32 @@ event reference; this README only covers running the sample itself.
 
    **Never commit your `.env` file or share your `HMAC_SECRET` outside your own team.**
 
-## Usage
+## Option 1: Web UI (recommended for a live walkthrough)
+
+```
+npm install
+node server.js
+```
+
+Then open **http://localhost:4100**. From there you can:
+
+- **Trigger any single event type** with its own button — good for stepping through the story
+  one event at a time while explaining what each one does.
+- **"Send All (chronological)"** — runs the same full story as `send-event.js --all` (customer
+  created → asset created → deployed → payments → fault → heartbeat), but from the UI.
+- **"Wipe Test Data"** — deletes everything this sandbox created (only rows with the fixed
+  `CUS-SAMPLE-*`/`AST-SAMPLE-*` IDs this tool always uses, scoped to your AssetCo — see
+  `api/src/services/sandboxService.js` in the main repo for exactly what it touches). Safe to run
+  as many times as you like between walkthrough sessions; only works against dev/staging, never
+  production.
+- The server also exposes `/cef/assets`, `/cef/payments`, `/cef/faults` — the reconciliation
+  endpoints every AssetCo must expose (see the Integration Guide, section 4), backed by static
+  mock data (`reconciliationMockData.js`), no database. Point your sandbox AssetCo's `base_url` at
+  this server's address and CEF's real nightly reconciliation job can call it live during a demo.
+
+## Option 2: CLI
+
+Send a single event type:
 
 Send a single event type:
 
