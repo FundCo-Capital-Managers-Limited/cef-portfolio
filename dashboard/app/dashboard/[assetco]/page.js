@@ -7,6 +7,8 @@ import { canManageAssetco } from '../../../lib/access';
 import MonthlyTrendChart from '../charts/MonthlyTrendChart';
 import CustomerTable from './CustomerTable';
 
+export const metadata = { title: "AssetCo Dashboard" };
+
 export default async function AssetCoDashboardPage({ params }) {
   const [detail, customers, profile, monthlyTrend] = await Promise.all([
     getAssetCoDetail(params.assetco),

@@ -20,6 +20,8 @@ const DREEF_BADGE_STYLES = {
   NOT_APPLICABLE: 'bg-gray-100 text-gray-500',
 };
 
+export const metadata = { title: "AssetCo Profile" };
+
 export default async function AssetcoProfilePage({ params }) {
   const [{ assetco, stageLog, infracredit, seriesLinks }, profile, allSeries, facilities] = await Promise.all([
     getAssetcoProfile(params.assetco),

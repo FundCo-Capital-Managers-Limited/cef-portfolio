@@ -9,6 +9,8 @@ const STATUS_STYLES = {
   PLANNING: 'bg-amber-100 text-amber-700',
 };
 
+export const metadata = { title: "CEF Series" };
+
 export default async function SeriesOverviewPage() {
   const series = await getSeriesOverview();
 

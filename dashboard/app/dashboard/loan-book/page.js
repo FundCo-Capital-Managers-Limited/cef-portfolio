@@ -12,6 +12,8 @@ function repaymentRateTone(rate) {
   return 'text-red-600';
 }
 
+export const metadata = { title: "CEF Loan Book" };
+
 export default async function LoanBookPage() {
   const loanBook = await getLoanBookDetail();
 

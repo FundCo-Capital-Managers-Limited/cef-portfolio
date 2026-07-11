@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getPipelineBoard, getCurrentUserProfile } from '../../../lib/data';
 import PipelineBoard from './PipelineBoard';
 
+export const metadata = { title: "Pipeline Board" };
+
 export default async function PipelineBoardPage() {
   const [assetcos, profile] = await Promise.all([getPipelineBoard(), getCurrentUserProfile()]);
   const canAdvance = ['management', 'it_admin'].includes(profile?.role);

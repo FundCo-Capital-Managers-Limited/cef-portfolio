@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getAssetRegistry } from '../../../lib/data';
 import RegistryTable from './RegistryTable';
 
+export const metadata = { title: "Asset Registry" };
+
 export default async function AssetRegistryPage() {
   const assets = await getAssetRegistry();
 

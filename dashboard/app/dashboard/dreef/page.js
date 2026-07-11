@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getDreefPipeline } from '../../../lib/data';
 import DreefTable from './DreefTable';
 
+export const metadata = { title: "DREEF Pipeline" };
+
 export default async function DreefPipelinePage() {
   const relationships = await getDreefPipeline();
 

@@ -13,6 +13,8 @@ function repaymentRateTone(rate) {
   return 'text-red-600';
 }
 
+export const metadata = { title: "Portfolio Dashboard" };
+
 export default async function PortfolioDashboardPage() {
   const [summary, loanBook, monthlyTrend] = await Promise.all([
     getPortfolioSummary(),

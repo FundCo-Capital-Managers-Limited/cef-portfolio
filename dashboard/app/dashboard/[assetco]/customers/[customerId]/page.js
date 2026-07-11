@@ -14,6 +14,8 @@ const STATUS_STYLES = {
   CHURNED: 'bg-gray-100 text-gray-500',
 };
 
+export const metadata = { title: "Customer Detail" };
+
 export default async function CustomerDetailPage({ params }) {
   const { customer, assets, payments, faults } = await getCustomerDetail(params.customerId);
 

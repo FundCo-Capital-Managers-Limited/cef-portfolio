@@ -1,8 +1,18 @@
 import './globals.css';
 
+// CEF-PIP is an internal oversight tool, not a public marketing site — the
+// whole app is noindex by default so it never turns up in search results.
+// /apply is the one page meant to be shared externally (with prospective
+// AssetCos), so its own layout overrides this back to indexable.
 export const metadata = {
-  title: 'CEF-PIP Dashboard',
-  description: 'CEF Portfolio Intelligence Platform',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
+  title: {
+    default: 'CEF-PIP',
+    template: '%s · CEF-PIP',
+  },
+  description: 'CEF Portfolio Intelligence Platform — portfolio oversight for the Clean Energy Fund.',
+  robots: { index: false, follow: false },
+  icons: { icon: '/logo.png' },
 };
 
 // Runs before paint (inline, not a bundled script) so the page never flashes

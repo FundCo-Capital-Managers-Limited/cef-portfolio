@@ -4,6 +4,8 @@ import { getAssetDetail } from '../../../../../lib/data';
 import { formatCurrency, formatDateTime, timeAgo } from '../../../../../lib/format';
 import { OWNERSHIP_MODEL_LABELS } from '../../../../../lib/constants';
 
+export const metadata = { title: "Asset Detail" };
+
 export default async function AssetDetailPage({ params }) {
   const { asset, cashflow, payments, faults } = await getAssetDetail(params.assetId);
 

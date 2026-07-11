@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getCurrentUserProfile } from '../../../../lib/data';
 import ApplicationsPanel from './ApplicationsPanel';
 
+export const metadata = { title: "Onboarding Applications" };
+
 export default async function AdminApplicationsPage() {
   const profile = await getCurrentUserProfile();
   const canReview = ['executive', 'management', 'it_admin'].includes(profile?.role);

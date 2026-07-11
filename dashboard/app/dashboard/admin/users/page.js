@@ -2,6 +2,8 @@ import Link from 'next/link';
 import { getCurrentUserProfile, getAllAssetcoOptions } from '../../../../lib/data';
 import UserManagementPanel from './UserManagementPanel';
 
+export const metadata = { title: "User Management" };
+
 export default async function AdminUsersPage() {
   const profile = await getCurrentUserProfile();
   const canManageUsers = ['it_admin', 'management'].includes(profile?.role);
