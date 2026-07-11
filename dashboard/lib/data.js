@@ -291,18 +291,21 @@ export async function getPipelineBoard() {
 export async function getAssetcoProfile(assetCoId) {
   const supabase = createClient();
 
-  const [{ data: assetco }, { data: stageLog }, { data: infracredit }, { data: seriesLinks }] = await Promise.all([
-    supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
-    supabase.from('assetco_stage_log').select('*').eq('assetco_id', assetCoId).order('changed_at', { ascending: false }),
-    supabase.from('infracredit_relationships').select('*').eq('assetco_id', assetCoId).maybeSingle(),
-    supabase.from('assetco_series').select('*, cef_series(id, code, display_name, status)').eq('assetco_id', assetCoId),
-  ]);
+  const [{ data: assetco }, { data: stageLog }, { data: infracredit }, { data: seriesLinks }, { data: syncState }] =
+    await Promise.all([
+      supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
+      supabase.from('assetco_stage_log').select('*').eq('assetco_id', assetCoId).order('changed_at', { ascending: false }),
+      supabase.from('infracredit_relationships').select('*').eq('assetco_id', assetCoId).maybeSingle(),
+      supabase.from('assetco_series').select('*, cef_series(id, code, display_name, status)').eq('assetco_id', assetCoId),
+      supabase.from('sync_state').select('*').eq('assetco_id', assetCoId).maybeSingle(),
+    ]);
 
   return {
     assetco,
     stageLog: stageLog || [],
     infracredit: infracredit || null,
     seriesLinks: (seriesLinks || []).map((l) => ({ ...l, series: l.cef_series })),
+    syncState: syncState || null,
   };
 }
 

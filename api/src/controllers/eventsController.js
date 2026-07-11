@@ -1,6 +1,7 @@
 const { validateEventPayload } = require('../utils/eventSchema');
 const { recordEvent, markProcessed, markProcessingError } = require('../services/eventService');
 const { processEvent } = require('../services/eventProcessor');
+const { maybeRunReconciliationForAssetCo } = require('../services/reconciliationService');
 const logger = require('../utils/logger');
 
 async function ingestEvent(req, res, next) {
@@ -32,9 +33,19 @@ async function ingestEvent(req, res, next) {
       await markProcessingError(event.id, processingErr.message);
     }
 
-    return res.status(200).json({ status: 'accepted', eventId: event.id });
+    res.status(200).json({ status: 'accepted', eventId: event.id });
+
+    // Fire-and-forget, after the response is already sent — this is the
+    // free-tier substitute for a nightly cron job: whichever AssetCo happens
+    // to send us an event first on a given day gets reconciled right then,
+    // instead of waiting on a scheduled job we're not paying for. Errors are
+    // only logged, never surfaced to the AssetCo — reconciliation catching
+    // up a day late is not their problem to retry over.
+    maybeRunReconciliationForAssetCo(req.assetCoId).catch((reconciliationErr) => {
+      logger.error('Lazy per-AssetCo reconciliation failed', { assetCoId: req.assetCoId, error: reconciliationErr.message });
+    });
   } catch (err) {
-    return next(err);
+    next(err);
   }
 }
 

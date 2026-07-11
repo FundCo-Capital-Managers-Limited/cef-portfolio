@@ -7,7 +7,15 @@ const mockSupabase = createFakeSupabase({
     { id: 'user-groadmin', auth_user_id: 'auth-groadmin', email: 'admin@grosolar.example', role: 'assetco_admin', assetco_id: 'GROSOLAR' },
   ],
   assetcos: [
-    { id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true, pipeline_stage: 'DUE_DILIGENCE', integration_type: 'API' },
+    {
+      id: 'GROSOLAR',
+      name: 'GroSolar',
+      hmac_secret: 'secret',
+      is_active: true,
+      pipeline_stage: 'DUE_DILIGENCE',
+      integration_type: 'API',
+      base_url: 'https://grosolar.example.com',
+    },
     { id: 'EML', name: 'EML', hmac_secret: 'secret2', is_active: true, pipeline_stage: 'ONBOARDING', integration_type: 'API' },
   ],
 });
@@ -119,5 +127,40 @@ describe('AssetCo pipeline endpoints', () => {
     const withAuth = as('auth-groadmin');
     const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/regenerate-secret'));
     expect(res.status).toBe(403);
+  });
+
+  describe('manual reconciliation trigger', () => {
+    afterEach(() => {
+      global.fetch.mockRestore?.();
+    });
+
+    it('management can manually trigger reconciliation for one AssetCo', async () => {
+      global.fetch = jest.fn().mockImplementation((url) => {
+        if (url.includes('/cef/assets')) return Promise.resolve({ ok: true, json: async () => [] });
+        if (url.includes('/cef/payments')) return Promise.resolve({ ok: true, json: async () => [] });
+        if (url.includes('/cef/faults')) return Promise.resolve({ ok: true, json: async () => [] });
+        throw new Error(`unexpected url ${url}`);
+      });
+
+      const withAuth = as('auth-mgmt');
+      const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/reconciliation/run'));
+      expect(res.status).toBe(200);
+      expect(res.body.result.status).toBe('OK');
+
+      const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'ASSETCO_RECONCILIATION_TRIGGERED');
+      expect(auditEntry.entity_id).toBe('GROSOLAR');
+    });
+
+    it('rejects triggering reconciliation for an AssetCo with no base_url configured', async () => {
+      const withAuth = as('auth-mgmt');
+      const res = await withAuth(request(app).post('/api/assetcos/EML/reconciliation/run'));
+      expect(res.status).toBe(400);
+    });
+
+    it('assetco_admin cannot trigger reconciliation', async () => {
+      const withAuth = as('auth-groadmin');
+      const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/reconciliation/run'));
+      expect(res.status).toBe(403);
+    });
   });
 });

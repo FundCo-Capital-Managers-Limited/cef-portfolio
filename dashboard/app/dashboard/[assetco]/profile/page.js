@@ -10,6 +10,7 @@ import LinkSeriesButton from '../../LinkSeriesButton';
 import AddFacilityButton from '../../AddFacilityButton';
 import FacilityCard from '../../FacilityCard';
 import RegenerateSecretButton from '../../RegenerateSecretButton';
+import RunReconciliationButton from '../../RunReconciliationButton';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -23,7 +24,7 @@ const DREEF_BADGE_STYLES = {
 export const metadata = { title: "AssetCo Profile" };
 
 export default async function AssetcoProfilePage({ params }) {
-  const [{ assetco, stageLog, infracredit, seriesLinks }, profile, allSeries, facilities] = await Promise.all([
+  const [{ assetco, stageLog, infracredit, seriesLinks, syncState }, profile, allSeries, facilities] = await Promise.all([
     getAssetcoProfile(params.assetco),
     getCurrentUserProfile(),
     getCefSeriesList(),
@@ -164,9 +165,28 @@ export default async function AssetcoProfilePage({ params }) {
               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{assetco.integration_type}</span>
             </div>
             <div className="flex justify-between"><span className="text-gray-500">Last sync</span><span>{formatDateTime(assetco.updated_at)}</span></div>
+            <div className="flex justify-between">
+              <span className="text-gray-500">Last reconciliation</span>
+              <span>
+                {syncState?.last_reconciliation_at ? (
+                  <>
+                    {timeAgo(syncState.last_reconciliation_at)}
+                    {' — '}
+                    <span className={
+                      syncState.last_reconciliation_status === 'OK' ? 'text-green-700'
+                        : syncState.last_reconciliation_status === 'MISMATCH' ? 'text-amber-700'
+                        : 'text-red-600'
+                    }>
+                      {syncState.last_reconciliation_status}
+                    </span>
+                  </>
+                ) : 'Never'}
+              </span>
+            </div>
             {canManage && (
-              <div className="pt-2 border-t">
+              <div className="pt-2 border-t space-y-2">
                 <RegenerateSecretButton assetcoId={assetco.id} />
+                <RunReconciliationButton assetcoId={assetco.id} hasBaseUrl={Boolean(assetco.base_url)} />
               </div>
             )}
           </div>

@@ -22,6 +22,8 @@ const {
   comparePayments,
   compareFaults,
   runReconciliationForAssetCo,
+  isReconciliationDueToday,
+  maybeRunReconciliationForAssetCo,
 } = require('../src/services/reconciliationService');
 
 describe('reconciliation comparison logic', () => {
@@ -136,5 +138,70 @@ describe('runReconciliationForAssetCo', () => {
     expect(result.status).toBe('ERROR');
     const sync = mockSupabase._store.sync_state.find((s) => s.assetco_id === 'DEMOSOLAR');
     expect(sync.last_reconciliation_status).toBe('ERROR');
+  });
+});
+
+describe('lazy per-AssetCo reconciliation trigger (free-tier substitute for a nightly cron job)', () => {
+  afterEach(() => {
+    global.fetch.mockRestore?.();
+    mockSupabase._store.sync_state = mockSupabase._store.sync_state.filter((s) => s.assetco_id !== 'GROSOLAR');
+  });
+
+  it('is due when no reconciliation has ever run for the AssetCo', async () => {
+    expect(await isReconciliationDueToday('GROSOLAR')).toBe(true);
+  });
+
+  it('is not due when the AssetCo already reconciled earlier today', async () => {
+    mockSupabase._store.sync_state.push({
+      assetco_id: 'GROSOLAR',
+      last_reconciliation_at: new Date().toISOString(),
+      last_reconciliation_status: 'OK',
+    });
+    expect(await isReconciliationDueToday('GROSOLAR')).toBe(false);
+  });
+
+  it('is due again once the last run was on a previous UTC day', async () => {
+    mockSupabase._store.sync_state.push({
+      assetco_id: 'GROSOLAR',
+      last_reconciliation_at: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      last_reconciliation_status: 'OK',
+    });
+    expect(await isReconciliationDueToday('GROSOLAR')).toBe(true);
+  });
+
+  it('skips AssetCos with no base_url configured, even if due', async () => {
+    mockSupabase._store.assetcos.push({ id: 'GROSOLAR', hmac_secret: 'x', is_active: true, base_url: null });
+    const result = await maybeRunReconciliationForAssetCo('GROSOLAR');
+    expect(result).toBeNull();
+    mockSupabase._store.assetcos = mockSupabase._store.assetcos.filter((a) => a.id !== 'GROSOLAR');
+  });
+
+  it('actually runs reconciliation when due and base_url is configured', async () => {
+    // Earlier tests in this file already ran reconciliation for DEMOSOLAR
+    // today, which would make it look "not due" — clear that first so this
+    // test genuinely exercises the "due" path rather than depending on
+    // execution order.
+    mockSupabase._store.sync_state = mockSupabase._store.sync_state.filter((s) => s.assetco_id !== 'DEMOSOLAR');
+
+    global.fetch = jest.fn().mockImplementation((url) => {
+      if (url.includes('/cef/assets')) return Promise.resolve({ ok: true, json: async () => [] });
+      if (url.includes('/cef/payments')) return Promise.resolve({ ok: true, json: async () => [] });
+      if (url.includes('/cef/faults')) return Promise.resolve({ ok: true, json: async () => [] });
+      throw new Error(`unexpected url ${url}`);
+    });
+
+    const result = await maybeRunReconciliationForAssetCo('DEMOSOLAR');
+    expect(result.status).toBe('OK');
+  });
+
+  it('does nothing when already reconciled today', async () => {
+    global.fetch = jest.fn();
+    mockSupabase._store.sync_state = mockSupabase._store.sync_state.map((s) =>
+      s.assetco_id === 'DEMOSOLAR' ? { ...s, last_reconciliation_at: new Date().toISOString() } : s
+    );
+
+    const result = await maybeRunReconciliationForAssetCo('DEMOSOLAR');
+    expect(result).toBeNull();
+    expect(global.fetch).not.toHaveBeenCalled();
   });
 });

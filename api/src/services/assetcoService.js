@@ -2,6 +2,7 @@ const supabase = require('../config/supabase');
 const { recordAudit } = require('./auditLog');
 const { PIPELINE_STAGES } = require('../utils/assetcoEnums');
 const { generateHmacSecret } = require('../utils/hmacSecret');
+const { runReconciliationForAssetCo } = require('./reconciliationService');
 
 async function listAssetcos(user) {
   let query = supabase.from('assetcos').select('*').order('name');
@@ -151,6 +152,41 @@ async function regenerateHmacSecret(assetCoId, user) {
   return hmacSecret;
 }
 
+/**
+ * Manual, on-demand reconciliation for a single AssetCo — the dashboard
+ * counterpart to the lazy per-event trigger in reconciliationService.js.
+ * Unlike the lazy trigger, this always runs regardless of whether it's
+ * already run today, since an IT admin asking for it explicitly means they
+ * want a fresh check right now (e.g. after fixing a webhook issue).
+ */
+async function runManualReconciliation(assetCoId, user) {
+  const assetco = await getAssetco(assetCoId);
+  if (!assetco) {
+    const err = new Error('AssetCo not found');
+    err.status = 404;
+    throw err;
+  }
+  if (!assetco.base_url) {
+    const err = new Error('This AssetCo has no base_url configured — nothing to reconcile against');
+    err.status = 400;
+    throw err;
+  }
+
+  const result = await runReconciliationForAssetCo(assetco);
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    actorAssetcoId: assetCoId,
+    action: 'ASSETCO_RECONCILIATION_TRIGGERED',
+    entityType: 'assetco',
+    entityId: assetCoId,
+    details: { status: result.status, mismatchCount: result.mismatches?.length || 0 },
+  });
+
+  return result;
+}
+
 async function getStageLog(assetCoId) {
   const { data, error } = await supabase
     .from('assetco_stage_log')
@@ -169,4 +205,5 @@ module.exports = {
   advanceStage,
   getStageLog,
   regenerateHmacSecret,
+  runManualReconciliation,
 };

@@ -99,6 +99,51 @@ async function runReconciliationForAssetCo(assetco) {
  * AssetCos without one (nothing to call yet) are silently skipped rather than
  * logged as errors — this is expected during early onboarding.
  */
+/**
+ * True if this AssetCo hasn't had a reconciliation run yet today (UTC).
+ * Backs the lazy per-AssetCo trigger below — cheaper than a scheduled job
+ * and needs no Render Cron Job (a paid add-on we're not running on the free
+ * tier), at the cost of only catching up once a given AssetCo actually
+ * sends a request that day.
+ */
+async function isReconciliationDueToday(assetCoId) {
+  const { data, error } = await supabase
+    .from('sync_state')
+    .select('last_reconciliation_at')
+    .eq('assetco_id', assetCoId)
+    .maybeSingle();
+  if (error) throw error;
+
+  if (!data?.last_reconciliation_at) return true;
+  const lastRun = new Date(data.last_reconciliation_at);
+  const now = new Date();
+  return (
+    lastRun.getUTCFullYear() !== now.getUTCFullYear() ||
+    lastRun.getUTCMonth() !== now.getUTCMonth() ||
+    lastRun.getUTCDate() !== now.getUTCDate()
+  );
+}
+
+/**
+ * Fire-and-forget from the caller's perspective (see eventsController.js —
+ * called without awaiting, after the webhook response is already sent, so
+ * it never adds latency to an AssetCo's request). Runs reconciliation for
+ * exactly one AssetCo, only if it's due and only if a base_url is on file —
+ * this is what replaces "nightly, all AssetCos at once" on the free tier:
+ * each AssetCo gets caught up the first time they talk to us on a given day.
+ */
+async function maybeRunReconciliationForAssetCo(assetCoId) {
+  const due = await isReconciliationDueToday(assetCoId);
+  if (!due) return null;
+
+  const { data: assetco, error } = await supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle();
+  if (error) throw error;
+  if (!assetco?.base_url) return null;
+
+  logger.info('Lazy per-AssetCo reconciliation triggered', { assetCoId });
+  return runReconciliationForAssetCo(assetco);
+}
+
 async function runNightlyReconciliation() {
   const { data: assetcos, error } = await supabase
     .from('assetcos')
@@ -117,4 +162,12 @@ async function runNightlyReconciliation() {
   return results;
 }
 
-module.exports = { runReconciliationForAssetCo, runNightlyReconciliation, compareAssets, comparePayments, compareFaults };
+module.exports = {
+  runReconciliationForAssetCo,
+  runNightlyReconciliation,
+  maybeRunReconciliationForAssetCo,
+  isReconciliationDueToday,
+  compareAssets,
+  comparePayments,
+  compareFaults,
+};

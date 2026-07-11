@@ -121,4 +121,16 @@ async function regenerateSecret(req, res, next) {
   }
 }
 
-module.exports = { list, getOne, create, update, changeStage, regenerateSecret };
+async function runReconciliation(req, res, next) {
+  try {
+    if (!['management', 'it_admin'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management or IT Admin can trigger reconciliation' });
+    }
+    const result = await assetcoService.runManualReconciliation(req.params.id, req.user);
+    return res.status(200).json({ result });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = { list, getOne, create, update, changeStage, regenerateSecret, runReconciliation };
