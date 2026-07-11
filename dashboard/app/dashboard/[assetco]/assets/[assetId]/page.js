@@ -7,7 +7,7 @@ import { OWNERSHIP_MODEL_LABELS } from '../../../../../lib/constants';
 export const metadata = { title: "Asset Detail" };
 
 export default async function AssetDetailPage({ params }) {
-  const { asset, cashflow, payments, faults } = await getAssetDetail(params.assetId);
+  const { asset, customerName, cashflow, payments, faults } = await getAssetDetail(params.assetId);
 
   if (!asset) notFound();
 
@@ -16,14 +16,17 @@ export default async function AssetDetailPage({ params }) {
       <div>
         {asset.customer_id ? (
           <Link href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`} className="text-sm text-gray-500 hover:text-gray-800">
-            ← {asset.customer_id}
+            ← {customerName || asset.customer_id}
           </Link>
         ) : (
           <Link href={`/dashboard/${params.assetco}`} className="text-sm text-gray-500 hover:text-gray-800">
             ← {params.assetco}
           </Link>
         )}
-        <h1 className="text-xl font-semibold mt-1">Asset {asset.id}</h1>
+        <h1 className="text-xl font-semibold mt-1">
+          Asset {asset.id}
+          {customerName && <span className="text-gray-400 font-normal"> — {customerName}</span>}
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -36,7 +39,7 @@ export default async function AssetDetailPage({ params }) {
               <span>
                 {asset.customer_id ? (
                   <Link href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`} className="text-blue-600 hover:underline">
-                    {asset.customer_id}
+                    {customerName || asset.customer_id}
                   </Link>
                 ) : '—'}
               </span>

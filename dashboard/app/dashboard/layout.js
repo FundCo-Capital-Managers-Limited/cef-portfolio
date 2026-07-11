@@ -42,19 +42,23 @@ export default async function DashboardLayout({ children }) {
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       <div className="h-1 bg-brand-gradient" />
       <header className="bg-white border-b border-gray-200 relative">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-6">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-4 min-w-0">
             <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
               <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={140} height={32} priority />
             </Link>
-            <nav className="hidden md:flex items-center gap-6">
+            {/* 7 possible links is too wide for md (768px) alongside the logo and the
+                right-side icon cluster — that combination used to overflow/overlap.
+                Only shown at lg+ (1024px), with its own overflow-x-auto as a safety
+                net for anything narrower than the full link set needs. */}
+            <nav className="hidden lg:flex items-center gap-4 overflow-x-auto min-w-0">
               {navLinks.map((link) => {
                 const Icon = NAV_ICONS[link.href];
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-blue transition-colors whitespace-nowrap"
+                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-blue transition-colors whitespace-nowrap shrink-0"
                   >
                     {Icon && <Icon size={15} className="shrink-0" />}
                     {link.label}
@@ -63,10 +67,10 @@ export default async function DashboardLayout({ children }) {
               })}
             </nav>
           </div>
-          <div className="flex items-center gap-2 sm:gap-4 text-sm text-gray-600">
+          <div className="flex items-center gap-2 xl:gap-4 text-sm text-gray-600 shrink-0">
             <ThemeToggle />
             <NotificationBell userId={profile?.id} />
-            <span className="hidden lg:inline">
+            <span className="hidden xl:inline whitespace-nowrap">
               {profile?.email} {profile?.role ? `· ${profile.role}` : ''}
             </span>
             <SignOutButton />

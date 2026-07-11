@@ -96,7 +96,7 @@ export default async function AssetCoDashboardPage({ params }) {
             {pipelineCustomers.map((c) => (
               <div key={c.id} className="py-2 text-sm flex justify-between">
                 <div>
-                  <p>{c.id} <span className="text-xs text-gray-400">· {c.customer_segment || 'segment n/a'}</span></p>
+                  <p>{c.name || c.id} <span className="text-xs text-gray-400">· {c.customer_segment || 'segment n/a'}</span></p>
                   <p className="text-xs text-gray-500">{c.location_state || 'state n/a'} · {c.status}</p>
                 </div>
                 <div className="text-right">
@@ -120,7 +120,7 @@ export default async function AssetCoDashboardPage({ params }) {
                 href={`/dashboard/${assetco.id}/assets/${f.asset_id}`}
                 className="p-3 text-sm flex justify-between hover:bg-gray-50 transition-colors"
               >
-                <span className="text-blue-600 hover:underline">{f.asset_id}</span>
+                <span className="text-blue-600 hover:underline">{f.assetLabel || f.asset_id}</span>
                 <span className="text-gray-500">{timeAgo(f.detected_at)}</span>
               </Link>
             ))}
@@ -138,7 +138,7 @@ export default async function AssetCoDashboardPage({ params }) {
                   href={`/dashboard/${assetco.id}/assets/${e.asset_id}`}
                   className="p-3 text-sm flex justify-between hover:bg-gray-50 transition-colors"
                 >
-                  <span>{e.event_type} — <span className="text-blue-600 hover:underline">{e.asset_id}</span></span>
+                  <span>{e.event_type} — <span className="text-blue-600 hover:underline">{e.assetLabel || e.asset_id}</span></span>
                   <span className="text-gray-500">{timeAgo(e.received_at)}</span>
                 </Link>
               ) : (

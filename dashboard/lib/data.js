@@ -113,18 +113,28 @@ export async function getPortfolioSummary() {
 export async function getAssetCoDetail(assetCoId) {
   const supabase = createClient();
 
-  const [{ data: assetco }, { data: cashflow }, { data: faults }, { data: events }, { data: customers }] = await Promise.all([
-    supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
-    supabase.from('cashflow_state').select('*').eq('assetco_id', assetCoId),
-    supabase.from('faults').select('*').eq('assetco_id', assetCoId),
-    supabase
-      .from('events')
-      .select('id, event_type, asset_id, received_at')
-      .eq('assetco_id', assetCoId)
-      .order('received_at', { ascending: false })
-      .limit(20),
-    supabase.from('customers').select('*').eq('assetco_id', assetCoId),
-  ]);
+  const [{ data: assetco }, { data: cashflow }, { data: faults }, { data: events }, { data: customers }, { data: assets }] =
+    await Promise.all([
+      supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
+      supabase.from('cashflow_state').select('*').eq('assetco_id', assetCoId),
+      supabase.from('faults').select('*').eq('assetco_id', assetCoId),
+      supabase
+        .from('events')
+        .select('id, event_type, asset_id, received_at')
+        .eq('assetco_id', assetCoId)
+        .order('received_at', { ascending: false })
+        .limit(20),
+      supabase.from('customers').select('*').eq('assetco_id', assetCoId),
+      supabase.from('assets').select('id, customer_id, asset_type').eq('assetco_id', assetCoId),
+    ]);
+
+  // An asset_id alone ("GS-1001") doesn't tell a reader whose asset it is —
+  // build a lookup so faults/recent-activity rows can show the owning
+  // customer's name (or at least the asset type) instead of just the ID.
+  const customerNameById = new Map((customers || []).map((c) => [c.id, c.name]));
+  const assetLabelById = new Map(
+    (assets || []).map((a) => [a.id, customerNameById.get(a.customer_id) || a.asset_type || null])
+  );
 
   const customerBreakdown = {
     current: (cashflow || []).filter((c) => !c.is_defaulted && c.missed_count === 0).length,
@@ -155,9 +165,11 @@ export async function getAssetCoDetail(assetCoId) {
     assetco,
     assets: cashflow || [],
     faults: faults || [],
-    openFaults: (faults || []).filter((f) => f.status === 'open'),
+    openFaults: (faults || [])
+      .filter((f) => f.status === 'open')
+      .map((f) => ({ ...f, assetLabel: assetLabelById.get(f.asset_id) || null })),
     customerBreakdown,
-    recentActivity: events || [],
+    recentActivity: (events || []).map((e) => ({ ...e, assetLabel: assetLabelById.get(e.asset_id) || null })),
     pipelineCustomers,
     pipelineSummary,
     allCustomers: (customers || []).map((c) => ({ id: c.id, name: c.name || c.id })),
@@ -227,12 +239,16 @@ export async function getCustomerDetail(customerId) {
       ])
     : [{ data: [] }, { data: [] }];
   const cashflowByAsset = new Map((cashflow || []).map((c) => [c.asset_id, c]));
+  // A raw asset_id ("GS-1001") means little in a payment/fault row without
+  // its type — since these are all this customer's own assets, label each
+  // by type rather than requiring a second lookup per row.
+  const assetLabelById = new Map((assets || []).map((a) => [a.id, a.asset_type || a.equipment_spec || null]));
 
   return {
     customer,
     assets: (assets || []).map((a) => ({ ...a, cashflow: cashflowByAsset.get(a.id) || null })),
-    payments: payments || [],
-    faults: faults || [],
+    payments: (payments || []).map((p) => ({ ...p, assetLabel: assetLabelById.get(p.asset_id) || null })),
+    faults: (faults || []).map((f) => ({ ...f, assetLabel: assetLabelById.get(f.asset_id) || null })),
   };
 }
 
@@ -384,7 +400,16 @@ export async function getAssetDetail(assetId) {
     supabase.from('faults').select('*').eq('asset_id', assetId).order('detected_at', { ascending: false }),
   ]);
 
-  return { asset, cashflow, payments: payments || [], faults: faults || [] };
+  // An asset ID alone (e.g. "GS-1001") doesn't tell a reader who owns it —
+  // fetch the customer's name so every asset view can show it alongside
+  // the ID rather than just the ID by itself.
+  let customerName = null;
+  if (asset?.customer_id) {
+    const { data: customer } = await supabase.from('customers').select('name').eq('id', asset.customer_id).maybeSingle();
+    customerName = customer?.name || null;
+  }
+
+  return { asset, customerName, cashflow, payments: payments || [], faults: faults || [] };
 }
 
 /**

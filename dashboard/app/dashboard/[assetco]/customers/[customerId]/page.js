@@ -63,8 +63,8 @@ export default async function CustomerDetailPage({ params }) {
                 className="p-3 text-sm flex justify-between hover:bg-gray-50 transition-colors"
               >
                 <div>
-                  <p className="text-blue-600 hover:underline">{a.id}</p>
-                  <p className="text-xs text-gray-500">{a.asset_type || 'type n/a'} · {OWNERSHIP_MODEL_LABELS[a.ownership_model] || a.ownership_model}</p>
+                  <p className="text-blue-600 hover:underline">{a.asset_type || a.id}</p>
+                  <p className="text-xs text-gray-500">{a.id} · {OWNERSHIP_MODEL_LABELS[a.ownership_model] || a.ownership_model}</p>
                 </div>
                 <div className="text-right text-xs text-gray-500">
                   <p>{a.status}</p>
@@ -99,7 +99,7 @@ export default async function CustomerDetailPage({ params }) {
                   <td className="p-3">{formatDateTime(p.occurred_at)}</td>
                   <td className="p-3">
                     <Link href={`/dashboard/${params.assetco}/assets/${p.asset_id}`} className="text-blue-600 hover:underline">
-                      {p.asset_id}
+                      {p.assetLabel || p.asset_id}
                     </Link>
                   </td>
                   <td className="p-3">{formatCurrency(p.amount, p.currency)}</td>
@@ -119,7 +119,7 @@ export default async function CustomerDetailPage({ params }) {
         <div className="bg-white rounded-lg border border-gray-200 divide-y">
           {faults.map((f) => (
             <div key={f.id} className="p-3 text-sm flex justify-between">
-              <span>{f.asset_id} — {f.status === 'open' ? 'Open' : 'Resolved'}</span>
+              <span>{f.assetLabel || f.asset_id} — {f.status === 'open' ? 'Open' : 'Resolved'}</span>
               <span className="text-gray-500">{timeAgo(f.detected_at)}</span>
             </div>
           ))}

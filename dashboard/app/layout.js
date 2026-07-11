@@ -16,16 +16,18 @@ export const metadata = {
 };
 
 // Runs before paint (inline, not a bundled script) so the page never flashes
-// light-then-dark: reads the user's saved choice, falling back to their OS
-// preference on first visit. Applies to every route, not just /dashboard, so
-// public pages (login, apply) also respect the same choice/preference —
+// light-then-dark: reads the user's saved choice, defaulting to dark (the
+// team's preferred look) rather than following OS preference — a first-time
+// visitor sees dark mode until they explicitly switch to light, at which
+// point that choice is remembered. Applies to every route, not just
+// /dashboard, so public pages (login, apply) match too —
 // suppressHydrationWarning on <html> because this script mutates its class
 // before React hydrates, which React would otherwise flag as a mismatch.
 const THEME_INIT_SCRIPT = `
 (function () {
   try {
     var stored = localStorage.getItem('cef-pip-theme');
-    var isDark = stored ? stored === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+    var isDark = stored ? stored === 'dark' : true;
     document.documentElement.classList.toggle('dark', isDark);
   } catch (e) {}
 })();

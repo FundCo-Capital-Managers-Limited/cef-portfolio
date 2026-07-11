@@ -59,8 +59,8 @@ export default function LoginPage() {
   if (forgotMode) {
     return (
       <main className="relative min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-8 overflow-hidden">
-        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-gradient opacity-20 blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-brand-gradient opacity-10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-gradient opacity-40 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-brand-gradient opacity-25 blur-3xl pointer-events-none" />
         <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={220} height={50} priority />
 
         <form onSubmit={handleForgotPassword} className="w-full max-w-sm bg-white p-8 rounded-lg shadow space-y-4 border-t-4 border-brand-blue">
@@ -110,8 +110,8 @@ export default function LoginPage() {
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-8 overflow-hidden">
-      <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-gradient opacity-20 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-brand-gradient opacity-10 blur-3xl pointer-events-none" />
+      <div className="absolute -top-24 -right-24 w-72 h-72 rounded-full bg-brand-gradient opacity-40 blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-brand-gradient opacity-25 blur-3xl pointer-events-none" />
       <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={220} height={50} priority />
 
       <form onSubmit={handleSubmit} className="w-full max-w-sm bg-white p-8 rounded-lg shadow space-y-4 border-t-4 border-brand-blue">
