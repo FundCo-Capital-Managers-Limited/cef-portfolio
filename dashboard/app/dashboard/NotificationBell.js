@@ -90,7 +90,7 @@ export default function NotificationBell({ userId }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-80 bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
+        <div className="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
           <div className="p-3 border-b text-sm font-medium">Recent changes</div>
           {items.length === 0 && <p className="p-4 text-sm text-gray-500">No recent activity.</p>}
           {items.map((entry) => {
