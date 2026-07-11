@@ -7,7 +7,11 @@ import { usePaginatedList } from '../../../../lib/usePaginatedList';
 import Pagination from '../../Pagination';
 
 function searchUser(u, term) {
-  return u.email.toLowerCase().includes(term) || (u.assetco_id || '').toLowerCase().includes(term);
+  return (
+    u.email.toLowerCase().includes(term) ||
+    (u.assetco_id || '').toLowerCase().includes(term) ||
+    (u.assetco_ids || []).some((id) => id.toLowerCase().includes(term))
+  );
 }
 
 const inputCls = 'w-full border border-gray-300 rounded px-2 py-1.5 text-sm';
@@ -24,7 +28,7 @@ function Field({ label, children }) {
 export default function UserManagementPanel({ assetcos }) {
   const [users, setUsers] = useState(null);
   const [loadError, setLoadError] = useState(null);
-  const [form, setForm] = useState({ email: '', role: 'ops', assetcoId: assetcos[0]?.id || '' });
+  const [form, setForm] = useState({ email: '', role: 'ops', assetcoId: assetcos[0]?.id || '', assetcoIds: [] });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [created, setCreated] = useState(null);
@@ -62,10 +66,11 @@ export default function UserManagementPanel({ assetcos }) {
           email: form.email,
           role: form.role,
           assetcoId: form.role === 'assetco_admin' ? form.assetcoId : undefined,
+          assetcoIds: form.role === 'assetco_dev' ? form.assetcoIds : undefined,
         },
       });
       setCreated(data);
-      setForm({ email: '', role: 'ops', assetcoId: assetcos[0]?.id || '' });
+      setForm({ email: '', role: 'ops', assetcoId: assetcos[0]?.id || '', assetcoIds: [] });
       await loadUsers();
     } catch (err) {
       setError(err.message);
@@ -124,8 +129,31 @@ export default function UserManagementPanel({ assetcos }) {
             </select>
           </Field>
         )}
+        {form.role === 'assetco_dev' && (
+          <Field label="AssetCos (this login can switch between them)">
+            <div className="space-y-1 border border-gray-300 rounded p-2 max-h-40 overflow-y-auto">
+              {assetcos.map((a) => (
+                <label key={a.id} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={form.assetcoIds.includes(a.id)}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        assetcoIds: e.target.checked
+                          ? [...f.assetcoIds, a.id]
+                          : f.assetcoIds.filter((id) => id !== a.id),
+                      }))
+                    }
+                  />
+                  {a.name}
+                </label>
+              ))}
+            </div>
+          </Field>
+        )}
         <button
-          disabled={submitting || !form.email}
+          disabled={submitting || !form.email || (form.role === 'assetco_dev' && form.assetcoIds.length === 0)}
           onClick={handleCreate}
           className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
         >
@@ -188,7 +216,11 @@ export default function UserManagementPanel({ assetcos }) {
                 <tr key={u.id}>
                   <td className="p-3">{u.email}</td>
                   <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
-                  <td className="p-3">{u.assetco_id || '—'}</td>
+                  <td className="p-3">
+                    {u.role === 'assetco_dev'
+                      ? (u.assetco_ids || []).join(', ') || '—'
+                      : u.assetco_id || '—'}
+                  </td>
                   <td className="p-3 text-right">
                     <button
                       disabled={resettingId === u.id}

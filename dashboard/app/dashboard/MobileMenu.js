@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Boxes, Workflow, ShieldCheck, Layers, Landmark, Users, ClipboardList, Menu, X } from 'lucide-react';
+import { Boxes, Workflow, ShieldCheck, Layers, Landmark, Users, ClipboardList, Code2, Menu, X } from 'lucide-react';
 
 // Mirrors the NAV_ICONS map in layout.js — kept separate because a Server
 // Component (layout.js) can't pass function props (icon components
@@ -15,6 +15,7 @@ const NAV_ICONS = {
   '/dashboard/loan-book': Landmark,
   '/dashboard/admin/users': Users,
   '/dashboard/admin/applications': ClipboardList,
+  '/dashboard/dev-console': Code2,
 };
 
 export default function MobileMenu({ links }) {

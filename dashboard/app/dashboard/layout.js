@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Boxes, Workflow, ShieldCheck, Layers, Landmark, Users, ClipboardList } from 'lucide-react';
+import { Boxes, Workflow, ShieldCheck, Layers, Landmark, Users, ClipboardList, Code2 } from 'lucide-react';
 import { getCurrentUserProfile } from '../../lib/data';
 import SignOutButton from './SignOutButton';
 import NotificationBell from './NotificationBell';
@@ -19,24 +19,31 @@ const NAV_ICONS = {
   '/dashboard/loan-book': Landmark,
   '/dashboard/admin/users': Users,
   '/dashboard/admin/applications': ClipboardList,
+  '/dashboard/dev-console': Code2,
 };
 
 export default async function DashboardLayout({ children }) {
   const profile = await getCurrentUserProfile();
+  const isAssetcoDev = profile?.role === 'assetco_dev';
 
-  const navLinks = [
-    { href: '/dashboard/registry', label: 'Asset Registry' },
-    { href: '/dashboard/pipeline', label: 'Pipeline Board' },
-    { href: '/dashboard/dreef', label: 'DREEF Pipeline' },
-    { href: '/dashboard/series', label: 'CEF Series' },
-    { href: '/dashboard/loan-book', label: 'Loan Book' },
-    ...(['it_admin', 'management'].includes(profile?.role)
-      ? [{ href: '/dashboard/admin/users', label: 'Users' }]
-      : []),
-    ...(['executive', 'management', 'it_admin'].includes(profile?.role)
-      ? [{ href: '/dashboard/admin/applications', label: 'Applications' }]
-      : []),
-  ];
+  // assetco_dev is confined to the Developer Console by middleware.js (that's
+  // the real enforcement — RLS here can't scope by role); this just keeps
+  // their nav from showing links to pages they'd get redirected away from.
+  const navLinks = isAssetcoDev
+    ? [{ href: '/dashboard/dev-console', label: 'Developer Console' }]
+    : [
+        { href: '/dashboard/registry', label: 'Asset Registry' },
+        { href: '/dashboard/pipeline', label: 'Pipeline Board' },
+        { href: '/dashboard/dreef', label: 'DREEF Pipeline' },
+        { href: '/dashboard/series', label: 'CEF Series' },
+        { href: '/dashboard/loan-book', label: 'Loan Book' },
+        ...(['it_admin', 'management'].includes(profile?.role)
+          ? [{ href: '/dashboard/admin/users', label: 'Users' }]
+          : []),
+        ...(['executive', 'management', 'it_admin'].includes(profile?.role)
+          ? [{ href: '/dashboard/admin/applications', label: 'Applications' }]
+          : []),
+      ];
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
@@ -44,7 +51,7 @@ export default async function DashboardLayout({ children }) {
       <header className="bg-white border-b border-gray-200 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-4 min-w-0">
-            <Link href="/dashboard" className="flex items-center gap-2 shrink-0">
+            <Link href={isAssetcoDev ? '/dashboard/dev-console' : '/dashboard'} className="flex items-center gap-2 shrink-0">
               <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={140} height={32} priority />
             </Link>
             {/* 7 possible links is too wide for md (768px) alongside the logo and the
@@ -69,7 +76,11 @@ export default async function DashboardLayout({ children }) {
           </div>
           <div className="flex items-center gap-2 xl:gap-4 text-sm text-gray-600 shrink-0">
             <ThemeToggle />
-            <NotificationBell userId={profile?.id} />
+            {/* audit_log RLS is is_cef_user()-broad (any provisioned user, no
+                per-role scoping) — hiding this for assetco_dev is UX, not the
+                real boundary, but there's no reason to show them CEF-wide
+                change history regardless. */}
+            {!isAssetcoDev && <NotificationBell userId={profile?.id} />}
             <span className="hidden xl:inline whitespace-nowrap">
               {profile?.email} {profile?.role ? `· ${profile.role}` : ''}
             </span>
