@@ -24,7 +24,9 @@ const CEF_WIDE_ROLES = ['executive', 'management', 'finance', 'ops', 'it_admin']
  */
 function canAccessAssetco(user, assetCoId) {
   if (CEF_WIDE_ROLES.includes(user.role)) return true;
-  return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
+  if (user.role === 'assetco_admin') return user.assetcoId === assetCoId;
+  if (user.role === 'assetco_dev') return (user.assetcoIds || []).includes(assetCoId);
+  return false;
 }
 
 /**

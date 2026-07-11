@@ -20,7 +20,7 @@ async function getOne(req, res, next) {
     if (!assetco) return res.status(404).json({ error: 'AssetCo not found' });
 
     const stageLog = await assetcoService.getStageLog(req.params.id);
-    return res.status(200).json({ assetco, stageLog });
+    return res.status(200).json({ assetco: assetcoService.stripSecrets(assetco), stageLog });
   } catch (err) {
     return next(err);
   }
@@ -109,10 +109,17 @@ async function changeStage(req, res, next) {
   }
 }
 
+function canRegenerateSecret(user, assetCoId) {
+  if (['management', 'it_admin'].includes(user.role)) return true;
+  // assetco_dev is explicitly self-service — no CEF approval step — but only
+  // for the AssetCo(s) they're actually linked to.
+  return user.role === 'assetco_dev' && (user.assetcoIds || []).includes(assetCoId);
+}
+
 async function regenerateSecret(req, res, next) {
   try {
-    if (!['management', 'it_admin'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Only CEF Management or IT Admin can regenerate a signing secret' });
+    if (!canRegenerateSecret(req.user, req.params.id)) {
+      return res.status(403).json({ error: 'You do not have permission to regenerate this signing secret' });
     }
     const hmacSecret = await assetcoService.regenerateHmacSecret(req.params.id, req.user);
     return res.status(200).json({ hmacSecret });

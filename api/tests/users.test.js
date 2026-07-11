@@ -7,6 +7,7 @@ const mockSupabase = createFakeSupabase({
   ],
   assetcos: [
     { id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true },
+    { id: 'EMLGRID', name: 'EML', hmac_secret: 'secret2', is_active: true },
   ],
 });
 
@@ -60,6 +61,28 @@ describe('User management endpoints', () => {
     );
     expect(res.status).toBe(201);
     expect(res.body.user.assetco_id).toBe('GROSOLAR');
+  });
+
+  it('requires at least one assetcoId for an assetco_dev', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(
+      request(app).post('/api/users').send({ email: 'dev@buildco.example', role: 'assetco_dev', assetcoIds: [] })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('creates an assetco_dev with access to multiple AssetCos', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(
+      request(app)
+        .post('/api/users')
+        .send({ email: 'dev@buildco.example', role: 'assetco_dev', assetcoIds: ['GROSOLAR', 'EMLGRID'] })
+    );
+    expect(res.status).toBe(201);
+    expect(res.body.user.assetco_ids).toEqual(['GROSOLAR', 'EMLGRID']);
+
+    const accessRows = mockSupabase._store.user_assetco_dev_access.filter((a) => a.user_id === res.body.user.id);
+    expect(accessRows.map((a) => a.assetco_id).sort()).toEqual(['EMLGRID', 'GROSOLAR']);
   });
 
   it('rejects an invalid role', async () => {

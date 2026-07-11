@@ -28,12 +28,23 @@ async function verifySupabaseAuth(req, res, next) {
       return res.status(403).json({ error: 'User is not provisioned on CEF-PIP' });
     }
 
+    let assetcoIds;
+    if (profile.role === 'assetco_dev') {
+      const { data: access, error: accessError } = await supabase
+        .from('user_assetco_dev_access')
+        .select('assetco_id')
+        .eq('user_id', profile.id);
+      if (accessError) throw accessError;
+      assetcoIds = (access || []).map((a) => a.assetco_id);
+    }
+
     req.user = {
       id: profile.id,
       authUserId: payload.sub,
       email: profile.email,
       role: profile.role,
       assetcoId: profile.assetco_id,
+      assetcoIds,
     };
     next();
   } catch (err) {

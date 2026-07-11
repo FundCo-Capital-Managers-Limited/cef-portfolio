@@ -11,8 +11,8 @@ async function list(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const { email, role, assetcoId } = req.body;
-    const { user, tempPassword } = await userService.createUser({ email, role, assetcoId, createdBy: req.user });
+    const { email, role, assetcoId, assetcoIds } = req.body;
+    const { user, tempPassword } = await userService.createUser({ email, role, assetcoId, assetcoIds, createdBy: req.user });
     res.status(201).json({ user, tempPassword });
   } catch (err) {
     next(err);

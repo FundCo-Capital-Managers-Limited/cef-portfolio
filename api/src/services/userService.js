@@ -11,12 +11,20 @@ function generateTempPassword() {
 }
 
 async function listUsers() {
-  const { data, error } = await supabase
-    .from('users')
-    .select('id, email, role, assetco_id, created_at')
-    .order('created_at', { ascending: false });
+  const [{ data, error }, { data: devAccess, error: devAccessError }] = await Promise.all([
+    supabase.from('users').select('id, email, role, assetco_id, created_at').order('created_at', { ascending: false }),
+    supabase.from('user_assetco_dev_access').select('user_id, assetco_id'),
+  ]);
   if (error) throw error;
-  return data || [];
+  if (devAccessError) throw devAccessError;
+
+  const accessByUser = new Map();
+  for (const row of devAccess || []) {
+    if (!accessByUser.has(row.user_id)) accessByUser.set(row.user_id, []);
+    accessByUser.get(row.user_id).push(row.assetco_id);
+  }
+
+  return (data || []).map((u) => ({ ...u, assetco_ids: accessByUser.get(u.id) || [] }));
 }
 
 /**
@@ -27,13 +35,16 @@ async function listUsers() {
  * against (the exact gap ENVIRONMENTS.md's old manual process could leave
  * behind).
  */
-async function createUser({ email, role, assetcoId, createdBy }) {
+async function createUser({ email, role, assetcoId, assetcoIds, createdBy }) {
   if (!email || !role) throw Object.assign(new Error('email and role are required'), { status: 400 });
   if (!ROLES.includes(role)) {
     throw Object.assign(new Error(`role must be one of: ${ROLES.join(', ')}`), { status: 400 });
   }
   if (role === 'assetco_admin' && !assetcoId) {
     throw Object.assign(new Error('assetcoId is required for role assetco_admin'), { status: 400 });
+  }
+  if (role === 'assetco_dev' && !assetcoIds?.length) {
+    throw Object.assign(new Error('assetcoIds (at least one) is required for role assetco_dev'), { status: 400 });
   }
 
   const tempPassword = generateTempPassword();
@@ -65,18 +76,25 @@ async function createUser({ email, role, assetcoId, createdBy }) {
     throw insertError;
   }
 
+  if (role === 'assetco_dev') {
+    const { error: accessError } = await supabase
+      .from('user_assetco_dev_access')
+      .insert(assetcoIds.map((id) => ({ user_id: userRow.id, assetco_id: id })));
+    if (accessError) throw accessError;
+  }
+
   await supabase.from('audit_log').insert({
     actor_type: 'user',
     actor_user_id: createdBy?.id || null,
     action: 'user_created',
     entity_type: 'user',
     entity_id: userRow.id,
-    details: { email, role, assetco_id: userRow.assetco_id },
+    details: { email, role, assetco_id: userRow.assetco_id, assetco_ids: role === 'assetco_dev' ? assetcoIds : undefined },
   });
 
-  logger.info('User account created', { email, role, assetcoId: userRow.assetco_id, createdBy: createdBy?.email });
+  logger.info('User account created', { email, role, assetcoId: userRow.assetco_id, assetcoIds, createdBy: createdBy?.email });
 
-  return { user: userRow, tempPassword };
+  return { user: { ...userRow, assetco_ids: role === 'assetco_dev' ? assetcoIds : undefined }, tempPassword };
 }
 
 /**

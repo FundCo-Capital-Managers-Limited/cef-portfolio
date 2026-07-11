@@ -5,7 +5,9 @@ const mockSupabase = createFakeSupabase({
     { id: 'user-mgmt', auth_user_id: 'auth-mgmt', email: 'mgmt@cef.example', role: 'management', assetco_id: null },
     { id: 'user-exec', auth_user_id: 'auth-exec', email: 'exec@cef.example', role: 'executive', assetco_id: null },
     { id: 'user-groadmin', auth_user_id: 'auth-groadmin', email: 'admin@grosolar.example', role: 'assetco_admin', assetco_id: 'GROSOLAR' },
+    { id: 'user-dev', auth_user_id: 'auth-dev', email: 'dev@buildco.example', role: 'assetco_dev', assetco_id: null },
   ],
+  user_assetco_dev_access: [{ user_id: 'user-dev', assetco_id: 'GROSOLAR' }],
   assetcos: [
     {
       id: 'GROSOLAR',
@@ -127,6 +129,40 @@ describe('AssetCo pipeline endpoints', () => {
     const withAuth = as('auth-groadmin');
     const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/regenerate-secret'));
     expect(res.status).toBe(403);
+  });
+
+  describe('assetco_dev role', () => {
+    it('only sees the AssetCos they have dev access to', async () => {
+      const withAuth = as('auth-dev');
+      const res = await withAuth(request(app).get('/api/assetcos'));
+      expect(res.status).toBe(200);
+      expect(res.body.assetcos.map((a) => a.id)).toEqual(['GROSOLAR']);
+    });
+
+    it('never leaks hmac_secret in the AssetCo list', async () => {
+      const withAuth = as('auth-dev');
+      const res = await withAuth(request(app).get('/api/assetcos'));
+      expect(res.body.assetcos[0].hmac_secret).toBeUndefined();
+    });
+
+    it('can self-service regenerate the HMAC secret for an AssetCo they have access to, no CEF approval needed', async () => {
+      const withAuth = as('auth-dev');
+      const res = await withAuth(request(app).post('/api/assetcos/GROSOLAR/regenerate-secret'));
+      expect(res.status).toBe(200);
+      expect(res.body.hmacSecret).toMatch(/^[0-9a-f]{64}$/);
+    });
+
+    it('cannot regenerate the secret for an AssetCo they have no dev access to', async () => {
+      const withAuth = as('auth-dev');
+      const res = await withAuth(request(app).post('/api/assetcos/EML/regenerate-secret'));
+      expect(res.status).toBe(403);
+    });
+
+    it('cannot access an AssetCo they have no dev access to', async () => {
+      const withAuth = as('auth-dev');
+      const res = await withAuth(request(app).get('/api/assetcos/EML'));
+      expect(res.status).toBe(403);
+    });
   });
 
   describe('manual reconciliation trigger', () => {

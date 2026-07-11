@@ -4,14 +4,32 @@ const { PIPELINE_STAGES } = require('../utils/assetcoEnums');
 const { generateHmacSecret } = require('../utils/hmacSecret');
 const { runReconciliationForAssetCo } = require('./reconciliationService');
 
+// hmac_secret and reconciliation_token are plaintext credentials — every
+// assetco row handed back to a controller for JSON serialization must go
+// through this first, or they'd ship straight to the browser's network tab.
+// Internal callers that actually need base_url/pipeline_stage/etc keep using
+// getAssetco()'s full row; this is only for what crosses the HTTP boundary.
+function stripSecrets(assetco) {
+  if (!assetco) return assetco;
+  const { hmac_secret, reconciliation_token, ...rest } = assetco;
+  return rest;
+}
+
 async function listAssetcos(user) {
+  if (user.role === 'assetco_dev') {
+    if (!user.assetcoIds?.length) return [];
+    const { data, error } = await supabase.from('assetcos').select('*').in('id', user.assetcoIds).order('name');
+    if (error) throw error;
+    return data.map(stripSecrets);
+  }
+
   let query = supabase.from('assetcos').select('*').order('name');
   if (user.role === 'assetco_admin') {
     query = query.eq('id', user.assetcoId);
   }
   const { data, error } = await query;
   if (error) throw error;
-  return data;
+  return data.map(stripSecrets);
 }
 
 async function getAssetco(id) {
@@ -34,7 +52,7 @@ async function createAssetco(fields, user) {
     details: { name: fields.name },
   });
 
-  return getAssetco(fields.id);
+  return stripSecrets(await getAssetco(fields.id));
 }
 
 async function updateAssetcoProfile(id, fields, user) {
@@ -51,7 +69,7 @@ async function updateAssetcoProfile(id, fields, user) {
     details: { fields: Object.keys(fields) },
   });
 
-  return getAssetco(id);
+  return stripSecrets(await getAssetco(id));
 }
 
 /**
@@ -117,7 +135,7 @@ async function advanceStage(assetCoId, toStage, notes, user) {
     details: { fromStage, toStage, notes },
   });
 
-  return getAssetco(assetCoId);
+  return stripSecrets(await getAssetco(assetCoId));
 }
 
 /**
@@ -200,6 +218,7 @@ async function getStageLog(assetCoId) {
 module.exports = {
   listAssetcos,
   getAssetco,
+  stripSecrets,
   createAssetco,
   updateAssetcoProfile,
   advanceStage,

@@ -1,5 +1,15 @@
 import { createClient } from './supabaseServer';
 
+// Every browser-facing read of `assetcos` must use this instead of select('*')
+// — hmac_secret and reconciliation_token are plaintext credentials, and RLS
+// only controls row access, not columns, so `select('*')` would ship both
+// straight to the browser's network tab for any authenticated CEF user.
+const ASSETCO_PUBLIC_COLUMNS =
+  'id, name, is_active, created_at, base_url, legal_entity_name, registration_number, website, ' +
+  'pipeline_stage, asset_types, customer_types, sector, business_description, hq_state, operating_states, ' +
+  'primary_contact_name, primary_contact_email, primary_contact_phone, logo_url, integration_type, ' +
+  'stage_updated_at, stage_updated_by, internal_notes';
+
 export async function getCurrentUserProfile() {
   const supabase = createClient();
   const {
@@ -115,7 +125,7 @@ export async function getAssetCoDetail(assetCoId) {
 
   const [{ data: assetco }, { data: cashflow }, { data: faults }, { data: events }, { data: customers }, { data: assets }] =
     await Promise.all([
-      supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
+      supabase.from('assetcos').select(ASSETCO_PUBLIC_COLUMNS).eq('id', assetCoId).maybeSingle(),
       supabase.from('cashflow_state').select('*').eq('assetco_id', assetCoId),
       supabase.from('faults').select('*').eq('assetco_id', assetCoId),
       supabase
@@ -260,7 +270,7 @@ export async function getPipelineBoard() {
   const supabase = createClient();
 
   const [{ data: assetcos }, { data: cashflow }] = await Promise.all([
-    supabase.from('assetcos').select('*').order('stage_updated_at', { ascending: true }),
+    supabase.from('assetcos').select(ASSETCO_PUBLIC_COLUMNS).order('stage_updated_at', { ascending: true }),
     supabase.from('cashflow_state').select('assetco_id, total_collected, outstanding_balance, is_defaulted'),
   ]);
 
@@ -293,7 +303,7 @@ export async function getAssetcoProfile(assetCoId) {
 
   const [{ data: assetco }, { data: stageLog }, { data: infracredit }, { data: seriesLinks }, { data: syncState }] =
     await Promise.all([
-      supabase.from('assetcos').select('*').eq('id', assetCoId).maybeSingle(),
+      supabase.from('assetcos').select(ASSETCO_PUBLIC_COLUMNS).eq('id', assetCoId).maybeSingle(),
       supabase.from('assetco_stage_log').select('*').eq('assetco_id', assetCoId).order('changed_at', { ascending: false }),
       supabase.from('infracredit_relationships').select('*').eq('assetco_id', assetCoId).maybeSingle(),
       supabase.from('assetco_series').select('*, cef_series(id, code, display_name, status)').eq('assetco_id', assetCoId),
