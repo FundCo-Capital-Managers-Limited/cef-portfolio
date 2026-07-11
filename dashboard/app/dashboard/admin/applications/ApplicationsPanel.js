@@ -36,7 +36,7 @@ function CopyLinkButton() {
   return (
     <button
       onClick={handleCopy}
-      className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue"
+      className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue transition-all active:scale-95"
     >
       {copied ? 'Link copied!' : 'Copy Onboarding Link'}
     </button>
@@ -88,7 +88,7 @@ function ReviewForm({ application, onReviewed }) {
         <button
           disabled={submitting || !assetcoId}
           onClick={() => review('APPROVED')}
-          className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue"
+          className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
         >
           Approve → Onboarding
         </button>

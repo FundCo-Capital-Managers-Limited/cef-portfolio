@@ -1,18 +1,11 @@
 import Link from 'next/link';
+import { Wallet, TrendingDown, Percent, AlertTriangle, Landmark, PiggyBank, ShieldCheck, Zap, Bell, ArrowRight } from 'lucide-react';
 import { getPortfolioSummary, getLoanBook, getMonthlyCollectionsTrend } from '../../lib/data';
 import { formatCurrency, timeAgo } from '../../lib/format';
 import { alertRoute } from '../../lib/entityRoutes';
 import MonthlyTrendChart from './charts/MonthlyTrendChart';
 import AssetCoComparisonChart from './charts/AssetCoComparisonChart';
-
-function StatCard({ label, value, tone }) {
-  return (
-    <div className="bg-white rounded-lg border border-gray-200 border-t-4 border-t-brand-blue p-4">
-      <p className="text-sm text-gray-500">{label}</p>
-      <p className={`text-2xl font-semibold mt-1 ${tone || 'text-brand-navy'}`}>{value}</p>
-    </div>
-  );
-}
+import StatCard from './StatCard';
 
 function repaymentRateTone(rate) {
   if (rate > 80) return 'text-green-600';
@@ -30,29 +23,31 @@ export default async function PortfolioDashboardPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-xl font-semibold mb-4">Portfolio Cashflow Summary</h1>
+        <h1 className="text-xl font-semibold mb-4 dark:text-white">Portfolio Cashflow Summary</h1>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Total Collected" value={formatCurrency(summary.totalCollected)} />
-          <StatCard label="Outstanding" value={formatCurrency(summary.totalOutstanding)} />
+          <StatCard label="Total Collected" value={formatCurrency(summary.totalCollected)} Icon={Wallet} iconTone="green" />
+          <StatCard label="Outstanding" value={formatCurrency(summary.totalOutstanding)} Icon={TrendingDown} iconTone="amber" />
           <StatCard
             label="Collection Rate"
             value={summary.collectionRate === null ? '—' : `${Math.round(summary.collectionRate * 100)}%`}
+            Icon={Percent}
+            iconTone="blue"
           />
-          <StatCard label="Defaulting Customers" value={summary.defaultCount} />
+          <StatCard label="Defaulting Customers" value={summary.defaultCount} Icon={AlertTriangle} iconTone="red" />
         </div>
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3">AssetCo Performance</h2>
+        <h2 className="text-lg font-semibold mb-3 dark:text-white">AssetCo Performance</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {summary.assetCoCards.map((co) => (
             <Link
               key={co.id}
               href={`/dashboard/${co.id}`}
-              className="bg-white rounded-lg border border-gray-200 p-4 hover:shadow transition"
+              className="group bg-white rounded-lg border border-gray-200 border-t-4 border-t-brand-teal p-4 transition-all hover:shadow-md hover:-translate-y-0.5"
             >
               <div className="flex items-center justify-between">
-                <h3 className="font-medium">{co.name}</h3>
+                <h3 className="font-medium dark:text-white group-hover:text-brand-blue transition-colors">{co.name}</h3>
                 <div className="flex items-center gap-1">
                   {co.pipelineCount > 0 && (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
@@ -90,19 +85,24 @@ export default async function PortfolioDashboardPage() {
 
       <div>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-semibold">CEF Loan Book</h2>
-          <Link href="/dashboard/loan-book" className="text-sm text-blue-600 hover:underline">
-            View full Loan Book →
+          <h2 className="text-lg font-semibold flex items-center gap-2 dark:text-white">
+            <Landmark size={18} className="text-brand-navy dark:text-brand-teal" />
+            CEF Loan Book
+          </h2>
+          <Link href="/dashboard/loan-book" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+            View full Loan Book <ArrowRight size={14} />
           </Link>
         </div>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard label="Total Capital Deployed" value={formatCurrency(loanBook.totalFacilitiesNgn)} />
-          <StatCard label="Total Repaid to CEF" value={formatCurrency(loanBook.totalRepaidNgn)} />
-          <StatCard label="Outstanding Loan Book" value={formatCurrency(loanBook.totalOutstandingNgn)} />
+          <StatCard label="Total Capital Deployed" value={formatCurrency(loanBook.totalFacilitiesNgn)} Icon={Landmark} iconTone="navy" />
+          <StatCard label="Total Repaid to CEF" value={formatCurrency(loanBook.totalRepaidNgn)} Icon={PiggyBank} iconTone="green" />
+          <StatCard label="Outstanding Loan Book" value={formatCurrency(loanBook.totalOutstandingNgn)} Icon={TrendingDown} iconTone="amber" />
           <StatCard
             label="Repayment Rate"
             value={`${loanBook.repaymentRatePercent.toFixed(1)}%`}
             tone={repaymentRateTone(loanBook.repaymentRatePercent)}
+            Icon={ShieldCheck}
+            iconTone="green"
           />
         </div>
         <p className="text-xs text-gray-500 mt-2">
@@ -113,15 +113,21 @@ export default async function PortfolioDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
-          <h2 className="text-lg font-semibold mb-3">Open Faults</h2>
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 dark:text-white">
+            <Zap size={18} className="text-amber-500" />
+            Open Faults ({summary.openFaultCount})
+          </h2>
           <div className="bg-white rounded-lg border border-gray-200 p-4">
-            <p className="text-2xl font-semibold">{summary.openFaultCount}</p>
+            <p className="text-2xl font-semibold dark:text-white">{summary.openFaultCount}</p>
             <p className="text-sm text-gray-500">across all AssetCos</p>
           </div>
         </div>
 
         <div>
-          <h2 className="text-lg font-semibold mb-3">Active Alerts</h2>
+          <h2 className="text-lg font-semibold mb-3 flex items-center gap-2 dark:text-white">
+            <Bell size={18} className="text-brand-blue" />
+            Active Alerts
+          </h2>
           <div className="bg-white rounded-lg border border-gray-200 divide-y">
             {summary.recentAlerts.length === 0 && (
               <p className="text-sm text-gray-500 p-4">No alerts yet.</p>

@@ -58,7 +58,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
 
   return (
     <>
-      <button onClick={() => setOpen(true)} className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue">
+      <button onClick={() => setOpen(true)} className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue transition-all active:scale-95">
         Add Data
       </button>
 
@@ -109,7 +109,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                       state: customerForm.state || undefined,
                       status: customerForm.status || undefined,
                     }, () => setCustomerForm({ customerName: '', segment: '', state: '', status: '' }))}
-                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
                   >
                     {submitting ? 'Saving…' : 'Save Customer'}
                   </button>
@@ -149,7 +149,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <button
                     disabled={submitting || !assetForm.customerId}
                     onClick={() => submit('/api/manual/assets', { assetCoId: assetcoId, ...assetForm })}
-                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
                   >
                     {submitting ? 'Saving…' : 'Save Asset'}
                   </button>
@@ -184,7 +184,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                       status: paymentForm.status,
                       period: paymentForm.period,
                     })}
-                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
                   >
                     {submitting ? 'Saving…' : 'Save Payment'}
                   </button>
@@ -209,7 +209,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <button
                     disabled={submitting || !faultForm.assetId || !faultForm.faultDescription}
                     onClick={() => submit('/api/manual/faults', { assetCoId: assetcoId, ...faultForm })}
-                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
                   >
                     {submitting ? 'Saving…' : 'Save Fault'}
                   </button>
@@ -234,7 +234,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   <button
                     disabled={submitting || !statusForm.customerId}
                     onClick={() => submit(`/api/customers/${statusForm.customerId}/status`, { status: statusForm.status, notes: statusForm.notes })}
-                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
+                    className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
                   >
                     {submitting ? 'Saving…' : 'Update Status'}
                   </button>

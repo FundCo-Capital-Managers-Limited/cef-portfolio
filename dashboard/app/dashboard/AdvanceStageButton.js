@@ -31,7 +31,7 @@ export default function AdvanceStageButton({ assetcoId, currentStage }) {
     <>
       <button
         onClick={() => setOpen(true)}
-        className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue"
+        className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue transition-all active:scale-95"
       >
         Advance Stage
       </button>
@@ -75,7 +75,7 @@ export default function AdvanceStageButton({ assetcoId, currentStage }) {
               <button
                 onClick={handleConfirm}
                 disabled={submitting}
-                className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50"
+                className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
               >
                 {submitting ? 'Saving…' : 'Confirm'}
               </button>

@@ -127,7 +127,7 @@ export default function UserManagementPanel({ assetcos }) {
         <button
           disabled={submitting || !form.email}
           onClick={handleCreate}
-          className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue"
+          className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
         >
           {submitting ? 'Creating…' : 'Create Account'}
         </button>

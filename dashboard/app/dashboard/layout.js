@@ -1,10 +1,25 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { Boxes, Workflow, ShieldCheck, Layers, Landmark, Users, ClipboardList } from 'lucide-react';
 import { getCurrentUserProfile } from '../../lib/data';
 import SignOutButton from './SignOutButton';
 import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle';
 import MobileMenu from './MobileMenu';
+
+// Rendered directly here (a Server Component) for the desktop nav — kept out
+// of the navLinks array passed to MobileMenu since function props (icon
+// components included) can't cross the server/client boundary; MobileMenu
+// keeps its own copy of this same mapping.
+const NAV_ICONS = {
+  '/dashboard/registry': Boxes,
+  '/dashboard/pipeline': Workflow,
+  '/dashboard/dreef': ShieldCheck,
+  '/dashboard/series': Layers,
+  '/dashboard/loan-book': Landmark,
+  '/dashboard/admin/users': Users,
+  '/dashboard/admin/applications': ClipboardList,
+};
 
 export default async function DashboardLayout({ children }) {
   const profile = await getCurrentUserProfile();
@@ -33,15 +48,19 @@ export default async function DashboardLayout({ children }) {
               <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={140} height={32} priority />
             </Link>
             <nav className="hidden md:flex items-center gap-6">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className="text-sm text-gray-600 hover:text-brand-blue transition-colors whitespace-nowrap"
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                const Icon = NAV_ICONS[link.href];
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className="flex items-center gap-1.5 text-sm text-gray-600 hover:text-brand-blue transition-colors whitespace-nowrap"
+                  >
+                    {Icon && <Icon size={15} className="shrink-0" />}
+                    {link.label}
+                  </Link>
+                );
+              })}
             </nav>
           </div>
           <div className="flex items-center gap-2 sm:gap-4 text-sm text-gray-600">

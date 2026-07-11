@@ -99,7 +99,7 @@ export default function LinkSeriesButton({ assetcoId, allSeries }) {
 
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setOpen(false)} className="text-sm px-3 py-1.5 rounded border border-gray-300">Cancel</button>
-              <button onClick={handleSave} disabled={submitting} className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50">
+              <button onClick={handleSave} disabled={submitting} className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95">
                 {submitting ? 'Saving…' : 'Save'}
               </button>
             </div>
