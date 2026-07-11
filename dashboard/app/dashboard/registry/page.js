@@ -53,7 +53,10 @@ export default async function AssetRegistryPage() {
                     {a.id}
                   </Link>
                 </td>
-                <td className="p-3">{a.asset_type || '—'}</td>
+                <td className="p-3">
+                  <div>{a.asset_type || '—'}</div>
+                  {a.equipment_spec && <div className="text-xs text-gray-400">{a.equipment_spec}</div>}
+                </td>
                 <td className="p-3">
                   <Link href={`/dashboard/${a.assetco_id}`} className="hover:underline">
                     {a.assetco_id}

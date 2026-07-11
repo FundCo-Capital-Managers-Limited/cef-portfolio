@@ -433,6 +433,90 @@ export async function getLoanBook() {
 }
 
 /**
+ * Dedicated /dashboard/loan-book page — the full CEF loan book across every
+ * AssetCo (not just the ones with a Series link, which is all the homepage
+ * widget shows), plus a per-series breakdown and the individual facility
+ * list so a Finance/Management user can see every facility CEF has ever
+ * extended, not just the per-AssetCo rollup.
+ */
+export async function getLoanBookDetail() {
+  const supabase = createClient();
+
+  const [{ data: facilities }, { data: assetcos }, { data: series }] = await Promise.all([
+    supabase.from('cef_facilities').select('*').order('disbursement_date', { ascending: false }),
+    supabase.from('assetcos').select('id, name'),
+    supabase.from('cef_series').select('id, code, display_name'),
+  ]);
+
+  const all = facilities || [];
+  const assetcoById = new Map((assetcos || []).map((a) => [a.id, a]));
+  const seriesById = new Map((series || []).map((s) => [s.id, s]));
+
+  const totalFacilitiesNgn = all.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
+  const totalRepaidNgn = all.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
+  const statusPriority = ['IN_DEFAULT', 'IN_ARREARS', 'RESTRUCTURED', 'ACTIVE', 'WRITTEN_OFF', 'FULLY_REPAID'];
+
+  const byAssetCo = (assetcos || [])
+    .map((a) => {
+      const coFacilities = all.filter((f) => f.assetco_id === a.id);
+      if (coFacilities.length === 0) return null;
+      const totalFacilityNgn = coFacilities.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
+      const totalRepaid = coFacilities.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
+      const worstStatus = coFacilities.map((f) => f.facility_status).sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
+      return {
+        assetCoId: a.id,
+        assetCoName: a.name,
+        totalFacilityNgn,
+        totalRepaidNgn: totalRepaid,
+        outstandingNgn: totalFacilityNgn - totalRepaid,
+        facilityStatus: worstStatus,
+      };
+    })
+    .filter(Boolean);
+
+  const bySeries = (series || [])
+    .map((s) => {
+      const seriesFacilities = all.filter((f) => f.series_id === s.id);
+      if (seriesFacilities.length === 0) return null;
+      const totalDeployedNgn = seriesFacilities.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
+      const totalRepaid = seriesFacilities.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
+      return {
+        seriesCode: s.code,
+        seriesName: s.display_name,
+        totalDeployedNgn,
+        totalRepaidNgn: totalRepaid,
+        outstandingNgn: totalDeployedNgn - totalRepaid,
+      };
+    })
+    .filter(Boolean);
+
+  const facilityList = all.map((f) => ({
+    id: f.id,
+    facilityReference: f.facility_reference,
+    assetCoId: f.assetco_id,
+    assetCoName: assetcoById.get(f.assetco_id)?.name || f.assetco_id,
+    seriesName: seriesById.get(f.series_id)?.display_name || null,
+    facilityType: f.facility_type,
+    principalAmountNgn: Number(f.principal_amount_ngn || 0),
+    totalRepaidNgn: Number(f.total_repaid_ngn || 0),
+    outstandingBalanceNgn: Number(f.outstanding_balance_ngn ?? f.principal_amount_ngn - f.total_repaid_ngn),
+    facilityStatus: f.facility_status,
+    disbursementDate: f.disbursement_date,
+    maturityDate: f.maturity_date,
+  }));
+
+  return {
+    totalFacilitiesNgn,
+    totalRepaidNgn,
+    totalOutstandingNgn: totalFacilitiesNgn - totalRepaidNgn,
+    repaymentRatePercent: totalFacilitiesNgn > 0 ? (totalRepaidNgn / totalFacilitiesNgn) * 100 : 0,
+    byAssetCo,
+    bySeries,
+    facilities: facilityList,
+  };
+}
+
+/**
  * Feature 7 — CEF Facility panel on the AssetCo Profile page.
  */
 export async function getAssetcoFacilities(assetCoId) {

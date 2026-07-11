@@ -40,6 +40,9 @@ export default async function AssetDetailPage({ params }) {
               </span>
             </div>
             <div className="flex justify-between"><span className="text-gray-500">Asset type</span><span>{asset.asset_type || '—'}</span></div>
+            {asset.equipment_spec && (
+              <div className="flex justify-between"><span className="text-gray-500">Equipment</span><span>{asset.equipment_spec}</span></div>
+            )}
             <div className="flex justify-between"><span className="text-gray-500">Status</span><span>{asset.status}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Deployed</span><span>{formatDateTime(asset.deployed_at)}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Sync status</span><span>{asset.sync_status}</span></div>

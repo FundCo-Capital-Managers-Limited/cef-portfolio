@@ -28,6 +28,9 @@ export default async function DashboardLayout({ children }) {
             <Link href="/dashboard/series" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
               CEF Series
             </Link>
+            <Link href="/dashboard/loan-book" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
+              Loan Book
+            </Link>
             {['it_admin', 'management'].includes(profile?.role) && (
               <Link href="/dashboard/admin/users" className="text-sm text-gray-600 hover:text-brand-blue transition-colors">
                 Users

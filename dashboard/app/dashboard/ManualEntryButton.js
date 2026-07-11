@@ -30,6 +30,7 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
   const [assetForm, setAssetForm] = useState({
     customerId: customers[0]?.id || '',
     assetType: '',
+    equipmentSpec: '',
     ownershipModel: 'LEASE_TO_OWN',
     oemModel: '',
     oemManufacturer: '',
@@ -124,6 +125,9 @@ export default function ManualEntryButton({ assetcoId, customers, assetIds }) {
                   </Field>
                   <Field label="Asset type">
                     <input className={inputCls} placeholder="e.g. SOLAR_SYSTEM, METER, EV_BIKE" value={assetForm.assetType} onChange={(e) => setAssetForm((f) => ({ ...f, assetType: e.target.value }))} />
+                  </Field>
+                  <Field label="Equipment spec">
+                    <input className={inputCls} placeholder="e.g. 100kWp Solar Panel Array, 125kWh Battery Bank" value={assetForm.equipmentSpec} onChange={(e) => setAssetForm((f) => ({ ...f, equipmentSpec: e.target.value }))} />
                   </Field>
                   <Field label="Deal type">
                     <select className={inputCls} value={assetForm.ownershipModel} onChange={(e) => setAssetForm((f) => ({ ...f, ownershipModel: e.target.value }))}>

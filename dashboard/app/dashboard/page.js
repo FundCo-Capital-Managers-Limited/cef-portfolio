@@ -1,11 +1,9 @@
 import Link from 'next/link';
 import { getPortfolioSummary, getLoanBook, getMonthlyCollectionsTrend } from '../../lib/data';
 import { formatCurrency, timeAgo } from '../../lib/format';
-import { FACILITY_STATUS_STYLES } from '../../lib/constants';
 import { alertRoute } from '../../lib/entityRoutes';
 import MonthlyTrendChart from './charts/MonthlyTrendChart';
 import AssetCoComparisonChart from './charts/AssetCoComparisonChart';
-import LoanBookChart from './charts/LoanBookChart';
 
 function StatCard({ label, value, tone }) {
   return (
@@ -91,8 +89,13 @@ export default async function PortfolioDashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3">CEF Loan Book</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold">CEF Loan Book</h2>
+          <Link href="/dashboard/loan-book" className="text-sm text-blue-600 hover:underline">
+            View full Loan Book →
+          </Link>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard label="Total Capital Deployed" value={formatCurrency(loanBook.totalFacilitiesNgn)} />
           <StatCard label="Total Repaid to CEF" value={formatCurrency(loanBook.totalRepaidNgn)} />
           <StatCard label="Outstanding Loan Book" value={formatCurrency(loanBook.totalOutstandingNgn)} />
@@ -102,44 +105,10 @@ export default async function PortfolioDashboardPage() {
             tone={repaymentRateTone(loanBook.repaymentRatePercent)}
           />
         </div>
-        <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="text-left text-gray-500 border-b">
-              <tr>
-                <th className="p-3">AssetCo</th>
-                <th className="p-3">Facility Amount</th>
-                <th className="p-3">Repaid</th>
-                <th className="p-3">Outstanding</th>
-                <th className="p-3">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y">
-              {loanBook.byAssetCo.map((row) => (
-                <tr key={row.assetCoId}>
-                  <td className="p-3">
-                    <Link href={`/dashboard/${row.assetCoId}/profile`} className="text-blue-600 hover:underline">
-                      {row.assetCoName}
-                    </Link>
-                  </td>
-                  <td className="p-3">{formatCurrency(row.totalFacilityNgn)}</td>
-                  <td className="p-3">{formatCurrency(row.totalRepaidNgn)}</td>
-                  <td className="p-3">{formatCurrency(row.outstandingNgn)}</td>
-                  <td className="p-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${FACILITY_STATUS_STYLES[row.facilityStatus] || 'bg-gray-100 text-gray-500'}`}>
-                      {row.facilityStatus}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-              {loanBook.byAssetCo.length === 0 && (
-                <tr><td className="p-3 text-gray-500" colSpan={5}>No CEF facilities recorded yet.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="mt-4">
-          <LoanBookChart byAssetCo={loanBook.byAssetCo} />
-        </div>
+        <p className="text-xs text-gray-500 mt-2">
+          Showing {loanBook.byAssetCo.length} AssetCo{loanBook.byAssetCo.length === 1 ? '' : 's'} with an active CEF
+          facility. See the full Loan Book for every AssetCo, series breakdown, and individual facilities.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
