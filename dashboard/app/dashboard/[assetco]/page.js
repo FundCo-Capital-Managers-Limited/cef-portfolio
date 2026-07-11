@@ -2,10 +2,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getAssetCoDetail, getAssetcoCustomers, getCurrentUserProfile, getMonthlyCollectionsTrend } from '../../../lib/data';
 import { formatCurrency, timeAgo } from '../../../lib/format';
-import { OWNERSHIP_MODEL_LABELS } from '../../../lib/constants';
 import ManualEntryButton from '../ManualEntryButton';
 import { canManageAssetco } from '../../../lib/access';
 import MonthlyTrendChart from '../charts/MonthlyTrendChart';
+import CustomerTable from './CustomerTable';
 
 export default async function AssetCoDashboardPage({ params }) {
   const [detail, customers, profile, monthlyTrend] = await Promise.all([
@@ -42,44 +42,7 @@ export default async function AssetCoDashboardPage({ params }) {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div>
           <h2 className="text-lg font-semibold mb-3">Customers</h2>
-          <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="text-left text-gray-500 border-b">
-                <tr>
-                  <th className="p-3">Customer</th>
-                  <th className="p-3">Deal Type</th>
-                  <th className="p-3">Asset Type(s)</th>
-                  <th className="p-3">Project Value</th>
-                  <th className="p-3">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y">
-                {customers.map((c) => (
-                  <tr key={c.id} className="hover:bg-gray-50 transition-colors">
-
-                    <td className="p-3">
-                      <Link href={`/dashboard/${assetco.id}/customers/${c.id}`} className="text-blue-600 hover:underline">
-                        {c.name || c.id}
-                      </Link>
-                    </td>
-                    <td className="p-3">{c.dealType ? OWNERSHIP_MODEL_LABELS[c.dealType] || c.dealType : '—'}</td>
-                    <td className="p-3">{c.assetTypes.length ? c.assetTypes.join(', ') : '—'}</td>
-                    <td className="p-3">{formatCurrency(c.projectValueNgn)}</td>
-                    <td className="p-3">
-                      {c.isDefaulted ? (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-red-100 text-red-700">defaulted</span>
-                      ) : (
-                        <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">{c.status}</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-                {customers.length === 0 && (
-                  <tr><td className="p-3 text-gray-500" colSpan={5}>No customers recorded yet.</td></tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+          <CustomerTable assetcoId={assetco.id} customers={customers} />
         </div>
 
         <div>

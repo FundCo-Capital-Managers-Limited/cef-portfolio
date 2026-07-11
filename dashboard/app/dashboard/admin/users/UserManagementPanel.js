@@ -3,6 +3,12 @@
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../../../../lib/apiClient';
 import { USER_ROLES, USER_ROLE_LABELS } from '../../../../lib/constants';
+import { usePaginatedList } from '../../../../lib/usePaginatedList';
+import Pagination from '../../Pagination';
+
+function searchUser(u, term) {
+  return u.email.toLowerCase().includes(term) || (u.assetco_id || '').toLowerCase().includes(term);
+}
 
 const inputCls = 'w-full border border-gray-300 rounded px-2 py-1.5 text-sm';
 
@@ -24,6 +30,13 @@ export default function UserManagementPanel({ assetcos }) {
   const [created, setCreated] = useState(null);
   const [resetResult, setResetResult] = useState(null);
   const [resettingId, setResettingId] = useState(null);
+  const [roleFilter, setRoleFilter] = useState('');
+
+  const preFiltered = roleFilter ? (users || []).filter((u) => u.role === roleFilter) : users || [];
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(preFiltered, {
+    searchFn: searchUser,
+    pageSize: 10,
+  });
 
   async function loadUsers() {
     try {
@@ -146,6 +159,20 @@ export default function UserManagementPanel({ assetcos }) {
           </div>
         )}
 
+        <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+          <input
+            type="text"
+            placeholder="Search email or AssetCo…"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full sm:max-w-xs border border-gray-300 rounded px-3 py-1.5 text-sm"
+          />
+          <select value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm">
+            <option value="">All roles</option>
+            {USER_ROLES.map((r) => <option key={r} value={r}>{USER_ROLE_LABELS[r]}</option>)}
+          </select>
+        </div>
+
         <div className="bg-white rounded-lg border border-gray-200 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-gray-500 border-b">
@@ -157,7 +184,7 @@ export default function UserManagementPanel({ assetcos }) {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {(users || []).map((u) => (
+              {paginated.map((u) => (
                 <tr key={u.id}>
                   <td className="p-3">{u.email}</td>
                   <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
@@ -173,8 +200,8 @@ export default function UserManagementPanel({ assetcos }) {
                   </td>
                 </tr>
               ))}
-              {users && users.length === 0 && (
-                <tr><td className="p-3 text-gray-500" colSpan={4}>No users yet.</td></tr>
+              {users && paginated.length === 0 && (
+                <tr><td className="p-3 text-gray-500" colSpan={4}>No users match your search.</td></tr>
               )}
               {loadError && (
                 <tr><td className="p-3 text-red-600" colSpan={4}>{loadError}</td></tr>
@@ -182,6 +209,8 @@ export default function UserManagementPanel({ assetcos }) {
             </tbody>
           </table>
         </div>
+
+        {users && <Pagination page={page} totalPages={totalPages} totalCount={totalCount} onPageChange={setPage} itemLabel="users" />}
       </div>
     </div>
   );

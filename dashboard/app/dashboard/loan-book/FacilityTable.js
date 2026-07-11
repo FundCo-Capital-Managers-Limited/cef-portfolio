@@ -1,26 +1,26 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { formatCurrency, formatDateTime } from '../../../lib/format';
 import { FACILITY_STATUS_STYLES, FACILITY_STATUSES } from '../../../lib/constants';
+import { usePaginatedList } from '../../../lib/usePaginatedList';
+import Pagination from '../Pagination';
+
+function searchFacility(f, term) {
+  return (
+    f.assetCoName.toLowerCase().includes(term) ||
+    (f.facilityReference || '').toLowerCase().includes(term) ||
+    (f.seriesName || '').toLowerCase().includes(term)
+  );
+}
 
 export default function FacilityTable({ facilities }) {
-  const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-
-  const filtered = useMemo(() => {
-    const term = search.trim().toLowerCase();
-    return facilities.filter((f) => {
-      const matchesSearch =
-        !term ||
-        f.assetCoName.toLowerCase().includes(term) ||
-        (f.facilityReference || '').toLowerCase().includes(term) ||
-        (f.seriesName || '').toLowerCase().includes(term);
-      const matchesStatus = !statusFilter || f.facilityStatus === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [facilities, search, statusFilter]);
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(
+    statusFilter ? facilities.filter((f) => f.facilityStatus === statusFilter) : facilities,
+    { searchFn: searchFacility, pageSize: 10 }
+  );
 
   return (
     <div className="space-y-3">
@@ -60,7 +60,7 @@ export default function FacilityTable({ facilities }) {
             </tr>
           </thead>
           <tbody className="divide-y">
-            {filtered.map((f) => (
+            {paginated.map((f) => (
               <tr key={f.id}>
                 <td className="p-3">
                   <Link href={`/dashboard/${f.assetCoId}/profile`} className="text-blue-600 hover:underline">
@@ -81,12 +81,14 @@ export default function FacilityTable({ facilities }) {
                 <td className="p-3 text-gray-500 text-xs">{f.disbursementDate ? formatDateTime(f.disbursementDate) : '—'}</td>
               </tr>
             ))}
-            {filtered.length === 0 && (
+            {paginated.length === 0 && (
               <tr><td className="p-3 text-gray-500" colSpan={9}>No facilities match your search.</td></tr>
             )}
           </tbody>
         </table>
       </div>
+
+      <Pagination page={page} totalPages={totalPages} totalCount={totalCount} onPageChange={setPage} itemLabel="facilities" />
     </div>
   );
 }

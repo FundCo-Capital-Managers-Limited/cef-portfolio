@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { apiFetch } from '../../../../lib/apiClient';
+import { usePaginatedList } from '../../../../lib/usePaginatedList';
+import Pagination from '../../Pagination';
 
 const STATUS_STYLES = {
   PENDING: 'bg-amber-100 text-amber-700',
@@ -9,6 +11,16 @@ const STATUS_STYLES = {
   APPROVED: 'bg-green-100 text-green-700',
   REJECTED: 'bg-red-100 text-red-700',
 };
+
+const APPLICATION_STATUSES = ['PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED'];
+
+function searchApplication(app, term) {
+  return (
+    app.company_name.toLowerCase().includes(term) ||
+    app.primary_contact_email.toLowerCase().includes(term) ||
+    app.primary_contact_name.toLowerCase().includes(term)
+  );
+}
 
 function CopyLinkButton() {
   const [copied, setCopied] = useState(false);
@@ -96,6 +108,7 @@ function ReviewForm({ application, onReviewed }) {
 export default function ApplicationsPanel() {
   const [applications, setApplications] = useState(null);
   const [loadError, setLoadError] = useState(null);
+  const [statusFilter, setStatusFilter] = useState('');
 
   async function load() {
     try {
@@ -110,6 +123,12 @@ export default function ApplicationsPanel() {
     load();
   }, []);
 
+  const preFiltered = statusFilter ? (applications || []).filter((a) => a.status === statusFilter) : applications || [];
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(preFiltered, {
+    searchFn: searchApplication,
+    pageSize: 10,
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -119,10 +138,24 @@ export default function ApplicationsPanel() {
         <CopyLinkButton />
       </div>
 
+      <div className="flex flex-col sm:flex-row gap-2 sm:items-center">
+        <input
+          type="text"
+          placeholder="Search company, contact name, or email…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full sm:max-w-xs border border-gray-300 rounded px-3 py-1.5 text-sm"
+        />
+        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="border border-gray-300 rounded px-3 py-1.5 text-sm">
+          <option value="">All statuses</option>
+          {APPLICATION_STATUSES.map((s) => <option key={s} value={s}>{s.replace('_', ' ')}</option>)}
+        </select>
+      </div>
+
       {loadError && <p className="text-sm text-red-600">{loadError}</p>}
 
       <div className="space-y-3">
-        {(applications || []).map((app) => (
+        {paginated.map((app) => (
           <div key={app.id} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-start justify-between">
               <div>
@@ -151,10 +184,12 @@ export default function ApplicationsPanel() {
             )}
           </div>
         ))}
-        {applications && applications.length === 0 && (
-          <p className="text-sm text-gray-500">No applications submitted yet.</p>
+        {applications && paginated.length === 0 && (
+          <p className="text-sm text-gray-500">No applications match your search.</p>
         )}
       </div>
+
+      {applications && <Pagination page={page} totalPages={totalPages} totalCount={totalCount} onPageChange={setPage} itemLabel="applications" />}
     </div>
   );
 }
