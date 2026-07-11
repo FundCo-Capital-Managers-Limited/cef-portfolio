@@ -13,21 +13,26 @@ function createFakeSupabase(seed = {}) {
     return store[name];
   }
 
+  function matchesFilter(row, { type, col, val }) {
+    if (type === 'eq') return row[col] === val;
+    if (type === 'gte') return row[col] >= val;
+    if (type === 'lte') return row[col] <= val;
+    if (type === 'in') return val.includes(row[col]);
+    if (type === 'like') {
+      // Only the "prefix%" shape is used in this codebase — good enough for a test double.
+      const pattern = new RegExp(`^${val.replace(/%/g, '.*')}$`);
+      return typeof row[col] === 'string' && pattern.test(row[col]);
+    }
+    return true;
+  }
+
   function makeSelectChain(name) {
     const filters = [];
     let orderSpec = null;
     let limitN = null;
 
     function resolve() {
-      let rows = table(name).filter((r) =>
-        filters.every(({ type, col, val }) => {
-          if (type === 'eq') return r[col] === val;
-          if (type === 'gte') return r[col] >= val;
-          if (type === 'lte') return r[col] <= val;
-          if (type === 'in') return val.includes(r[col]);
-          return true;
-        })
-      );
+      let rows = table(name).filter((r) => filters.every((f) => matchesFilter(r, f)));
       if (orderSpec) {
         rows = [...rows].sort((a, b) => {
           if (a[orderSpec.col] === b[orderSpec.col]) return 0;
@@ -54,6 +59,10 @@ function createFakeSupabase(seed = {}) {
       },
       in(col, vals) {
         filters.push({ type: 'in', col, val: vals });
+        return chain;
+      },
+      like(col, pattern) {
+        filters.push({ type: 'like', col, val: pattern });
         return chain;
       },
       order(col, { ascending } = {}) {
@@ -140,6 +149,25 @@ function createFakeSupabase(seed = {}) {
           if (idx >= 0) rows[idx] = { ...rows[idx], ...obj };
           else rows.push({ ...obj });
           return { error: null };
+        },
+        delete() {
+          const filters = [];
+          const chain = {
+            eq(col, val) {
+              filters.push({ type: 'eq', col, val });
+              return chain;
+            },
+            like(col, pattern) {
+              filters.push({ type: 'like', col, val: pattern });
+              return chain;
+            },
+            then(resolve) {
+              const rows = table(name);
+              store[name] = rows.filter((r) => !filters.every((f) => matchesFilter(r, f)));
+              resolve({ error: null });
+            },
+          };
+          return chain;
         },
         update(patch) {
           return {

@@ -17,6 +17,7 @@ const portfolioRoutes = require('./routes/portfolio');
 const usersRoutes = require('./routes/users');
 const applicationsRoutes = require('./routes/applications');
 const authRoutes = require('./routes/auth');
+const sandboxRoutes = require('./routes/sandbox');
 const errorHandler = require('./middleware/errorHandler');
 const env = require('./config/env');
 const logger = require('./utils/logger');
@@ -67,6 +68,7 @@ app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/v1/sandbox', sandboxRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
