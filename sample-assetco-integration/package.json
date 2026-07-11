@@ -1,0 +1,13 @@
+{
+  "name": "cef-pip-sample-assetco-integration",
+  "version": "1.0.0",
+  "description": "Reference implementation for AssetCo developers integrating with CEF-PIP's Event Ingestion API. No dependencies — pure Node.js (18+, for global fetch).",
+  "private": true,
+  "main": "send-event.js",
+  "scripts": {
+    "send": "node send-event.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
