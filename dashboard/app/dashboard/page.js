@@ -5,6 +5,7 @@ import { formatCurrency, timeAgo } from '../../lib/format';
 import { alertRoute } from '../../lib/entityRoutes';
 import MonthlyTrendChart from './charts/MonthlyTrendChart';
 import AssetCoComparisonChart from './charts/AssetCoComparisonChart';
+import AssetCoRegistryCards from './AssetCoRegistryCards';
 import StatCard from './StatCard';
 
 function repaymentRateTone(rate) {
@@ -40,44 +41,13 @@ export default async function PortfolioDashboardPage() {
       </div>
 
       <div>
-        <h2 className="text-lg font-semibold mb-3 dark:text-white">AssetCo Performance</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {summary.assetCoCards.map((co) => (
-            <Link
-              key={co.id}
-              href={`/dashboard/${co.id}`}
-              className="group bg-white rounded-lg border border-gray-200 border-t-4 border-t-brand-teal p-4 transition-all hover:shadow-md hover:-translate-y-0.5"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium dark:text-white group-hover:text-brand-blue transition-colors">{co.name}</h3>
-                <div className="flex items-center gap-1">
-                  {co.pipelineCount > 0 && (
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-100 text-blue-700">
-                      Pipeline: {co.pipelineCount}
-                    </span>
-                  )}
-                  <span
-                    className={`text-xs px-2 py-0.5 rounded-full ${
-                      co.isActive ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'
-                    }`}
-                  >
-                    {co.isActive ? 'active' : 'inactive'}
-                  </span>
-                </div>
-              </div>
-              <dl className="mt-3 text-sm text-gray-600 space-y-1">
-                <div className="flex justify-between"><dt>Active assets</dt><dd>{co.activeAssets}</dd></div>
-                <div className="flex justify-between"><dt>Monthly collection</dt><dd>{formatCurrency(co.monthlyCollection)}</dd></div>
-                <div className="flex justify-between"><dt>Defaults</dt><dd>{co.defaultCount}</dd></div>
-                <div className="flex justify-between"><dt>Open faults</dt><dd>{co.openFaultCount}</dd></div>
-                <div className="flex justify-between"><dt>Last sync</dt><dd>{timeAgo(co.lastSyncedAt)}</dd></div>
-              </dl>
-            </Link>
-          ))}
-          {summary.assetCoCards.length === 0 && (
-            <p className="text-sm text-gray-500">No AssetCos onboarded yet.</p>
-          )}
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-semibold dark:text-white">AssetCo Performance</h2>
+          <Link href="/dashboard/registry" className="text-sm text-blue-600 hover:underline flex items-center gap-1">
+            View full AssetCo Registry <ArrowRight size={14} />
+          </Link>
         </div>
+        <AssetCoRegistryCards assetCoCards={summary.assetCoCards} />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

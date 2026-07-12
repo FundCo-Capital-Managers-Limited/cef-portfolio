@@ -2,11 +2,11 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Boxes } from 'lucide-react';
 import { getCurrentUserProfile } from '../../lib/data';
-import SignOutButton from './SignOutButton';
 import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle';
 import MobileMenu from './MobileMenu';
 import NavDropdown from './NavDropdown';
+import UserMenu from './UserMenu';
 
 // Rendered directly here (a Server Component) for the desktop nav — kept out
 // of the navLinks array passed to MobileMenu since function props (icon
@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }) {
   const navGroups = isAssetcoDev
     ? [{ href: '/dashboard/dev-console', label: 'Developer Console' }]
     : [
-        { href: '/dashboard/registry', label: 'Asset Registry' },
+        { href: '/dashboard/registry', label: 'AssetCo Registry' },
         {
           label: 'Pipelines',
           icon: 'Workflow',
@@ -111,10 +111,7 @@ export default async function DashboardLayout({ children }) {
                 real boundary, but there's no reason to show them CEF-wide
                 change history regardless. */}
             {!isAssetcoDev && <NotificationBell userId={profile?.id} />}
-            <span className="hidden xl:inline whitespace-nowrap">
-              {profile?.email} {profile?.role ? `· ${profile.role}` : ''}
-            </span>
-            <SignOutButton />
+            <UserMenu email={profile?.email} role={profile?.role} />
             <MobileMenu links={navLinks} />
           </div>
         </div>
