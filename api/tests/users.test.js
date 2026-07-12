@@ -114,4 +114,58 @@ describe('User management endpoints', () => {
     expect(res.status).toBe(200);
     expect(res.body.users.length).toBeGreaterThanOrEqual(2);
   });
+
+  it('management can suspend a user, and it is audited', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).patch('/api/users/user-exec/active').send({ isActive: false }));
+    expect(res.status).toBe(200);
+    expect(res.body.user.is_active).toBe(false);
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'user_suspended');
+    expect(auditEntry.entity_id).toBe('user-exec');
+    expect(auditEntry.actor_email).toBe('mgmt@cef.example');
+  });
+
+  it('a suspended user is rejected on their next request', async () => {
+    const withAuth = as('auth-exec');
+    const res = await withAuth(request(app).get('/api/series'));
+    expect(res.status).toBe(403);
+  });
+
+  it('management can reactivate a suspended user', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).patch('/api/users/user-exec/active').send({ isActive: true }));
+    expect(res.status).toBe(200);
+    expect(res.body.user.is_active).toBe(true);
+  });
+
+  it('rejects setActive without a boolean isActive', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).patch('/api/users/user-exec/active').send({}));
+    expect(res.status).toBe(400);
+  });
+
+  it('a user cannot delete their own account', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).delete('/api/users/user-mgmt'));
+    expect(res.status).toBe(400);
+  });
+
+  it('management can delete another user, and it is audited', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).delete('/api/users/user-exec'));
+    expect(res.status).toBe(204);
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'user_deleted');
+    expect(auditEntry.details.email).toBe('exec@cef.example');
+
+    const listRes = await withAuth(request(app).get('/api/users'));
+    expect(listRes.body.users.find((u) => u.id === 'user-exec')).toBeUndefined();
+  });
+
+  it('404s deleting an unknown user', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).delete('/api/users/does-not-exist'));
+    expect(res.status).toBe(404);
+  });
 });

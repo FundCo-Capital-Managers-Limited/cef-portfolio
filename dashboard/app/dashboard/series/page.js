@@ -3,6 +3,7 @@ import { getSeriesOverview, getCurrentUserProfile } from '../../../lib/data';
 import { formatCurrency } from '../../../lib/format';
 import BackLink from '../BackLink';
 import AddSeriesButton from '../AddSeriesButton';
+import EditSeriesButton from '../EditSeriesButton';
 import DeleteSeriesButton from '../DeleteSeriesButton';
 
 const STATUS_STYLES = {
@@ -16,7 +17,10 @@ export const metadata = { title: "CEF Series" };
 
 export default async function SeriesOverviewPage() {
   const [series, profile] = await Promise.all([getSeriesOverview(), getCurrentUserProfile()]);
-  const canManage = ['management', 'it_admin'].includes(profile?.role);
+  // Finance can create/edit series and disbursement info day-to-day;
+  // deleting a series outright stays restricted to management/it_admin.
+  const canEdit = ['management', 'it_admin', 'finance'].includes(profile?.role);
+  const canDelete = ['management', 'it_admin'].includes(profile?.role);
 
   return (
     <div className="space-y-4">
@@ -26,7 +30,7 @@ export default async function SeriesOverviewPage() {
           <h1 className="text-xl font-semibold mt-1">CEF Series</h1>
           <p className="text-sm text-gray-500">Each fundraising round and the AssetCos funded under it.</p>
         </div>
-        {canManage && <AddSeriesButton />}
+        {canEdit && <AddSeriesButton />}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -38,7 +42,8 @@ export default async function SeriesOverviewPage() {
                 <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_STYLES[s.status] || 'bg-gray-100 text-gray-500'}`}>
                   {s.status}
                 </span>
-                {canManage && <DeleteSeriesButton seriesId={s.id} seriesName={s.display_name} />}
+                {canEdit && <EditSeriesButton series={s} />}
+                {canDelete && <DeleteSeriesButton seriesId={s.id} seriesName={s.display_name} />}
               </div>
             </div>
             <div className="text-sm space-y-1 mb-3">

@@ -36,6 +36,10 @@ export default async function AssetcoProfilePage({ params }) {
   if (!assetco) notFound();
 
   const canManage = ['management', 'it_admin'].includes(profile?.role);
+  // Scoped narrower than canManage — finance handles series/disbursement
+  // data day-to-day but shouldn't see pipeline-stage/DREEF/reconciliation
+  // controls meant for management/it_admin.
+  const canManageFunding = ['management', 'it_admin', 'finance'].includes(profile?.role);
   const daysInStage = assetco.stage_updated_at
     ? Math.floor((Date.now() - new Date(assetco.stage_updated_at).getTime()) / 86400000)
     : null;
@@ -143,7 +147,7 @@ export default async function AssetcoProfilePage({ params }) {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">CEF Funding</h2>
-            {canManage && <LinkSeriesButton assetcoId={assetco.id} allSeries={allSeries} />}
+            {canManageFunding && <LinkSeriesButton assetcoId={assetco.id} allSeries={allSeries} />}
           </div>
           <div className="bg-white rounded-lg border border-gray-200 divide-y text-sm">
             {seriesLinks.length === 0 && <p className="p-4 text-gray-500">Not linked to any CEF series yet.</p>}

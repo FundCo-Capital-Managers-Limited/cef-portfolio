@@ -29,12 +29,15 @@ function Field({ label, children }) {
 export default function UserManagementPanel({ assetcos }) {
   const [users, setUsers] = useState(null);
   const [loadError, setLoadError] = useState(null);
-  const [form, setForm] = useState({ email: '', role: 'ops', assetcoId: assetcos[0]?.id || '', assetcoIds: [] });
+  const [form, setForm] = useState({ email: '', name: '', role: 'ops', assetcoId: assetcos[0]?.id || '', assetcoIds: [] });
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState(null);
   const [created, setCreated] = useState(null);
   const [resetResult, setResetResult] = useState(null);
   const [resettingId, setResettingId] = useState(null);
+  const [togglingId, setTogglingId] = useState(null);
+  const [deletingId, setDeletingId] = useState(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [roleFilter, setRoleFilter] = useState('');
 
   const preFiltered = roleFilter ? (users || []).filter((u) => u.role === roleFilter) : users || [];
@@ -65,13 +68,14 @@ export default function UserManagementPanel({ assetcos }) {
         method: 'POST',
         body: {
           email: form.email,
+          name: form.name || undefined,
           role: form.role,
           assetcoId: form.role === 'assetco_admin' ? form.assetcoId : undefined,
           assetcoIds: form.role === 'assetco_dev' ? form.assetcoIds : undefined,
         },
       });
       setCreated(data);
-      setForm({ email: '', role: 'ops', assetcoId: assetcos[0]?.id || '', assetcoIds: [] });
+      setForm({ email: '', name: '', role: 'ops', assetcoId: assetcos[0]?.id || '', assetcoIds: [] });
       await loadUsers();
     } catch (err) {
       setError(err.message);
@@ -94,10 +98,45 @@ export default function UserManagementPanel({ assetcos }) {
     }
   }
 
+  async function handleToggleActive(user) {
+    setTogglingId(user.id);
+    setError(null);
+    try {
+      await apiFetch(`/api/users/${user.id}/active`, { method: 'PATCH', body: { isActive: !user.is_active } });
+      await loadUsers();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setTogglingId(null);
+    }
+  }
+
+  async function handleDelete(user) {
+    setDeletingId(user.id);
+    setError(null);
+    try {
+      await apiFetch(`/api/users/${user.id}`, { method: 'DELETE' });
+      setConfirmDeleteId(null);
+      await loadUsers();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   return (
     <div className="grid md:grid-cols-2 gap-4">
       <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
         <h2 className="font-semibold text-sm">Create Account</h2>
+        <Field label="Name (optional)">
+          <input
+            type="text"
+            className={inputCls}
+            value={form.name}
+            onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
+          />
+        </Field>
         <Field label="Email">
           <input
             type="email"
@@ -176,6 +215,7 @@ export default function UserManagementPanel({ assetcos }) {
       </div>
 
       <div className="space-y-3">
+        {error && <p className="text-sm text-red-600">{error}</p>}
         {resetResult && (
           <div className="text-sm bg-green-50 border border-green-200 rounded p-2 text-green-800">
             <p>Password reset for <strong>{resetResult.user.email}</strong>.</p>
@@ -206,23 +246,38 @@ export default function UserManagementPanel({ assetcos }) {
           <table className="w-full text-sm">
             <thead className="text-left text-gray-500 border-b">
               <tr>
-                <th className="p-3"><SortHeader label="Email" sortKey="email" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+                <th className="p-3"><SortHeader label="Name / Email" sortKey="email" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
                 <th className="p-3"><SortHeader label="Role" sortKey="role" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
                 <th className="p-3">AssetCo</th>
+                <th className="p-3">Status</th>
                 <th className="p-3"></th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {paginated.map((u) => (
-                <tr key={u.id}>
-                  <td className="p-3">{u.email}</td>
+                <tr key={u.id} className={u.is_active === false ? 'opacity-60' : ''}>
+                  <td className="p-3">
+                    {u.name ? (
+                      <>
+                        <div>{u.name}</div>
+                        <div className="text-xs text-gray-400">{u.email}</div>
+                      </>
+                    ) : (
+                      u.email
+                    )}
+                  </td>
                   <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
                   <td className="p-3">
                     {u.role === 'assetco_dev'
                       ? (u.assetco_ids || []).join(', ') || 'N/A'
                       : u.assetco_id || 'N/A'}
                   </td>
-                  <td className="p-3 text-right">
+                  <td className="p-3">
+                    <span className={`text-xs px-2 py-0.5 rounded-full ${u.is_active === false ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-700'}`}>
+                      {u.is_active === false ? 'Suspended' : 'Active'}
+                    </span>
+                  </td>
+                  <td className="p-3 text-right space-x-2 whitespace-nowrap">
                     <button
                       disabled={resettingId === u.id}
                       onClick={() => handleResetPassword(u)}
@@ -230,14 +285,38 @@ export default function UserManagementPanel({ assetcos }) {
                     >
                       {resettingId === u.id ? 'Resetting…' : 'Reset Password'}
                     </button>
+                    <button
+                      disabled={togglingId === u.id}
+                      onClick={() => handleToggleActive(u)}
+                      className="text-xs text-amber-700 hover:underline disabled:opacity-50"
+                    >
+                      {togglingId === u.id ? 'Working…' : u.is_active === false ? 'Reactivate' : 'Suspend'}
+                    </button>
+                    {confirmDeleteId === u.id ? (
+                      <span className="text-xs">
+                        <button
+                          disabled={deletingId === u.id}
+                          onClick={() => handleDelete(u)}
+                          className="text-red-700 font-medium hover:underline disabled:opacity-50"
+                        >
+                          {deletingId === u.id ? 'Deleting…' : 'Confirm?'}
+                        </button>
+                        {' '}
+                        <button onClick={() => setConfirmDeleteId(null)} className="text-gray-500 hover:underline">Cancel</button>
+                      </span>
+                    ) : (
+                      <button onClick={() => setConfirmDeleteId(u.id)} className="text-xs text-red-600 hover:underline">
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
               {users && paginated.length === 0 && (
-                <tr><td className="p-3 text-gray-500" colSpan={4}>No users match your search.</td></tr>
+                <tr><td className="p-3 text-gray-500" colSpan={5}>No users match your search.</td></tr>
               )}
               {loadError && (
-                <tr><td className="p-3 text-red-600" colSpan={4}>{loadError}</td></tr>
+                <tr><td className="p-3 text-red-600" colSpan={5}>{loadError}</td></tr>
               )}
             </tbody>
           </table>

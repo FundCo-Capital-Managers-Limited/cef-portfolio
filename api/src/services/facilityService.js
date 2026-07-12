@@ -79,6 +79,7 @@ async function createFacility(fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: facility.assetco_id,
     action: 'FACILITY_CREATED',
     entityType: 'cef_facility',
@@ -139,6 +140,7 @@ async function updateFacilityStatus(id, status, notes, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     action: 'FACILITY_STATUS_CHANGED',
     entityType: 'cef_facility',
     entityId: id,
@@ -243,6 +245,7 @@ async function recordRepayment(facilityId, fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: facility.assetco_id,
     action: 'FACILITY_REPAYMENT_RECORDED',
     entityType: 'cef_facility_repayment',

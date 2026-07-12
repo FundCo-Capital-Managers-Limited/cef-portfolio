@@ -188,6 +188,9 @@ function createFakeSupabase(seed = {}) {
                     async single() {
                       return { data: updatedRows[0] || null, error: null };
                     },
+                    async maybeSingle() {
+                      return { data: updatedRows[0] || null, error: null };
+                    },
                     then(resolve) {
                       resolve({ data: updatedRows, error: null });
                     },

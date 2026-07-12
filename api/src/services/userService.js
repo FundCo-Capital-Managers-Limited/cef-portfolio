@@ -12,7 +12,10 @@ function generateTempPassword() {
 
 async function listUsers() {
   const [{ data, error }, { data: devAccess, error: devAccessError }] = await Promise.all([
-    supabase.from('users').select('id, email, role, assetco_id, created_at').order('created_at', { ascending: false }),
+    supabase
+      .from('users')
+      .select('id, email, name, role, assetco_id, is_active, created_at')
+      .order('created_at', { ascending: false }),
     supabase.from('user_assetco_dev_access').select('user_id, assetco_id'),
   ]);
   if (error) throw error;
@@ -35,7 +38,7 @@ async function listUsers() {
  * against (the exact gap ENVIRONMENTS.md's old manual process could leave
  * behind).
  */
-async function createUser({ email, role, assetcoId, assetcoIds, createdBy }) {
+async function createUser({ email, name, role, assetcoId, assetcoIds, createdBy }) {
   if (!email || !role) throw Object.assign(new Error('email and role are required'), { status: 400 });
   if (!ROLES.includes(role)) {
     throw Object.assign(new Error(`role must be one of: ${ROLES.join(', ')}`), { status: 400 });
@@ -60,6 +63,7 @@ async function createUser({ email, role, assetcoId, assetcoIds, createdBy }) {
     .insert({
       auth_user_id: authData.user.id,
       email,
+      name: name || null,
       role,
       assetco_id: role === 'assetco_admin' ? assetcoId : null,
     })
@@ -86,6 +90,7 @@ async function createUser({ email, role, assetcoId, assetcoIds, createdBy }) {
   await supabase.from('audit_log').insert({
     actor_type: 'user',
     actor_user_id: createdBy?.id || null,
+    actor_email: createdBy?.email || null,
     action: 'user_created',
     entity_type: 'user',
     entity_id: userRow.id,
@@ -118,6 +123,7 @@ async function resetUserPassword(userId, resetBy) {
   await supabase.from('audit_log').insert({
     actor_type: 'user',
     actor_user_id: resetBy?.id || null,
+    actor_email: resetBy?.email || null,
     action: 'user_password_reset',
     entity_type: 'user',
     entity_id: userRow.id,
@@ -129,4 +135,90 @@ async function resetUserPassword(userId, resetBy) {
   return { user: userRow, tempPassword };
 }
 
-module.exports = { listUsers, createUser, resetUserPassword, ROLES, CEF_WIDE_ROLES };
+/**
+ * Suspend/unsuspend: sets is_active on public.users (drives the UI/audit
+ * trail) and actually blocks/unblocks sign-in via Supabase Auth's ban
+ * mechanism — flipping is_active alone would leave an existing session or a
+ * password-based login still working, since RLS/role checks read from
+ * public.users but Supabase Auth itself doesn't know about that flag.
+ */
+async function setUserActive(userId, isActive, actor) {
+  const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+  if (error) throw error;
+  if (!userRow) throw Object.assign(new Error('User not found'), { status: 404 });
+
+  const { error: authError } = await supabase.auth.admin.updateUserById(userRow.auth_user_id, {
+    ban_duration: isActive ? 'none' : '876000h', // ~100 years — effectively indefinite until unsuspended
+  });
+  if (authError) throw Object.assign(new Error(authError.message), { status: 400 });
+
+  const { data: updated, error: updateError } = await supabase
+    .from('users')
+    .update({ is_active: isActive })
+    .eq('id', userId)
+    .select()
+    .single();
+  if (updateError) throw updateError;
+
+  await supabase.from('audit_log').insert({
+    actor_type: 'user',
+    actor_user_id: actor?.id || null,
+    actor_email: actor?.email || null,
+    action: isActive ? 'user_reactivated' : 'user_suspended',
+    entity_type: 'user',
+    entity_id: userId,
+    details: { email: userRow.email },
+  });
+
+  logger.info(isActive ? 'User reactivated' : 'User suspended', { email: userRow.email, actor: actor?.email });
+
+  return updated;
+}
+
+/**
+ * Hard delete: removes both the public.users row and the underlying
+ * Supabase Auth account. audit_log.actor_user_id is ON DELETE SET NULL (see
+ * migration 018) and audit_log.actor_email is denormalized, so history
+ * referencing this user survives — only the live account goes away.
+ */
+async function deleteUser(userId, actor) {
+  const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+  if (error) throw error;
+  if (!userRow) throw Object.assign(new Error('User not found'), { status: 404 });
+
+  if (userRow.id === actor?.id) {
+    throw Object.assign(new Error('You cannot delete your own account'), { status: 400 });
+  }
+
+  const { error: deleteError } = await supabase.from('users').delete().eq('id', userId);
+  if (deleteError) throw deleteError;
+
+  await supabase.auth.admin.deleteUser(userRow.auth_user_id).catch((err) => {
+    logger.error('Failed to delete Supabase Auth account after users row was removed', {
+      email: userRow.email,
+      error: err.message,
+    });
+  });
+
+  await supabase.from('audit_log').insert({
+    actor_type: 'user',
+    actor_user_id: actor?.id || null,
+    actor_email: actor?.email || null,
+    action: 'user_deleted',
+    entity_type: 'user',
+    entity_id: userId,
+    details: { email: userRow.email, role: userRow.role },
+  });
+
+  logger.info('User deleted', { email: userRow.email, actor: actor?.email });
+}
+
+module.exports = {
+  listUsers,
+  createUser,
+  resetUserPassword,
+  setUserActive,
+  deleteUser,
+  ROLES,
+  CEF_WIDE_ROLES,
+};

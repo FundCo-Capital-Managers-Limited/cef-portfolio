@@ -78,6 +78,7 @@ async function linkAssetcoToSeries(assetCoId, fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: assetCoId,
     action: 'ASSETCO_LINKED_TO_SERIES',
     entityType: 'assetco_series',
@@ -107,9 +108,32 @@ async function createSeries(fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     action: 'SERIES_CREATED',
     entityType: 'cef_series',
     entityId: data.id,
+    details: fields,
+  });
+
+  return data;
+}
+
+async function updateSeries(id, fields, user) {
+  const { data, error } = await supabase.from('cef_series').update(fields).eq('id', id).select().maybeSingle();
+  if (error) throw error;
+  if (!data) {
+    const err = new Error('Series not found');
+    err.status = 404;
+    throw err;
+  }
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    actorEmail: user.email,
+    action: 'SERIES_UPDATED',
+    entityType: 'cef_series',
+    entityId: id,
     details: fields,
   });
 
@@ -147,6 +171,7 @@ async function deleteSeries(id, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     action: 'SERIES_DELETED',
     entityType: 'cef_series',
     entityId: id,
@@ -161,5 +186,6 @@ module.exports = {
   getSeriesForAssetco,
   linkAssetcoToSeries,
   createSeries,
+  updateSeries,
   deleteSeries,
 };

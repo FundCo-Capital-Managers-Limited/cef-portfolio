@@ -99,6 +99,7 @@ async function updateStatus(customerId, toStatus, notes, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: customer.assetco_id,
     action: 'CUSTOMER_STATUS_CHANGED',
     entityType: 'customer',
