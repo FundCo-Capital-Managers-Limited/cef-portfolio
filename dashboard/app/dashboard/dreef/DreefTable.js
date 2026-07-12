@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { DREEF_STAGE_LABELS, DREEF_STAGES, PIPELINE_STAGE_LABELS } from '../../../lib/constants';
 import { usePaginatedList } from '../../../lib/usePaginatedList';
 import Pagination from '../Pagination';
+import SortHeader from '../SortHeader';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -26,10 +27,8 @@ export default function DreefTable({ relationships }) {
   const [stageFilter, setStageFilter] = useState('');
   const preFiltered = stageFilter ? relationships.filter((r) => r.dreef_stage === stageFilter) : relationships;
 
-  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(preFiltered, {
-    searchFn: searchRelationship,
-    pageSize: 15,
-  });
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated, sortKey, sortDir, toggleSort } =
+    usePaginatedList(preFiltered, { searchFn: searchRelationship, pageSize: 15 });
 
   return (
     <div className="space-y-3">
@@ -53,7 +52,7 @@ export default function DreefTable({ relationships }) {
             <tr>
               <th className="p-3">AssetCo</th>
               <th className="p-3">Sector</th>
-              <th className="p-3">DREEF Stage</th>
+              <th className="p-3"><SortHeader label="DREEF Stage" sortKey="dreef_stage" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
               <th className="p-3">CEF Pipeline Stage</th>
               <th className="p-3">CEF Invested</th>
             </tr>

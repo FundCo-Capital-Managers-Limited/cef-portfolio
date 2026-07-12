@@ -6,6 +6,7 @@ import { formatCurrency, formatDateTime } from '../../../lib/format';
 import { FACILITY_STATUS_STYLES, FACILITY_STATUSES } from '../../../lib/constants';
 import { usePaginatedList } from '../../../lib/usePaginatedList';
 import Pagination from '../Pagination';
+import SortHeader from '../SortHeader';
 
 function searchFacility(f, term) {
   return (
@@ -17,10 +18,11 @@ function searchFacility(f, term) {
 
 export default function FacilityTable({ facilities }) {
   const [statusFilter, setStatusFilter] = useState('');
-  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(
-    statusFilter ? facilities.filter((f) => f.facilityStatus === statusFilter) : facilities,
-    { searchFn: searchFacility, pageSize: 10 }
-  );
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated, sortKey, sortDir, toggleSort } =
+    usePaginatedList(statusFilter ? facilities.filter((f) => f.facilityStatus === statusFilter) : facilities, {
+      searchFn: searchFacility,
+      pageSize: 10,
+    });
 
   return (
     <div className="space-y-3">
@@ -48,15 +50,15 @@ export default function FacilityTable({ facilities }) {
         <table className="w-full text-sm">
           <thead className="text-left text-gray-500 border-b">
             <tr>
-              <th className="p-3">AssetCo</th>
+              <th className="p-3"><SortHeader label="AssetCo" sortKey="assetCoName" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
               <th className="p-3">Facility Ref</th>
               <th className="p-3">Series</th>
               <th className="p-3">Type</th>
-              <th className="p-3">Principal</th>
-              <th className="p-3">Repaid</th>
-              <th className="p-3">Outstanding</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Disbursed</th>
+              <th className="p-3"><SortHeader label="Principal" sortKey="principalAmountNgn" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Repaid" sortKey="totalRepaidNgn" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Outstanding" sortKey="outstandingBalanceNgn" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Status" sortKey="facilityStatus" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Disbursed" sortKey="disbursementDate" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
             </tr>
           </thead>
           <tbody className="divide-y">

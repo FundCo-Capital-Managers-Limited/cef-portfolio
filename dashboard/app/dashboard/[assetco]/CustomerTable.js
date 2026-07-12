@@ -6,6 +6,7 @@ import { formatCurrency } from '../../../lib/format';
 import { OWNERSHIP_MODEL_LABELS, CUSTOMER_STATUSES } from '../../../lib/constants';
 import { usePaginatedList } from '../../../lib/usePaginatedList';
 import Pagination from '../Pagination';
+import SortHeader from '../SortHeader';
 
 function searchCustomer(c, term) {
   return (
@@ -18,10 +19,8 @@ export default function CustomerTable({ assetcoId, customers }) {
   const [statusFilter, setStatusFilter] = useState('');
   const preFiltered = statusFilter ? customers.filter((c) => c.status === statusFilter) : customers;
 
-  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(preFiltered, {
-    searchFn: searchCustomer,
-    pageSize: 10,
-  });
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated, sortKey, sortDir, toggleSort } =
+    usePaginatedList(preFiltered, { searchFn: searchCustomer, pageSize: 10 });
 
   return (
     <div className="space-y-3">
@@ -43,11 +42,11 @@ export default function CustomerTable({ assetcoId, customers }) {
         <table className="w-full text-sm">
           <thead className="text-left text-gray-500 border-b">
             <tr>
-              <th className="p-3">Customer</th>
+              <th className="p-3"><SortHeader label="Customer" sortKey="name" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
               <th className="p-3">Deal Type</th>
               <th className="p-3">Asset Type(s)</th>
-              <th className="p-3">Project Value</th>
-              <th className="p-3">Status</th>
+              <th className="p-3"><SortHeader label="Project Value" sortKey="projectValueNgn" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Status" sortKey="status" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
             </tr>
           </thead>
           <tbody className="divide-y">

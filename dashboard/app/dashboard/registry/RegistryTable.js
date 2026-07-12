@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { timeAgo } from '../../../lib/format';
 import { usePaginatedList } from '../../../lib/usePaginatedList';
 import Pagination from '../Pagination';
+import SortHeader from '../SortHeader';
 
 const SYNC_STATUSES = ['SYNCED', 'PENDING', 'STALE', 'ERROR'];
 const ASSET_STATUSES = ['created', 'deployed', 'disabled', 'enabled', 'decommissioned'];
@@ -40,10 +41,8 @@ export default function RegistryTable({ assets }) {
     .filter((a) => !statusFilter || a.status === statusFilter)
     .filter((a) => !syncFilter || a.sync_status === syncFilter);
 
-  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(preFiltered, {
-    searchFn: searchAsset,
-    pageSize: 15,
-  });
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated, sortKey, sortDir, toggleSort } =
+    usePaginatedList(preFiltered, { searchFn: searchAsset, pageSize: 15 });
 
   return (
     <div className="space-y-3">
@@ -69,13 +68,13 @@ export default function RegistryTable({ assets }) {
         <table className="w-full text-sm">
           <thead className="text-left text-gray-500 border-b">
             <tr>
-              <th className="p-3">Asset</th>
-              <th className="p-3">Type</th>
-              <th className="p-3">AssetCo</th>
+              <th className="p-3"><SortHeader label="Asset" sortKey="id" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Type" sortKey="asset_type" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="AssetCo" sortKey="assetco_id" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
               <th className="p-3">Customer</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Sync</th>
-              <th className="p-3">Last Synced</th>
+              <th className="p-3"><SortHeader label="Status" sortKey="status" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Sync" sortKey="sync_status" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+              <th className="p-3"><SortHeader label="Last Synced" sortKey="last_synced_at" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
               <th className="p-3">Flags</th>
             </tr>
           </thead>

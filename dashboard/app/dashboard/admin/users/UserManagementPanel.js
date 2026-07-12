@@ -5,6 +5,7 @@ import { apiFetch } from '../../../../lib/apiClient';
 import { USER_ROLES, USER_ROLE_LABELS } from '../../../../lib/constants';
 import { usePaginatedList } from '../../../../lib/usePaginatedList';
 import Pagination from '../../Pagination';
+import SortHeader from '../../SortHeader';
 
 function searchUser(u, term) {
   return (
@@ -37,7 +38,7 @@ export default function UserManagementPanel({ assetcos }) {
   const [roleFilter, setRoleFilter] = useState('');
 
   const preFiltered = roleFilter ? (users || []).filter((u) => u.role === roleFilter) : users || [];
-  const { search, setSearch, page, setPage, totalPages, totalCount, paginated } = usePaginatedList(preFiltered, {
+  const { search, setSearch, page, setPage, totalPages, totalCount, paginated, sortKey, sortDir, toggleSort } = usePaginatedList(preFiltered, {
     searchFn: searchUser,
     pageSize: 10,
   });
@@ -205,8 +206,8 @@ export default function UserManagementPanel({ assetcos }) {
           <table className="w-full text-sm">
             <thead className="text-left text-gray-500 border-b">
               <tr>
-                <th className="p-3">Email</th>
-                <th className="p-3">Role</th>
+                <th className="p-3"><SortHeader label="Email" sortKey="email" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
+                <th className="p-3"><SortHeader label="Role" sortKey="role" activeSortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
                 <th className="p-3">AssetCo</th>
                 <th className="p-3"></th>
               </tr>
