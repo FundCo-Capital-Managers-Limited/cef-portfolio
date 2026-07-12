@@ -7,7 +7,10 @@ import {
 } from 'lucide-react';
 
 // Mirrors the icon keys used in layout.js/MobileMenu.js — kept as a separate
-// map here too since function props can't cross the server/client boundary.
+// map here too since icon *components* can't cross the server/client
+// boundary (Next.js Server Components can only pass plain serializable
+// props to Client Components, not functions/classes) — layout.js passes an
+// icon name string instead, resolved against this map.
 const NAV_ICONS = {
   '/dashboard/registry': Boxes,
   '/dashboard/pipeline': Workflow,
@@ -19,10 +22,13 @@ const NAV_ICONS = {
   '/dashboard/dev-console': Code2,
 };
 
+const GROUP_ICONS = { Workflow, Landmark, Users };
+
 // Dropdown opens on hover (desktop) with a short close delay so moving the
 // mouse from the trigger into the panel doesn't close it, and toggles on
 // click/keyboard so it's usable without a mouse too.
-export default function NavDropdown({ label, icon: GroupIcon, items }) {
+export default function NavDropdown({ label, icon, items }) {
+  const GroupIcon = GROUP_ICONS[icon];
   const [open, setOpen] = useState(false);
   const closeTimer = useRef(null);
 

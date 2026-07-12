@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
-import { Boxes, Workflow, Landmark, Users } from 'lucide-react';
+import { Boxes } from 'lucide-react';
 import { getCurrentUserProfile } from '../../lib/data';
 import SignOutButton from './SignOutButton';
 import NotificationBell from './NotificationBell';
@@ -19,8 +19,9 @@ const NAV_ICONS = {
 // Grouped into dropdowns (Pipelines / Funding / Admin) instead of one long
 // flat row — a flat row of 7+ links used to overflow/overlap even at large
 // desktop widths (or need a horizontal-scroll workaround, which reads as
-// broken rather than intentional). Each group only needs its icon shown at
-// the top level; children resolve their own icons from NavDropdown's map.
+// broken rather than intentional). Group icons are passed as name strings
+// (not components) since this is a Server Component handing props to the
+// Client Component NavDropdown, which resolves the name against its own map.
 export default async function DashboardLayout({ children }) {
   const profile = await getCurrentUserProfile();
   const isAssetcoDev = profile?.role === 'assetco_dev';
@@ -34,7 +35,7 @@ export default async function DashboardLayout({ children }) {
         { href: '/dashboard/registry', label: 'Asset Registry' },
         {
           label: 'Pipelines',
-          icon: Workflow,
+          icon: 'Workflow',
           items: [
             { href: '/dashboard/pipeline', label: 'Pipeline Board' },
             { href: '/dashboard/dreef', label: 'DREEF Pipeline' },
@@ -42,7 +43,7 @@ export default async function DashboardLayout({ children }) {
         },
         {
           label: 'Funding',
-          icon: Landmark,
+          icon: 'Landmark',
           items: [
             { href: '/dashboard/series', label: 'CEF Series' },
             { href: '/dashboard/loan-book', label: 'Loan Book' },
@@ -52,7 +53,7 @@ export default async function DashboardLayout({ children }) {
           ? [
               {
                 label: 'Admin',
-                icon: Users,
+                icon: 'Users',
                 items: [
                   ...(['it_admin', 'management'].includes(profile?.role)
                     ? [{ href: '/dashboard/admin/users', label: 'Users' }]
