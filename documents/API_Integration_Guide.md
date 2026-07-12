@@ -49,9 +49,23 @@ function signBody(rawBodyString, secret) {
 If the signature doesn't match, you'll get `401 { "error": "Invalid signature" }`. If the
 `X-CEF-AssetCo-Id` or `X-CEF-Signature` header is missing entirely, you'll get `400`.
 
-**Keep your secret out of source control.** If it's ever exposed, ask CEF to rotate it
-immediately — CEF can regenerate it from the AssetCo's profile page at any time, but note that
-doing so invalidates the old secret immediately.
+**Keep your secret out of source control.** If it's ever exposed, rotate it immediately yourself
+from the **Developer Console** (see Section 0 below) — no need to wait on CEF. Regenerating
+invalidates the old secret immediately, so deploy the new one before rotating in production.
+
+## 0. Developer Console — self-service access
+
+If your team has been granted an **AssetCo Developer** account (`assetco_dev` role), you can log
+in to the CEF-PIP dashboard directly at `/dashboard/dev-console` to:
+
+- View your AssetCo ID(s) and pipeline stage — one account can cover more than one AssetCo if your
+  team builds for several (e.g. the same dev team integrating GroSolar and EML).
+- **Regenerate your own HMAC signing secret** on demand, with no CEF approval step. Do this the
+  moment you suspect a secret has leaked.
+
+This account is scoped to the Developer Console only — it can't see other CEF-PIP dashboards or
+data outside the AssetCo(s) you're linked to. Ask your CEF contact to provision one for your team
+if you don't have credentials yet.
 
 ## 3. Sending an event — `POST /api/v1/events`
 
@@ -141,12 +155,22 @@ your CEF contact.
 
 ## 5. Testing your integration
 
-1. Use the sandbox base URL and the sandbox AssetCo ID/secret CEF gave you.
-2. Run the sample sender in [`sample-assetco-integration/`](../sample-assetco-integration/) —
-   it walks through every event type against your sandbox credentials.
-3. Confirm events show up in the CEF-PIP dashboard (your CEF contact can check this, or grant you
+1. Use the sandbox base URL and the sandbox AssetCo ID/secret CEF gave you (or generate your own
+   via the Developer Console, Section 0).
+2. Run `npm install` in [`sample-assetco-integration/`](../sample-assetco-integration/), then
+   either:
+   - The CLI (`node send-event.js <eventType>`) for scripting/CI use, or
+   - `node server.js` for a local web UI (`http://localhost:<port>`) that lets you trigger any
+     single event type, replay every event type chronologically in one click, and inspect the
+     three mock reconciliation endpoints (`/cef/assets`, `/cef/payments`, `/cef/faults`) with
+     canned sample data — useful for seeing the exact response shape CEF's reconciliation job
+     expects your platform to return, without needing your own backend running yet.
+3. When you want a clean slate, use the **wipe/reset** button in that same web UI (or
+   `DELETE /api/v1/sandbox/reset`, HMAC-authenticated) to remove everything your sandbox AssetCo
+   has sent so far. This endpoint only exists in non-production environments.
+4. Confirm events show up in the CEF-PIP dashboard (your CEF contact can check this, or grant you
    sandbox dashboard access as an `assetco_admin`).
-4. Once you're confident, let CEF know — they'll move your AssetCo through the pipeline stages and
+5. Once you're confident, let CEF know — they'll move your AssetCo through the pipeline stages and
    eventually issue production credentials.
 
 ## 6. Support

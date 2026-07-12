@@ -1,0 +1,70 @@
+<mxfile host="Electron" modified="2026-07-12T00:00:00.000Z" agent="claude-code" version="22.1.2" type="device" pages="1">
+  <diagram id="roles" name="3. Role &amp; Access Model">
+    <mxGraphModel dx="1404" dy="806" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="1" pageScale="1" pageWidth="1600" pageHeight="1050" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg" value="" style="rounded=0;fillColor=#1C2833;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1600" height="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="CEF-PIP — Role &amp; Access Model" style="text;html=1;align=center;fontSize=26;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="520" y="20" width="560" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="UI nav-hiding is convenience, not security — the real boundary is middleware.js / requireRole + RLS" style="text;html=1;align=center;fontSize=12;fontStyle=2;fontColor=#AAB7B8;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="380" y="60" width="840" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Header row -->
+        <mxCell id="hRole" value="Role" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="40" y="110" width="220" height="40" as="geometry" /></mxCell>
+        <mxCell id="hScope" value="Scope" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="270" y="110" width="420" height="40" as="geometry" /></mxCell>
+        <mxCell id="hUI" value="Dashboard access" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="700" y="110" width="480" height="40" as="geometry" /></mxCell>
+        <mxCell id="hEnforce" value="Real enforcement point" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="1190" y="110" width="360" height="40" as="geometry" /></mxCell>
+
+        <!-- management -->
+        <mxCell id="r1" value="management" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="40" y="160" width="220" height="60" as="geometry" /></mxCell>
+        <mxCell id="s1" value="CEF-wide — all AssetCos, all data" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="270" y="160" width="420" height="60" as="geometry" /></mxCell>
+        <mxCell id="u1" value="Full: Registry, Pipeline, DREEF, Series, Loan Book, Users, Applications" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="700" y="160" width="480" height="60" as="geometry" /></mxCell>
+        <mxCell id="e1" value="requireRole(CEF_WIDE_ROLES); RLS is_cef_user()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="1190" y="160" width="360" height="60" as="geometry" /></mxCell>
+
+        <!-- it_admin -->
+        <mxCell id="r2" value="it_admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="40" y="230" width="220" height="60" as="geometry" /></mxCell>
+        <mxCell id="s2" value="CEF-wide — same as management, plus user/account admin" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="270" y="230" width="420" height="60" as="geometry" /></mxCell>
+        <mxCell id="u2" value="Full, plus: create users, reset passwords, run manual reconciliation" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="700" y="230" width="480" height="60" as="geometry" /></mxCell>
+        <mxCell id="e2" value="requireRole(['it_admin','management']) on admin endpoints" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="1190" y="230" width="360" height="60" as="geometry" /></mxCell>
+
+        <!-- executive -->
+        <mxCell id="r3" value="executive" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="40" y="300" width="220" height="60" as="geometry" /></mxCell>
+        <mxCell id="s3" value="CEF-wide — read + application review" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="270" y="300" width="420" height="60" as="geometry" /></mxCell>
+        <mxCell id="u3" value="Full read dashboards, plus onboarding Applications review" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="700" y="300" width="480" height="60" as="geometry" /></mxCell>
+        <mxCell id="e3" value="requireRole(['executive','management','it_admin'])" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#48C9B0;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="1190" y="300" width="360" height="60" as="geometry" /></mxCell>
+
+        <!-- assetco_admin -->
+        <mxCell id="r4" value="assetco_admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B7950B;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="40" y="370" width="220" height="60" as="geometry" /></mxCell>
+        <mxCell id="s4" value="Single AssetCo — users.assetco_id (one FK column)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#F4D03F;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="270" y="370" width="420" height="60" as="geometry" /></mxCell>
+        <mxCell id="u4" value="That AssetCo's own dashboards (their own data only, intended)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#F4D03F;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="700" y="370" width="480" height="60" as="geometry" /></mxCell>
+        <mxCell id="e4" value="canAccessAssetco(): assetcoId === user.assetcoId" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#F4D03F;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="1190" y="370" width="360" height="60" as="geometry" /></mxCell>
+
+        <!-- assetco_dev -->
+        <mxCell id="r5" value="assetco_dev&#10;(new — Item B)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B7950B;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1"><mxGeometry x="40" y="440" width="220" height="70" as="geometry" /></mxCell>
+        <mxCell id="s5" value="One or many AssetCos — user_assetco_dev_access join table (many-to-many, e.g. one dev team building for both GroSolar and EML)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#F4D03F;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="270" y="440" width="420" height="70" as="geometry" /></mxCell>
+        <mxCell id="u5" value="Developer Console ONLY — view AssetCo id/stage, self-service HMAC secret regeneration. No CEF approval needed." style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#F4D03F;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="700" y="440" width="480" height="70" as="geometry" /></mxCell>
+        <mxCell id="e5" value="middleware.js redirects to /dashboard/dev-console for any other route; canAccessAssetco() checks assetcoIds array" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#F4D03F;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="1190" y="440" width="360" height="70" as="geometry" /></mxCell>
+
+        <!-- Residual risk callout -->
+        <mxCell id="risk" value="RESIDUAL RISK (flagged, pre-prod hardening item):&#10;RLS is is_cef_user()-broad — it grants any provisioned CEF user row access to ALL tables, not scoped by role.&#10;assetco_dev's real restriction today is enforced at the Next.js middleware layer (UI routing), not at the Postgres level.&#10;A user with the anon key could still craft a raw Supabase query bypassing the app's own code.&#10;Recommended before relying on this role in production: per-role RLS policies scoping customers/payments/assets/audit_log reads." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#78281F;strokeColor=none;fontColor=#FFFFFF;fontSize=11;fontStyle=1;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="540" width="1510" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- Secrets note -->
+        <mxCell id="secrets" value="hmac_secret / reconciliation_token: excluded from every browser-facing query (explicit column allowlists in dashboard/lib/data.js)&#10;and stripped from every API JSON response (stripSecrets() in assetcoService.js) — but this is app-code discipline, not a DB-enforced guarantee.&#10;Recommended before prod: a Postgres view or column-level GRANTs so the guarantee holds even if a future query forgets to strip." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#784212;strokeColor=none;fontColor=#FFFFFF;fontSize=11;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="680" width="1510" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Two trust boundaries note -->
+        <mxCell id="boundaries" value="Two distinct trust boundaries in this system:&#10;1) AssetCo platform → API: HMAC-SHA256 signed webhook requests (verifyHmac) — no user session involved.&#10;2) Human → dashboard/API: Supabase JWT session (verifySupabaseAuth) — role read from public.users, checked by requireRole/canAccessAssetco." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=11;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="790" width="1510" height="80" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

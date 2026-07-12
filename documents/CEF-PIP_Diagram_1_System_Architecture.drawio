@@ -1,0 +1,119 @@
+<mxfile host="Electron" modified="2026-07-12T00:00:00.000Z" agent="claude-code" version="22.1.2" type="device" pages="1">
+  <diagram id="sysarch" name="1. System Architecture">
+    <mxGraphModel dx="1404" dy="806" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg" value="" style="rounded=0;fillColor=#1C2833;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1600" height="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="CEF-PIP — System Architecture (MVP, as built)" style="text;html=1;align=center;fontSize=26;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="380" y="20" width="840" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="CEF-PIP owns visibility, governance &amp; analytics — it never talks to OEM hardware directly, only to AssetCo platforms" style="text;html=1;align=center;fontSize=12;fontStyle=2;fontColor=#AAB7B8;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="300" y="60" width="1000" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Users row -->
+        <mxCell id="userCef" value="CEF Staff&#10;(management / it_admin / executive)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5D6D7E;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="140" y="110" width="240" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="userAssetcoAdmin" value="AssetCo Admin" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5D6D7E;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="420" y="110" width="180" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="userAssetcoDev" value="AssetCo Developer&#10;(assetco_dev — scoped to Dev Console)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5D6D7E;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="640" y="110" width="260" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="userAssetcoPlatform" value="AssetCo Platform(s)&#10;GroSolar · EML · SSM · ...&#10;(source of truth for their own ops data)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#922B21;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1020" y="100" width="300" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="oem" value="OEM Hardware&#10;(solar panels, mini-grids, e-bikes)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B241C;strokeColor=none;fontColor=#FFFFFF;fontSize=11;fontStyle=0;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="1360" y="110" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="oemNote" value="No direct link — CEF-PIP never talks to OEM hardware" style="text;html=1;align=center;fontSize=10;fontColor=#E74C3C;fillColor=none;strokeColor=none;fontStyle=2;" parent="1" vertex="1">
+          <mxGeometry x="1340" y="168" width="260" height="24" as="geometry" />
+        </mxCell>
+
+        <!-- Dashboard -->
+        <mxCell id="dashboard" value="dashboard/ — Next.js 14 App Router&#10;Portfolio / AssetCo / Asset dashboards&#10;Server Components + Client islands&#10;Deploys to Vercel" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="300" y="230" width="440" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- API -->
+        <mxCell id="api" value="api/ — Express backend&#10;Event Ingestion · Cashflow Engine · Alert Engine&#10;Asset Registry · Reconciliation&#10;Deploys to Render" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="900" y="230" width="440" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Middleware layer -->
+        <mxCell id="mw" value="middleware.js (Next.js) — real route enforcement, e.g. redirects assetco_dev to /dashboard/dev-console&#10;verifyHmac / verifySupabaseAuth / requireRole (Express) — two trust boundaries: webhook HMAC vs session JWT" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#34495E;strokeColor=none;fontColor=#FFFFFF;fontSize=11;fontStyle=0;" parent="1" vertex="1">
+          <mxGeometry x="300" y="340" width="1040" height="46" as="geometry" />
+        </mxCell>
+
+        <!-- Supabase -->
+        <mxCell id="supabase" value="Supabase Project (Postgres + Auth)&#10;cef-pip-dev (staging) · cef-pip-prod (production) — separate projects" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=13;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="430" width="760" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="tables" value="events · assets · customers · payments · faults · alerts&#10;assetcos (hmac_secret, reconciliation_token — never sent to browser)&#10;users · user_assetco_dev_access · audit_log · sync_state" style="rounded=0;whiteSpace=wrap;html=1;fillColor=none;strokeColor=#117864;fontColor=#D5F5E3;fontSize=11;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="440" y="500" width="760" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="rls" value="RLS: is_cef_user() — row-level only.&#10;Column-level secrecy (hmac_secret) enforced in app code&#10;(explicit column lists / stripSecrets()), not by Postgres." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7D6608;strokeColor=none;fontColor=#FFFFFF;fontSize=10;fontStyle=2;" parent="1" vertex="1">
+          <mxGeometry x="1220" y="430" width="280" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- External services -->
+        <mxCell id="resend" value="Resend&#10;(alert/notification emails)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C3483;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="300" y="610" width="220" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="gha" value="GitHub Actions&#10;(CI: Jest tests against fake Supabase client)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C3483;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="560" y="610" width="280" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="sandbox" value="sample-assetco-integration/&#10;CLI + local web UI + mock reconciliation endpoints&#10;(developer-facing reference implementation, not deployed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#784212;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="880" y="610" width="400" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- Reconciliation loop note -->
+        <mxCell id="reconNote" value="Reconciliation: lazy-triggered on the first inbound event of the day per AssetCo (no paid cron on Render free tier),&#10;plus a manual &quot;Run now&quot; button on the AssetCo profile page for it_admin/management." style="text;html=1;align=center;fontSize=11;fontColor=#F5CBA7;fillColor=none;strokeColor=none;fontStyle=2;" parent="1" vertex="1">
+          <mxGeometry x="880" y="690" width="500" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;" edge="1" parent="1" source="userCef" target="dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;" edge="1" parent="1" source="userAssetcoAdmin" target="dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;" edge="1" parent="1" source="userAssetcoDev" target="dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" value="POST /api/v1/events&#10;(HMAC-signed)" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#E74C3C;fontColor=#E74C3C;" edge="1" parent="1" source="userAssetcoPlatform" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e5" value="reconciliation callback&#10;GET /cef/assets,/payments,/faults" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#F5B041;fontColor=#F5B041;" edge="1" parent="1" source="api" target="userAssetcoPlatform">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#5DADE2;dashed=1;" edge="1" parent="1" source="dashboard" target="mw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#5DADE2;dashed=1;" edge="1" parent="1" source="api" target="mw">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#48C9B0;" edge="1" parent="1" source="mw" target="supabase">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e9" value="direct read (RLS-gated)&#10;dashboard/lib/data.js" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#5DADE2;fontColor=#5DADE2;" edge="1" parent="1" source="dashboard" target="supabase">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AF7AC5;" edge="1" parent="1" source="api" target="resend">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AF7AC5;" edge="1" parent="1" source="gha" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e12" value="dev-signed events" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#D68910;fontColor=#D68910;" edge="1" parent="1" source="sandbox" target="api">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
