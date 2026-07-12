@@ -5,7 +5,7 @@ const supabase = require('../config/supabase');
  * Downstream processing (Cashflow/Alert engines) consumes this table asynchronously
  * in later weeks — Week 1 scope is ingestion + storage only.
  */
-async function recordEvent(payload) {
+async function recordEvent(payload, source = 'API') {
   const { data, error } = await supabase
     .from('events')
     .insert({
@@ -19,6 +19,7 @@ async function recordEvent(payload) {
       metadata: payload.metadata || null,
       raw_payload: payload,
       received_at: new Date().toISOString(),
+      source,
     })
     .select('id')
     .single();

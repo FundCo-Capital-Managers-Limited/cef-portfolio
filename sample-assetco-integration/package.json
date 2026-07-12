@@ -1,0 +1,17 @@
+{
+  "name": "cef-pip-sample-assetco-integration",
+  "version": "1.0.0",
+  "description": "Reference implementation for AssetCo developers integrating with CEF-PIP's Event Ingestion API. send-event.js is a dependency-free CLI; server.js adds a small local web UI (requires `npm install` for express).",
+  "private": true,
+  "main": "send-event.js",
+  "scripts": {
+    "send": "node send-event.js",
+    "ui": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

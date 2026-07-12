@@ -1,0 +1,83 @@
+<mxfile host="Electron" modified="2026-07-12T00:00:00.000Z" agent="claude-code" version="22.1.2" type="device" pages="1">
+  <diagram id="onboarding" name="4. AssetCo Onboarding &amp; Pipeline Stages">
+    <mxGraphModel dx="1404" dy="806" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="1" pageScale="1" pageWidth="1700" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg" value="" style="rounded=0;fillColor=#1C2833;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1700" height="900" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="CEF-PIP — AssetCo Onboarding &amp; Pipeline Stage Lifecycle" style="text;html=1;align=center;fontSize=25;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="440" y="20" width="820" height="40" as="geometry" />
+        </mxCell>
+
+        <!-- Stage boxes -->
+        <mxCell id="st1" value="APPLICATION&#10;Public onboarding form submitted&#10;(company info, integration_type, base_url)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5D6D7E;strokeColor=none;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="100" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="st2" value="REVIEW&#10;CEF executive/management reviews&#10;Applications queue" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5D6D7E;strokeColor=none;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="310" y="100" width="230" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="st3" value="APPROVED&#10;assetcos row created&#10;real crypto-random hmac_secret generated&#10;(generateHmacSecret — was a placeholder bug, now fixed)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="580" y="100" width="260" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="st4" value="SANDBOX INTEGRATION&#10;sandbox AssetCo ID + secret issued&#10;dev tests via sample-assetco-integration&#10;(CLI or local web UI + mock reconciliation)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="880" y="100" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="st5" value="LIVE INTEGRATION&#10;production AssetCo ID + secret issued&#10;real events flow via POST /api/v1/events" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1190" y="100" width="270" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="st6" value="ONGOING&#10;nightly + lazy per-AssetCo + manual&#10;reconciliation keeps records in sync" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#784212;strokeColor=none;fontColor=#FFFFFF;fontSize=10;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1490" y="100" width="180" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="a1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="st1" target="st2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="st2" target="st3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="st3" target="st4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="st4" target="st5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="a5" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="st5" target="st6"><mxGeometry relative="1" as="geometry" /></mxCell>
+
+        <!-- Pipeline board note -->
+        <mxCell id="pipe" value="Pipeline Board (dashboard/app/dashboard/pipeline) shows every AssetCo's current stage as a kanban-style board.&#10;AdvanceStageButton lets it_admin/management move an AssetCo forward — each transition is written to audit_log." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#34495E;strokeColor=none;fontColor=#FFFFFF;fontSize=11;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="230" width="1630" height="55" as="geometry" />
+        </mxCell>
+
+        <!-- People/roles involved -->
+        <mxCell id="peopleTitle" value="Who's involved at each stage" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="310" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="p1" value="Prospective AssetCo&#10;submits public form" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B241C;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="40" y="350" width="230" height="55" as="geometry" /></mxCell>
+        <mxCell id="p2" value="CEF executive/management&#10;approves/rejects, advances pipeline stage" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="310" y="350" width="270" height="55" as="geometry" /></mxCell>
+        <mxCell id="p3" value="CEF it_admin&#10;creates assetco_admin / assetco_dev accounts,&#10;can manually re-run reconciliation" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="620" y="350" width="270" height="55" as="geometry" /></mxCell>
+        <mxCell id="p4" value="AssetCo Developer (assetco_dev)&#10;builds/tests integration, self-service&#10;regenerates own HMAC secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B7950B;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="930" y="350" width="270" height="55" as="geometry" /></mxCell>
+        <mxCell id="p5" value="AssetCo Admin (assetco_admin)&#10;monitors their own AssetCo's dashboard&#10;once live" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#B7950B;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="1240" y="350" width="270" height="55" as="geometry" /></mxCell>
+
+        <!-- Pipeline stage enum -->
+        <mxCell id="enumTitle" value="assetcos.pipeline_stage enum values" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="440" width="400" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="en1" value="ONBOARDING" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#5D6D7E;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="40" y="480" width="180" height="40" as="geometry" /></mxCell>
+        <mxCell id="en2" value="SANDBOX" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="240" y="480" width="180" height="40" as="geometry" /></mxCell>
+        <mxCell id="en3" value="LIVE" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1"><mxGeometry x="440" y="480" width="180" height="40" as="geometry" /></mxCell>
+        <mxCell id="en4" value="SUSPENDED&#10;(off-ramp, any stage → here on issue)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B241C;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="640" y="480" width="260" height="40" as="geometry" /></mxCell>
+
+        <!-- InfraCredit/DREEF/CEF Series note -->
+        <mxCell id="misc" value="Alongside pipeline stage, an AssetCo also tracks (mid-sprint additions): InfraCredit/DREEF guarantee status (DREEF Pipeline page),&#10;CEF Series funding round allocation (CEF Series page), and its own CEF Facility Repayment loan book entries (Loan Book page)&#10;— these are independent tracks layered on top of the same assetcos row, not sub-stages of onboarding." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#34495E;strokeColor=none;fontColor=#FFFFFF;fontSize=11;align=left;spacingLeft=10;" parent="1" vertex="1">
+          <mxGeometry x="40" y="560" width="1630" height="70" as="geometry" />
+        </mxCell>
+
+        <!-- Sandbox testing detail -->
+        <mxCell id="sandboxTitle" value="Sandbox testing loop (before going LIVE)" style="text;html=1;fontSize=14;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="40" y="660" width="500" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="sb1" value="Trigger individual event types&#10;or replay all 14 chronologically" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="40" y="700" width="260" height="55" as="geometry" /></mxCell>
+        <mxCell id="sb2" value="Inspect mock reconciliation endpoints&#10;(/cef/assets, /payments, /faults — canned data)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="330" y="700" width="300" height="55" as="geometry" /></mxCell>
+        <mxCell id="sb3" value="Wipe/reset sandbox data&#10;DELETE /api/v1/sandbox/reset (non-prod only)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="660" y="700" width="300" height="55" as="geometry" /></mxCell>
+        <mxCell id="sb4" value="Confirm events visible in CEF-PIP dashboard&#10;→ ready for production credentials" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=10;" parent="1" vertex="1"><mxGeometry x="990" y="700" width="320" height="55" as="geometry" /></mxCell>
+        <mxCell id="ab1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="sb1" target="sb2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ab2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="sb2" target="sb3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="ab3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;endArrow=block;" edge="1" parent="1" source="sb3" target="sb4"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

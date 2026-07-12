@@ -1,9 +1,10 @@
+const logger = require('../utils/logger');
+
 // eslint-disable-next-line no-unused-vars
 function errorHandler(err, req, res, next) {
   const status = err.status || 500;
   if (status >= 500) {
-    // eslint-disable-next-line no-console
-    console.error(err);
+    logger.error('Unhandled error', { method: req.method, path: req.path, message: err.message, stack: err.stack });
   }
   res.status(status).json({ error: err.message || 'Internal server error' });
 }

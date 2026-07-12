@@ -1,3 +1,84 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/*
+ * Dark mode retrofit: every existing page was written with literal Tailwind
+ * utility classes (bg-white, text-gray-500, ...) rather than dark: variants
+ * on each element, and there are dozens of pages. Rather than touch every
+ * className in every file, this overrides the same utility classes directly
+ * under a `.dark` ancestor selector — `.dark .bg-white` naturally outranks a
+ * bare `.bg-white` on specificity, so it wins regardless of source order.
+ * This is a stopgap, not the idiomatic Tailwind approach (a proper pass
+ * would add dark: variants per element) — but it gets full-app dark mode
+ * coverage today without a few hundred file edits. New components should
+ * still prefer explicit dark: variants where they need something this
+ * blanket layer doesn't cover (e.g. brand-colored accents).
+ */
+.dark body {
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+.dark .bg-white {
+  background-color: #1e293b;
+}
+.dark .bg-gray-50 {
+  background-color: #0f172a;
+}
+.dark .bg-gray-100 {
+  background-color: #1e293b;
+}
+.dark .bg-black\/40 {
+  background-color: rgba(0, 0, 0, 0.6);
+}
+.dark .border-gray-200 {
+  border-color: #334155;
+}
+.dark .border-gray-300 {
+  border-color: #475569;
+}
+.dark .border-t,
+.dark .border-b,
+.dark .border {
+  border-color: #334155;
+}
+.dark .text-gray-900 {
+  color: #f1f5f9;
+}
+.dark .text-gray-700 {
+  color: #e2e8f0;
+}
+.dark .text-gray-600 {
+  color: #cbd5e1;
+}
+.dark .text-gray-500 {
+  color: #94a3b8;
+}
+.dark .text-gray-400 {
+  color: #64748b;
+}
+.dark .divide-y > :not([hidden]) ~ :not([hidden]) {
+  border-color: #334155;
+}
+.dark .hover\:bg-gray-50:hover {
+  background-color: #273449;
+}
+.dark .hover\:bg-gray-100:hover {
+  background-color: #273449;
+}
+.dark .hover\:bg-gray-200:hover {
+  background-color: #334155;
+}
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: #1e293b;
+  color: #e2e8f0;
+  border-color: #475569;
+}
+.dark .bg-gray-100.text-gray-500,
+.dark .bg-gray-100.text-gray-700,
+.dark .bg-gray-100.text-gray-600 {
+  background-color: #334155;
+  color: #cbd5e1;
+}

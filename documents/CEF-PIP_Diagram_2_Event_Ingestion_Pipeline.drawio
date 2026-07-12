@@ -1,0 +1,91 @@
+<mxfile host="Electron" modified="2026-07-12T00:00:00.000Z" agent="claude-code" version="22.1.2" type="device" pages="1">
+  <diagram id="ingestion" name="2. Event Ingestion Pipeline">
+    <mxGraphModel dx="1404" dy="806" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="0" page="1" pageScale="1" pageWidth="1600" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="bg" value="" style="rounded=0;fillColor=#1C2833;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry width="1600" height="1000" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="CEF-PIP — Event Ingestion Pipeline" style="text;html=1;align=center;fontSize=26;fontStyle=1;fontColor=#FFFFFF;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="500" y="20" width="600" height="40" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Store first, process second — a processing failure never blocks the AssetCo's webhook response" style="text;html=1;align=center;fontSize=12;fontStyle=2;fontColor=#AAB7B8;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="380" y="60" width="840" height="24" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s0" value="AssetCo platform&#10;POST /api/v1/events&#10;+ X-CEF-AssetCo-Id&#10;+ X-CEF-Signature" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#922B21;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="40" y="140" width="220" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s1" value="verifyHmac middleware&#10;HMAC-SHA256 over raw body&#10;vs assetcos.hmac_secret" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="140" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="s1fail" value="401 Invalid signature&#10;(request rejected, nothing stored)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B241C;strokeColor=none;fontColor=#FFFFFF;fontSize=10;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="320" y="250" width="220" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s2" value="eventSchema.js&#10;validate payload shape&#10;against the 14 CIS event types" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#1F3864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="600" y="140" width="220" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="s2fail" value="400 Bad Request&#10;(malformed / unknown event)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B241C;strokeColor=none;fontColor=#FFFFFF;fontSize=10;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="600" y="250" width="220" height="45" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s3" value="events table&#10;durable raw log&#10;— always written first, regardless of what happens next" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#117864;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="880" y="140" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s4" value="200 { status: accepted, eventId }&#10;returned to AssetCo immediately" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#196F3D;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="1180" y="140" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s5" value="eventProcessor.js&#10;dispatches to handler by eventType&#10;(async, after response already sent)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#34495E;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="880" y="290" width="240" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s6" value="registryStubs.js&#10;upserts placeholder asset/customer row&#10;if payment/fault event arrives before *.created&#10;(out-of-order delivery)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7D6608;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="580" y="420" width="260" height="90" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s7" value="Cashflow Engine&#10;payment.received / missed / defaulted" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=12;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="880" y="420" width="220" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="s8" value="Alert Engine&#10;asset.fault.detected / payment.defaulted&#10;describeCustomerAndAsset() — human-readable&#10;messages (name + asset type, not raw IDs)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1140" y="420" width="280" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="s9" value="Asset Registry&#10;asset.created / customer.created&#10;overwrite stubs with authoritative data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#2874A6;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="880" y="520" width="220" height="70" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s10" value="Resend&#10;alert / notification email" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#6C3483;strokeColor=none;fontColor=#FFFFFF;fontSize=11;" parent="1" vertex="1">
+          <mxGeometry x="1160" y="540" width="240" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s11" value="processing_error recorded on event row&#10;(handler failure ≠ HTTP 5xx)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#7B241C;strokeColor=none;fontColor=#FFFFFF;fontSize=10;dashed=1;" parent="1" vertex="1">
+          <mxGeometry x="580" y="620" width="260" height="55" as="geometry" />
+        </mxCell>
+
+        <mxCell id="s12" value="Nightly Reconciliation (+ lazy per-AssetCo trigger&#10;on first event of the day, + manual &quot;Run now&quot;)&#10;calls back into AssetCo's /cef/assets,/payments,/faults&#10;catches anything a missed/failed handler dropped" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#784212;strokeColor=none;fontColor=#FFFFFF;fontSize=11;fontStyle=1;" parent="1" vertex="1">
+          <mxGeometry x="280" y="720" width="500" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- Edges -->
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;" edge="1" parent="1" source="s0" target="s1"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e1f" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#E74C3C;dashed=1;" edge="1" parent="1" source="s1" target="s1fail"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AAB7B8;" edge="1" parent="1" source="s1" target="s2"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e2f" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#E74C3C;dashed=1;" edge="1" parent="1" source="s2" target="s2fail"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#48C9B0;" edge="1" parent="1" source="s2" target="s3"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#58D68D;" edge="1" parent="1" source="s3" target="s4"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e5" value="async, non-blocking" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#85929E;dashed=1;fontColor=#85929E;" edge="1" parent="1" source="s3" target="s5"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#F1C40F;" edge="1" parent="1" source="s5" target="s6"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e7" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#5DADE2;" edge="1" parent="1" source="s5" target="s7"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#5DADE2;" edge="1" parent="1" source="s5" target="s8"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#5DADE2;" edge="1" parent="1" source="s5" target="s9"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#AF7AC5;" edge="1" parent="1" source="s8" target="s10"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e11" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#E74C3C;dashed=1;" edge="1" parent="1" source="s5" target="s11"><mxGeometry relative="1" as="geometry" /></mxCell>
+        <mxCell id="e12" value="picks up unresolved failures" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#D68910;fontColor=#D68910;" edge="1" parent="1" source="s11" target="s12"><mxGeometry relative="1" as="geometry" /></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

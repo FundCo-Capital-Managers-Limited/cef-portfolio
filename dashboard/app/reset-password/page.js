@@ -1,0 +1,107 @@
+'use client';
+
+import { useEffect, useState } from 'react';
+import Image from 'next/image';
+import { useRouter } from 'next/navigation';
+import { createClient } from '../../lib/supabaseClient';
+
+export default function ResetPasswordPage() {
+  const router = useRouter();
+  const [ready, setReady] = useState(false);
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [done, setDone] = useState(false);
+
+  useEffect(() => {
+    // The recovery link Supabase emails redirects here with a session
+    // already established (createBrowserClient parses it from the URL) —
+    // wait for that before allowing a password update, otherwise
+    // updateUser() would fail with "not authenticated".
+    const supabase = createClient();
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setReady(Boolean(session));
+      if (!session) setError('This reset link is invalid or has expired. Request a new one from the sign-in page.');
+    });
+  }, []);
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
+
+    setLoading(true);
+    const supabase = createClient();
+    const { error: updateError } = await supabase.auth.updateUser({ password });
+    setLoading(false);
+
+    if (updateError) {
+      setError(updateError.message);
+      return;
+    }
+
+    setDone(true);
+    setTimeout(() => {
+      router.push('/dashboard');
+      router.refresh();
+    }, 1500);
+  }
+
+  return (
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gray-50 gap-8">
+      <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={220} height={50} priority />
+
+      <div className="w-full max-w-sm bg-white p-8 rounded-lg shadow space-y-4 border-t-4 border-brand-blue">
+        <h1 className="text-xl font-semibold text-center text-brand-navy">Set a New Password</h1>
+
+        {done ? (
+          <p className="text-sm text-green-700">Password updated. Redirecting you to the dashboard…</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label htmlFor="new-password" className="block text-sm font-medium text-gray-700">New password</label>
+              <input
+                id="new-password"
+                type="password"
+                required
+                minLength={8}
+                disabled={!ready}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-blue disabled:bg-gray-100"
+              />
+            </div>
+            <div>
+              <label htmlFor="confirm-password" className="block text-sm font-medium text-gray-700">Confirm password</label>
+              <input
+                id="confirm-password"
+                type="password"
+                required
+                minLength={8}
+                disabled={!ready}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="mt-1 w-full border border-gray-300 rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand-blue disabled:bg-gray-100"
+              />
+            </div>
+
+            {error && <p className="text-sm text-red-600">{error}</p>}
+
+            <button
+              type="submit"
+              disabled={!ready || loading}
+              className="w-full bg-brand-navy hover:bg-brand-blue transition-colors text-white rounded py-2 font-medium disabled:opacity-50"
+            >
+              {loading ? 'Updating…' : 'Update Password'}
+            </button>
+          </form>
+        )}
+      </div>
+    </main>
+  );
+}

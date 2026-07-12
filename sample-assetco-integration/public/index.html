@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>CEF-PIP Sandbox — AssetCo Integration Walkthrough</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 1rem; color: #1e293b; background: #f8fafc; }
+  h1 { font-size: 1.3rem; }
+  .meta { font-size: 0.85rem; color: #64748b; margin-bottom: 1.5rem; }
+  .meta code { background: #e2e8f0; padding: 1px 5px; border-radius: 3px; }
+  .actions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+  button { font-size: 0.85rem; padding: 0.5rem 0.75rem; border-radius: 6px; border: 1px solid #cbd5e1; background: white; cursor: pointer; }
+  button:hover { background: #f1f5f9; }
+  button.primary { background: #1B2A6B; color: white; border-color: #1B2A6B; }
+  button.primary:hover { background: #2D8FE0; }
+  button.danger { background: #fff; color: #b91c1c; border-color: #fecaca; }
+  button.danger:hover { background: #fef2f2; }
+  #log { background: #0f172a; color: #e2e8f0; padding: 1rem; border-radius: 8px; font-family: ui-monospace, monospace; font-size: 0.8rem; white-space: pre-wrap; max-height: 60vh; overflow-y: auto; }
+  .log-entry { border-bottom: 1px solid #334155; padding-bottom: 0.75rem; margin-bottom: 0.75rem; }
+  .ok { color: #4ade80; }
+  .fail { color: #f87171; }
+  section { margin-bottom: 1.5rem; }
+</style>
+</head>
+<body>
+  <h1>CEF-PIP Sandbox — AssetCo Integration Walkthrough</h1>
+  <div class="meta" id="meta">Loading configuration…</div>
+
+  <section>
+    <strong>Trigger individual events</strong>
+    <div class="actions" id="eventButtons"></div>
+  </section>
+
+  <section>
+    <strong>Or run the whole story</strong>
+    <div class="actions">
+      <button class="primary" id="sendAllBtn">Send All (chronological)</button>
+      <button class="danger" id="wipeBtn">Wipe Test Data</button>
+    </div>
+  </section>
+
+  <section>
+    <strong>Log</strong>
+    <div id="log"></div>
+  </section>
+
+  <script>
+    const eventButtonsEl = document.getElementById('eventButtons');
+    const logEl = document.getElementById('log');
+    const metaEl = document.getElementById('meta');
+
+    function logEntry(html) {
+      const div = document.createElement('div');
+      div.className = 'log-entry';
+      div.innerHTML = html;
+      logEl.prepend(div);
+    }
+
+    function setButtonsDisabled(disabled) {
+      document.querySelectorAll('button').forEach((b) => { b.disabled = disabled; });
+    }
+
+    async function triggerEvent(eventType) {
+      logEntry(`<span>→ Sending <strong>${eventType}</strong>…</span>`);
+      const res = await fetch('/api/trigger', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ eventType }),
+      });
+      const data = await res.json();
+      const statusClass = data.ok ? 'ok' : 'fail';
+      const statusText = data.ok
+        ? `✓ ${data.status} accepted — eventId: ${data.response?.eventId}`
+        : `✗ ${data.status || ''} ${data.error || JSON.stringify(data.response)}`;
+      logEntry(`<span class="${statusClass}">${statusText}</span> <em>(${eventType})</em>`);
+      return data.ok;
+    }
+
+    async function init() {
+      const configRes = await fetch('/api/event-types');
+      const config = await configRes.json();
+      metaEl.innerHTML = `Sending as AssetCo <code>${config.assetCoId}</code> against <code>${config.apiUrl}</code>`;
+
+      config.eventTypes.forEach((eventType) => {
+        const btn = document.createElement('button');
+        btn.textContent = eventType;
+        btn.onclick = async () => {
+          setButtonsDisabled(true);
+          await triggerEvent(eventType);
+          setButtonsDisabled(false);
+        };
+        eventButtonsEl.appendChild(btn);
+      });
+
+      document.getElementById('sendAllBtn').onclick = async () => {
+        setButtonsDisabled(true);
+        logEntry('<strong>--- Sending all events in order ---</strong>');
+        for (const eventType of config.eventTypes) {
+          // eslint-disable-next-line no-await-in-loop
+          await triggerEvent(eventType);
+        }
+        logEntry('<strong>--- Done ---</strong>');
+        setButtonsDisabled(false);
+      };
+
+      document.getElementById('wipeBtn').onclick = async () => {
+        if (!confirm('Wipe all sandbox sample data for this AssetCo? This only affects CUS-SAMPLE-*/AST-SAMPLE-* records.')) return;
+        setButtonsDisabled(true);
+        logEntry('→ Wiping sandbox test data…');
+        const res = await fetch('/api/wipe', { method: 'POST' });
+        const data = await res.json();
+        const statusClass = data.ok ? 'ok' : 'fail';
+        logEntry(`<span class="${statusClass}">${data.ok ? '✓ Wiped' : `✗ ${data.error || JSON.stringify(data.response)}`}</span>`);
+        setButtonsDisabled(false);
+      };
+    }
+
+    init().catch((err) => logEntry(`<span class="fail">Failed to load: ${err.message}</span>`));
+  </script>
+</body>
+</html>
