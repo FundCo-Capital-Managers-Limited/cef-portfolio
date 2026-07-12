@@ -88,4 +88,78 @@ async function linkAssetcoToSeries(assetCoId, fields, user) {
   return getSeriesForAssetco(assetCoId);
 }
 
-module.exports = { listSeries, getSeriesByCode, getAssetcosInSeries, getSeriesForAssetco, linkAssetcoToSeries };
+async function createSeries(fields, user) {
+  const { data: existing, error: existingError } = await supabase
+    .from('cef_series')
+    .select('id')
+    .eq('code', fields.code)
+    .maybeSingle();
+  if (existingError) throw existingError;
+  if (existing) {
+    const err = new Error(`A series with code ${fields.code} already exists`);
+    err.status = 400;
+    throw err;
+  }
+
+  const { data, error } = await supabase.from('cef_series').insert(fields).select().single();
+  if (error) throw error;
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    action: 'SERIES_CREATED',
+    entityType: 'cef_series',
+    entityId: data.id,
+    details: fields,
+  });
+
+  return data;
+}
+
+async function deleteSeries(id, user) {
+  const { data: series, error: seriesError } = await supabase.from('cef_series').select('*').eq('id', id).maybeSingle();
+  if (seriesError) throw seriesError;
+  if (!series) {
+    const err = new Error('Series not found');
+    err.status = 404;
+    throw err;
+  }
+
+  // Checked explicitly rather than relying on the FK constraint's error —
+  // gives a clean 400 either way, and the underlying assets.cef_series_id/
+  // assetco_series FK still exists as a DB-level backstop if this check is
+  // ever bypassed.
+  const [{ data: links, error: linksError }, { data: linkedAssets, error: assetsError }] = await Promise.all([
+    supabase.from('assetco_series').select('id').eq('series_id', id).limit(1),
+    supabase.from('assets').select('id').eq('cef_series_id', id).limit(1),
+  ]);
+  if (linksError) throw linksError;
+  if (assetsError) throw assetsError;
+  if ((links || []).length || (linkedAssets || []).length) {
+    const err = new Error('This series still has AssetCos or assets linked to it. Unlink them first.');
+    err.status = 400;
+    throw err;
+  }
+
+  const { error } = await supabase.from('cef_series').delete().eq('id', id);
+  if (error) throw error;
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    action: 'SERIES_DELETED',
+    entityType: 'cef_series',
+    entityId: id,
+    details: { code: series.code, display_name: series.display_name },
+  });
+}
+
+module.exports = {
+  listSeries,
+  getSeriesByCode,
+  getAssetcosInSeries,
+  getSeriesForAssetco,
+  linkAssetcoToSeries,
+  createSeries,
+  deleteSeries,
+};

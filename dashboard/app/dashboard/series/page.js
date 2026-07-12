@@ -1,7 +1,9 @@
 import Link from 'next/link';
-import { getSeriesOverview } from '../../../lib/data';
+import { getSeriesOverview, getCurrentUserProfile } from '../../../lib/data';
 import { formatCurrency } from '../../../lib/format';
 import BackLink from '../BackLink';
+import AddSeriesButton from '../AddSeriesButton';
+import DeleteSeriesButton from '../DeleteSeriesButton';
 
 const STATUS_STYLES = {
   OPEN: 'bg-green-100 text-green-700',
@@ -13,14 +15,18 @@ const STATUS_STYLES = {
 export const metadata = { title: "CEF Series" };
 
 export default async function SeriesOverviewPage() {
-  const series = await getSeriesOverview();
+  const [series, profile] = await Promise.all([getSeriesOverview(), getCurrentUserProfile()]);
+  const canManage = ['management', 'it_admin'].includes(profile?.role);
 
   return (
     <div className="space-y-4">
-      <div>
-        <BackLink href="/dashboard">Portfolio</BackLink>
-        <h1 className="text-xl font-semibold mt-1">CEF Series</h1>
-        <p className="text-sm text-gray-500">Each fundraising round and the AssetCos funded under it.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <BackLink href="/dashboard">Portfolio</BackLink>
+          <h1 className="text-xl font-semibold mt-1">CEF Series</h1>
+          <p className="text-sm text-gray-500">Each fundraising round and the AssetCos funded under it.</p>
+        </div>
+        {canManage && <AddSeriesButton />}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -28,9 +34,12 @@ export default async function SeriesOverviewPage() {
           <div key={s.id} className="bg-white rounded-lg border border-gray-200 p-4">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-semibold">{s.display_name}</h2>
-              <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_STYLES[s.status] || 'bg-gray-100 text-gray-500'}`}>
-                {s.status}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`text-xs px-2 py-0.5 rounded-full ${STATUS_STYLES[s.status] || 'bg-gray-100 text-gray-500'}`}>
+                  {s.status}
+                </span>
+                {canManage && <DeleteSeriesButton seriesId={s.id} seriesName={s.display_name} />}
+              </div>
             </div>
             <div className="text-sm space-y-1 mb-3">
               <div className="flex justify-between"><span className="text-gray-500">Fund size</span><span>{s.total_fund_size_ngn ? formatCurrency(s.total_fund_size_ngn) : 'N/A'}</span></div>

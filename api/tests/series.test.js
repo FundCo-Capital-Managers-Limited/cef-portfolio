@@ -88,4 +88,55 @@ describe('CEF Series endpoints', () => {
     );
     expect(res.status).toBe(400);
   });
+
+  it('executive cannot create a series', async () => {
+    const withAuth = as('auth-exec');
+    const res = await withAuth(
+      request(app).post('/api/series').send({ code: 'SERIES_D', displayName: 'Series D' })
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('management can create a new series', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(
+      request(app).post('/api/series').send({ code: 'SERIES_D', displayName: 'Series D', status: 'PLANNING' })
+    );
+    expect(res.status).toBe(201);
+    expect(res.body.series.code).toBe('SERIES_D');
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'SERIES_CREATED');
+    expect(auditEntry).toBeTruthy();
+  });
+
+  it('rejects creating a series with a duplicate code', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(
+      request(app).post('/api/series').send({ code: 'SERIES_A', displayName: 'Duplicate' })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('rejects a malformed series code', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(
+      request(app).post('/api/series').send({ code: 'series-e', displayName: 'Series E' })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('management can delete a series with no links', async () => {
+    const withAuth = as('auth-mgmt');
+    const createRes = await withAuth(
+      request(app).post('/api/series').send({ code: 'SERIES_TO_DELETE', displayName: 'Temp Series' })
+    );
+    const res = await withAuth(request(app).delete(`/api/series/${createRes.body.series.id}`));
+    expect(res.status).toBe(204);
+  });
+
+  it('refuses to delete a series that still has AssetCos linked', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).delete('/api/series/series-a'));
+    expect(res.status).toBe(400);
+  });
 });
