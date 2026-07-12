@@ -48,6 +48,17 @@ From each project's **Settings → API Keys**, collect (Supabase's current key f
 - `sb_publishable_...` key → `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` (frontend only — safe to expose, RLS enforces access)
 - `sb_secret_...` key → `SUPABASE_SECRET_KEY` (backend only — bypasses RLS, never expose to the frontend)
 
+**Also set the Auth redirect config for each project** (Authentication → URL Configuration) — easy to
+miss, and the failure mode is silent: `passwordResetService.js` passes an explicit `redirectTo` when
+generating a reset link, but Supabase only honors it if that URL matches this project's **Redirect
+URLs** allowlist. If it doesn't match, Supabase silently falls back to the project's **Site URL**
+instead — which defaults to `http://localhost:3000` on a brand-new project — so the reset email goes
+out fine (looks identical in Resend's logs) but its link points at `localhost` for every real user.
+- **Site URL**: this environment's real dashboard URL (e.g. `https://portfolio.cleanenergyfund.ng`
+  for prod, your Vercel preview/staging alias for dev)
+- **Redirect URLs**: add `<site-url>/reset-password` (a wildcard like `<site-url>/**` also works and
+  covers any future redirect-based flow, not just password reset)
+
 ## 3. Vercel (dashboard)
 
 1. Import the repo into Vercel, root directory `dashboard/`.
