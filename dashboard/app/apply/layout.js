@@ -8,7 +8,7 @@ export const metadata = {
     'Apply to partner with the Clean Energy Fund as an AssetCo. Tell us about your company and our team will review your application.',
   robots: { index: true, follow: true },
   openGraph: {
-    title: 'AssetCo Onboarding Application — Clean Energy Fund',
+    title: 'AssetCo Onboarding Application: Clean Energy Fund',
     description:
       'Apply to partner with the Clean Energy Fund as an AssetCo. Tell us about your company and our team will review your application.',
     images: ['/logo.png'],

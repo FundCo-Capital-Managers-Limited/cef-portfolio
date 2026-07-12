@@ -10,7 +10,7 @@ const POLL_INTERVAL_MS = 30000;
 
 function describe(entry) {
   const action = entry.action.replace(/_/g, ' ').toLowerCase();
-  return `${entry.entity_type} ${entry.entity_id} — ${action}`;
+  return `${entry.entity_type} ${entry.entity_id}: ${action}`;
 }
 
 export default function NotificationBell({ userId }) {

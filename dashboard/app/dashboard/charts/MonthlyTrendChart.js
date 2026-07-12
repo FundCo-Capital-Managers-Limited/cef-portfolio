@@ -15,9 +15,9 @@ export default function MonthlyTrendChart({ data, scope }) {
   return (
     <ChartCard
       title="Monthly Collections"
-      description={`Customer payments received per month over the last 12 months${scope ? ` for ${scope}` : ' across the portfolio'} — the core signal of collection health over time.`}
+      description={`Customer payments received per month over the last 12 months${scope ? ` for ${scope}` : ' across the portfolio'}: the core signal of collection health over time.`}
       isEmpty={!hasData}
-      emptyHint="No payments recorded in the last 12 months yet — this chart will fill in as payment.received events arrive."
+      emptyHint="No payments recorded in the last 12 months yet. This chart will fill in as payment.received events arrive."
     >
       <ResponsiveContainer width="100%" height={220}>
         <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 0 }}>

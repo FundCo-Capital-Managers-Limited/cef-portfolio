@@ -82,7 +82,7 @@ export default function DreefEditButton({ assetcoId, existing }) {
               <div>
                 <label className="block text-xs text-gray-600 mb-1">Guarantee type</label>
                 <select value={form.guaranteeType} onChange={(e) => set('guaranteeType', e.target.value)} className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm">
-                  <option value="">—</option>
+                  <option value="">None</option>
                   {GUARANTEE_TYPES.map((t) => (
                     <option key={t} value={t}>{t}</option>
                   ))}

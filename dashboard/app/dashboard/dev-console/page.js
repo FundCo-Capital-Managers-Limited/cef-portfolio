@@ -19,7 +19,7 @@ export default async function DevConsolePage() {
       <div>
         <h1 className="text-xl font-semibold dark:text-white">Developer Console</h1>
         <p className="text-sm text-gray-500">
-          Manage your own AssetCo integration credentials — no need to wait on CEF for this.
+          Manage your own AssetCo integration credentials. No need to wait on CEF for this.
         </p>
       </div>
 

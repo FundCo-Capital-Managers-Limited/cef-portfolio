@@ -31,7 +31,7 @@ export default function RegenerateSecretButton({ assetcoId }) {
           <code className="bg-white px-1 py-0.5 rounded border break-all">{secret}</code>
         </p>
         <p className="mt-1 text-xs text-green-700">
-          Shown only once — send it to the AssetCo's developers securely now. Their old secret stopped working
+          Shown only once. Send it to the AssetCo's developers securely now. Their old secret stopped working
           the moment this one was generated, so events they send with it will fail signature verification
           until they update their config.
         </p>
@@ -43,7 +43,7 @@ export default function RegenerateSecretButton({ assetcoId }) {
     return (
       <div className="text-sm bg-amber-50 border border-amber-200 rounded p-3 text-amber-800 space-y-2">
         <p>
-          This immediately invalidates the AssetCo's current signing secret — coordinate with their developers
+          This immediately invalidates the AssetCo's current signing secret. Coordinate with their developers
           first, or their event webhooks will start failing until they update it. Continue?
         </p>
         {error && <p className="text-red-600">{error}</p>}

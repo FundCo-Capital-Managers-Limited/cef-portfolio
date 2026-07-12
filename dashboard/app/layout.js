@@ -10,7 +10,7 @@ export const metadata = {
     default: 'CEF-PIP',
     template: '%s · CEF-PIP',
   },
-  description: 'CEF Portfolio Intelligence Platform — portfolio oversight for the Clean Energy Fund.',
+  description: 'CEF Portfolio Intelligence Platform: portfolio oversight for the Clean Energy Fund.',
   robots: { index: false, follow: false },
   icons: { icon: '/logo.png' },
 };

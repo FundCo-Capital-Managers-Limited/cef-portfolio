@@ -19,9 +19,9 @@ export default function LoanBookChart({ byAssetCo }) {
   return (
     <ChartCard
       title="Loan Book by AssetCo"
-      description="CEF facility principal deployed vs. repaid per AssetCo — shows recovery progress on CEF's own capital, distinct from customer collections."
+      description="CEF facility principal deployed vs. repaid per AssetCo: shows recovery progress on CEF's own capital, distinct from customer collections."
       isEmpty={data.length === 0}
-      emptyHint="No CEF facilities recorded yet — this chart will compare deployed vs. repaid capital per AssetCo once facilities are created."
+      emptyHint="No CEF facilities recorded yet. This chart will compare deployed vs. repaid capital per AssetCo once facilities are created."
     >
       <div className="overflow-x-auto">
         <div style={{ minWidth: chartWidth }}>

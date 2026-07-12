@@ -105,7 +105,7 @@ export default function AddFacilityButton({ assetcoId, allSeries }) {
               <div>
                 <label className="block text-xs text-gray-600 mb-1">CEF Series</label>
                 <select className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm" value={form.seriesId} onChange={(e) => set('seriesId', e.target.value)}>
-                  <option value="">—</option>
+                  <option value="">None</option>
                   {allSeries.map((s) => <option key={s.id} value={s.id}>{s.display_name}</option>)}
                 </select>
               </div>

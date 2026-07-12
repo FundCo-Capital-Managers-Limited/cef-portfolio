@@ -15,9 +15,9 @@ export default function AssetCoComparisonChart({ assetCoCards }) {
   return (
     <ChartCard
       title="AssetCo Performance Comparison"
-      description="Total collections per AssetCo — a quick read on which AssetCos are driving portfolio cashflow."
+      description="Total collections per AssetCo: a quick read on which AssetCos are driving portfolio cashflow."
       isEmpty={!hasData}
-      emptyHint="No collections recorded yet — this chart will compare AssetCos by total collected once payments start flowing in."
+      emptyHint="No collections recorded yet. This chart will compare AssetCos by total collected once payments start flowing in."
     >
       <div className="overflow-x-auto">
         <div style={{ minWidth: chartWidth }}>

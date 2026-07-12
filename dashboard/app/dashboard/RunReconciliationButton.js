@@ -42,7 +42,7 @@ export default function RunReconciliationButton({ assetcoId, hasBaseUrl }) {
       {result && (
         <p className={`text-xs ${result.status === 'OK' ? 'text-green-700' : result.status === 'MISMATCH' ? 'text-amber-700' : 'text-red-600'}`}>
           {result.status}
-          {result.mismatches?.length ? ` — ${result.mismatches.length} mismatch(es)` : ''}
+          {result.mismatches?.length ? ` (${result.mismatches.length} mismatch(es))` : ''}
         </p>
       )}
     </div>

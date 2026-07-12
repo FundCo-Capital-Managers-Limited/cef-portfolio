@@ -138,7 +138,7 @@ export default async function AssetCoDashboardPage({ params }) {
                   href={`/dashboard/${assetco.id}/assets/${e.asset_id}`}
                   className="p-3 text-sm flex justify-between hover:bg-gray-50 transition-colors"
                 >
-                  <span>{e.event_type} — <span className="text-blue-600 hover:underline">{e.assetLabel || e.asset_id}</span></span>
+                  <span>{e.event_type} · <span className="text-blue-600 hover:underline">{e.assetLabel || e.asset_id}</span></span>
                   <span className="text-gray-500">{timeAgo(e.received_at)}</span>
                 </Link>
               ) : (

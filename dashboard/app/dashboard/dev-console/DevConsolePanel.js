@@ -26,7 +26,7 @@ export default function DevConsolePanel() {
   if (assetcos.length === 0) {
     return (
       <p className="text-sm text-gray-500">
-        You don&apos;t have developer access to any AssetCo yet — ask CEF IT to grant it.
+        You don&apos;t have developer access to any AssetCo yet. Ask CEF IT to grant it.
       </p>
     );
   }
