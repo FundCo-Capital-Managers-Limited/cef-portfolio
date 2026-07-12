@@ -45,6 +45,7 @@ async function createAssetco(fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: fields.id,
     action: 'ASSETCO_CREATED',
     entityType: 'assetco',
@@ -62,6 +63,7 @@ async function updateAssetcoProfile(id, fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: id,
     action: 'ASSETCO_PROFILE_UPDATED',
     entityType: 'assetco',
@@ -128,6 +130,7 @@ async function advanceStage(assetCoId, toStage, notes, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: assetCoId,
     action: 'ASSETCO_STAGE_CHANGED',
     entityType: 'assetco',
@@ -160,6 +163,7 @@ async function regenerateHmacSecret(assetCoId, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: assetCoId,
     action: 'ASSETCO_HMAC_SECRET_REGENERATED',
     entityType: 'assetco',
@@ -195,6 +199,7 @@ async function runManualReconciliation(assetCoId, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: assetCoId,
     action: 'ASSETCO_RECONCILIATION_TRIGGERED',
     entityType: 'assetco',

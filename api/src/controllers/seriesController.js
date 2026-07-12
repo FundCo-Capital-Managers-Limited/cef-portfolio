@@ -39,8 +39,8 @@ async function seriesForAssetco(req, res, next) {
 
 async function linkToSeries(req, res, next) {
   try {
-    if (!['management', 'it_admin'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Only CEF Management or IT Admin can link an AssetCo to a series' });
+    if (!['management', 'it_admin', 'finance'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or Finance can link an AssetCo to a series' });
     }
 
     const { seriesId, disbursementAmountNgn, disbursementDate, instrumentType, status, notes } = req.body;
@@ -70,8 +70,8 @@ async function linkToSeries(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    if (!['management', 'it_admin'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Only CEF Management or IT Admin can create a series' });
+    if (!['management', 'it_admin', 'finance'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or Finance can create a series' });
     }
 
     const { code, displayName, status, totalFundSizeNgn, closeDate, description } = req.body;
@@ -100,8 +100,36 @@ async function create(req, res, next) {
   }
 }
 
+async function update(req, res, next) {
+  try {
+    if (!['management', 'it_admin', 'finance'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or Finance can edit a series' });
+    }
+
+    const { displayName, status, totalFundSizeNgn, closeDate, description } = req.body;
+    if (status && !SERIES_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${SERIES_STATUSES.join(', ')}` });
+    }
+
+    const fields = {};
+    if (displayName !== undefined) fields.display_name = displayName;
+    if (status !== undefined) fields.status = status;
+    if (totalFundSizeNgn !== undefined) fields.total_fund_size_ngn = totalFundSizeNgn;
+    if (closeDate !== undefined) fields.close_date = closeDate;
+    if (description !== undefined) fields.description = description;
+
+    const series = await seriesService.updateSeries(req.params.id, fields, req.user);
+    return res.status(200).json({ series });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function remove(req, res, next) {
   try {
+    // Deletion is deliberately narrower than create/edit/link — finance can
+    // fill in and adjust series/disbursement data day-to-day, but removing a
+    // series entirely stays with management/it_admin.
     if (!['management', 'it_admin'].includes(req.user.role)) {
       return res.status(403).json({ error: 'Only CEF Management or IT Admin can delete a series' });
     }
@@ -112,4 +140,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { listAll, assetcosInSeries, seriesForAssetco, linkToSeries, create, remove };
+module.exports = { listAll, assetcosInSeries, seriesForAssetco, linkToSeries, create, update, remove };

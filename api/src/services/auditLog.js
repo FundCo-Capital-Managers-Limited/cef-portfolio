@@ -6,10 +6,11 @@ const supabase = require('../config/supabase');
  * an AssetCo's API integration makes to CEF-PIP-managed records should call
  * this, so "what changed recently" is always complete.
  */
-async function recordAudit({ actorType, actorUserId, actorAssetcoId, action, entityType, entityId, details }) {
+async function recordAudit({ actorType, actorUserId, actorEmail, actorAssetcoId, action, entityType, entityId, details }) {
   const { error } = await supabase.from('audit_log').insert({
     actor_type: actorType,
     actor_user_id: actorUserId || null,
+    actor_email: actorEmail || null,
     actor_assetco_id: actorAssetcoId || null,
     action,
     entity_type: entityType,

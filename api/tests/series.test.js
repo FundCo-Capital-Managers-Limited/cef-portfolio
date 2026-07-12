@@ -4,6 +4,7 @@ const mockSupabase = createFakeSupabase({
   users: [
     { id: 'user-mgmt', auth_user_id: 'auth-mgmt', email: 'mgmt@cef.example', role: 'management', assetco_id: null },
     { id: 'user-exec', auth_user_id: 'auth-exec', email: 'exec@cef.example', role: 'executive', assetco_id: null },
+    { id: 'user-finance', auth_user_id: 'auth-finance', email: 'finance@cef.example', role: 'finance', assetco_id: null },
   ],
   assetcos: [{ id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true }],
   cef_series: [
@@ -107,6 +108,24 @@ describe('CEF Series endpoints', () => {
 
     const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'SERIES_CREATED');
     expect(auditEntry).toBeTruthy();
+    expect(auditEntry.actor_email).toBe('mgmt@cef.example');
+  });
+
+  it('finance can create and edit a series, but not delete one', async () => {
+    const withAuth = as('auth-finance');
+    const createRes = await withAuth(
+      request(app).post('/api/series').send({ code: 'SERIES_F', displayName: 'Series F' })
+    );
+    expect(createRes.status).toBe(201);
+
+    const updateRes = await withAuth(
+      request(app).patch(`/api/series/${createRes.body.series.id}`).send({ totalFundSizeNgn: 500000000 })
+    );
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.series.total_fund_size_ngn).toBe(500000000);
+
+    const deleteRes = await withAuth(request(app).delete(`/api/series/${createRes.body.series.id}`));
+    expect(deleteRes.status).toBe(403);
   });
 
   it('rejects creating a series with a duplicate code', async () => {

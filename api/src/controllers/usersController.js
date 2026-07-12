@@ -11,8 +11,8 @@ async function list(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const { email, role, assetcoId, assetcoIds } = req.body;
-    const { user, tempPassword } = await userService.createUser({ email, role, assetcoId, assetcoIds, createdBy: req.user });
+    const { email, name, role, assetcoId, assetcoIds } = req.body;
+    const { user, tempPassword } = await userService.createUser({ email, name, role, assetcoId, assetcoIds, createdBy: req.user });
     res.status(201).json({ user, tempPassword });
   } catch (err) {
     next(err);
@@ -28,4 +28,24 @@ async function resetPassword(req, res, next) {
   }
 }
 
-module.exports = { list, create, resetPassword };
+async function setActive(req, res, next) {
+  try {
+    const { isActive } = req.body;
+    if (typeof isActive !== 'boolean') return res.status(400).json({ error: 'isActive (boolean) is required' });
+    const user = await userService.setUserActive(req.params.id, isActive, req.user);
+    res.status(200).json({ user });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function remove(req, res, next) {
+  try {
+    await userService.deleteUser(req.params.id, req.user);
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { list, create, resetPassword, setActive, remove };

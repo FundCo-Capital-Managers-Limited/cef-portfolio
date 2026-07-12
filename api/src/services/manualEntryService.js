@@ -25,6 +25,7 @@ async function submitManualEvent(payload, user, auditAction) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: payload.assetCoId,
     action: auditAction,
     entityType: payload.eventType.split('.')[0],

@@ -3,7 +3,7 @@ const resend = require('../config/resend');
 const env = require('../config/env');
 const logger = require('../utils/logger');
 
-const FROM_ADDRESS = 'CEF-PIP <alerts@cef-pip.dev>';
+const FROM_ADDRESS = 'CEF-PIP <alerts@updates.fundco.ng>';
 
 /**
  * Sends a password-reset email via Resend (not Supabase's own auth email —
@@ -41,12 +41,16 @@ async function requestPasswordReset(email) {
     return;
   }
 
-  await resend.emails.send({
+  const { error: sendError } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: email,
     subject: 'Reset your CEF-PIP password',
     text: `A password reset was requested for your CEF-PIP account.\n\nReset it here: ${data.properties.action_link}\n\nIf you didn't request this, you can ignore this email.`,
   });
+  if (sendError) {
+    logger.error('Password reset email failed to send', { email, error: sendError.message || sendError });
+    return;
+  }
 
   logger.info('Password reset email sent', { email });
 }

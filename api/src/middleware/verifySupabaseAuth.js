@@ -20,12 +20,19 @@ async function verifySupabaseAuth(req, res, next) {
 
     const { data: profile, error } = await supabase
       .from('users')
-      .select('id, email, role, assetco_id')
+      .select('id, email, role, assetco_id, is_active')
       .eq('auth_user_id', payload.sub)
       .maybeSingle();
     if (error) throw error;
     if (!profile) {
       return res.status(403).json({ error: 'User is not provisioned on CEF-PIP' });
+    }
+    // Suspending a user bans them in Supabase Auth too (see userService.setUserActive),
+    // but that doesn't retroactively invalidate an already-issued JWT before it
+    // expires — checking is_active here closes that window immediately instead
+    // of waiting out the token's remaining lifetime.
+    if (profile.is_active === false) {
+      return res.status(403).json({ error: 'This account has been suspended' });
     }
 
     let assetcoIds;

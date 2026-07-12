@@ -29,6 +29,7 @@ async function createRelationship(assetCoId, fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: assetCoId,
     action: 'INFRACREDIT_RELATIONSHIP_CREATED',
     entityType: 'infracredit_relationship',
@@ -56,6 +57,7 @@ async function updateRelationship(assetCoId, fields, user) {
   await recordAudit({
     actorType: 'user',
     actorUserId: user.id,
+    actorEmail: user.email,
     actorAssetcoId: assetCoId,
     action: 'INFRACREDIT_RELATIONSHIP_UPDATED',
     entityType: 'infracredit_relationship',

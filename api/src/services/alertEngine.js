@@ -3,7 +3,7 @@ const supabase = require('../config/supabase');
 const env = require('../config/env');
 const logger = require('../utils/logger');
 
-const FROM_ADDRESS = 'CEF-PIP Alerts <alerts@cef-pip.dev>';
+const FROM_ADDRESS = 'CEF-PIP Alerts <alerts@updates.fundco.ng>';
 
 async function logAlert({ alertType, assetCoId, assetId, customerId, message, eventId, facilityId, scheduleId }) {
   const { error } = await supabase.from('alerts').insert({
@@ -25,12 +25,16 @@ async function sendEmail(subject, text) {
     logger.warn('Alert email skipped: no ALERT_RECIPIENT_EMAILS configured', { subject });
     return;
   }
-  await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: FROM_ADDRESS,
     to: env.alertRecipients,
     subject,
     text,
   });
+  if (error) {
+    logger.error('Alert email failed to send', { subject, error: error.message || error });
+    return;
+  }
   logger.info('Alert email sent', { subject, recipients: env.alertRecipients.length });
 }
 

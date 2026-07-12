@@ -111,7 +111,7 @@ export default async function DashboardLayout({ children }) {
                 real boundary, but there's no reason to show them CEF-wide
                 change history regardless. */}
             {!isAssetcoDev && <NotificationBell userId={profile?.id} />}
-            <UserMenu email={profile?.email} role={profile?.role} />
+            <UserMenu name={profile?.name} email={profile?.email} role={profile?.role} />
             <MobileMenu links={navLinks} />
           </div>
         </div>

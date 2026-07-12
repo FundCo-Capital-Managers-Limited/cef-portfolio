@@ -154,6 +154,7 @@ async function reviewApplication(id, { decision, notes, assetcoId, reviewer }) {
   await recordAudit({
     actorType: 'user',
     actorUserId: reviewer.id,
+    actorEmail: reviewer.email,
     actorAssetcoId: promotedAssetcoId,
     action: decision === 'APPROVED' ? 'ASSETCO_APPLICATION_APPROVED' : 'ASSETCO_APPLICATION_REJECTED',
     entityType: 'assetco_application',

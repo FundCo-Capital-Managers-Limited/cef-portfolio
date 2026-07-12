@@ -94,6 +94,7 @@ async function update(req, res, next) {
     await recordAudit({
       actorType: 'user',
       actorUserId: req.user.id,
+      actorEmail: req.user.email,
       actorAssetcoId: facility.assetco_id,
       action: 'FACILITY_UPDATED',
       entityType: 'cef_facility',
