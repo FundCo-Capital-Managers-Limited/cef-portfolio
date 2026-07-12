@@ -26,6 +26,14 @@ module.exports = {
   resendApiKey: required('RESEND_API_KEY'),
   alertRecipients: (process.env.ALERT_RECIPIENT_EMAILS || '').split(',').map((s) => s.trim()).filter(Boolean),
   internalTriggerToken: process.env.INTERNAL_TRIGGER_TOKEN,
+  // Explicit opt-in for DELETE /api/v1/sandbox/reset, independent of
+  // NODE_ENV — NODE_ENV=production is a common default even on non-prod
+  // deployments (it's really a Node perf flag, not an "is this real data"
+  // flag), so relying on it alone as the only guard is fragile. This still
+  // hard-refuses when nodeEnv is 'production' regardless of this flag (see
+  // sandboxController.js) — two independent checks, not one replacing the
+  // other.
+  sandboxResetEnabled: process.env.SANDBOX_RESET_ENABLED === 'true',
   // Where the dashboard is served — used to build the password-reset link's
   // redirect target (its own /reset-password page). Defaults to local dev.
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:3000',
