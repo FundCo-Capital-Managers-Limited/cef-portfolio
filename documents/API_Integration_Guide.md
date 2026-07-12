@@ -157,20 +157,26 @@ your CEF contact.
 
 1. Use the sandbox base URL and the sandbox AssetCo ID/secret CEF gave you (or generate your own
    via the Developer Console, Section 0).
-2. Run `npm install` in [`sample-assetco-integration/`](../sample-assetco-integration/), then
-   either:
+2. **Fastest option — no install needed:** a hosted instance of the web UI is already running at
+   [cef-pip-sandbox-demo.onrender.com](https://cef-pip-sandbox-demo.onrender.com), pre-configured
+   against a dedicated demo AssetCo (`SANDBOXDEMO`) on the `cef-pip-dev` sandbox environment. Open
+   it in a browser and start triggering events immediately — useful for a live walkthrough or quick
+   demo without anyone needing to clone the repo. (It's shared/demo-only — for your own AssetCo's
+   real sandbox credentials, run the tool yourself as below.)
+3. To test against your own AssetCo's actual sandbox credentials, run `npm install` in
+   [`sample-assetco-integration/`](../sample-assetco-integration/), then either:
    - The CLI (`node send-event.js <eventType>`) for scripting/CI use, or
    - `node server.js` for a local web UI (`http://localhost:<port>`) that lets you trigger any
      single event type, replay every event type chronologically in one click, and inspect the
      three mock reconciliation endpoints (`/cef/assets`, `/cef/payments`, `/cef/faults`) with
      canned sample data — useful for seeing the exact response shape CEF's reconciliation job
      expects your platform to return, without needing your own backend running yet.
-3. When you want a clean slate, use the **wipe/reset** button in that same web UI (or
+4. When you want a clean slate, use the **wipe/reset** button in that same web UI (or
    `DELETE /api/v1/sandbox/reset`, HMAC-authenticated) to remove everything your sandbox AssetCo
    has sent so far. This endpoint only exists in non-production environments.
-4. Confirm events show up in the CEF-PIP dashboard (your CEF contact can check this, or grant you
+5. Confirm events show up in the CEF-PIP dashboard (your CEF contact can check this, or grant you
    sandbox dashboard access as an `assetco_admin`).
-5. Once you're confident, let CEF know — they'll move your AssetCo through the pipeline stages and
+6. Once you're confident, let CEF know — they'll move your AssetCo through the pipeline stages and
    eventually issue production credentials.
 
 ## 6. Support
