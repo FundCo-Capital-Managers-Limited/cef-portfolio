@@ -35,18 +35,25 @@ export default function MobileMenu({ links }) {
       {open && (
         <div className="absolute left-0 right-0 top-full bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-lg z-40">
           <nav className="max-w-6xl mx-auto px-4 py-2 flex flex-col">
-            {links.map((link) => {
+            {links.map((link, i) => {
               const Icon = NAV_ICONS[link.href];
+              const showSection = link.section && link.section !== links[i - 1]?.section;
               return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-2 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:text-brand-blue border-b border-gray-100 dark:border-gray-700 last:border-b-0"
-                >
-                  {Icon && <Icon size={16} />}
-                  {link.label}
-                </Link>
+                <div key={link.href}>
+                  {showSection && (
+                    <div className="pt-2 pb-1 text-xs font-semibold uppercase tracking-wide text-gray-400 dark:text-gray-500">
+                      {link.section}
+                    </div>
+                  )}
+                  <Link
+                    href={link.href}
+                    onClick={() => setOpen(false)}
+                    className="flex items-center gap-2 py-2.5 text-sm text-gray-600 dark:text-gray-300 hover:text-brand-blue border-b border-gray-100 dark:border-gray-700 last:border-b-0"
+                  >
+                    {Icon && <Icon size={16} />}
+                    {link.label}
+                  </Link>
+                </div>
               );
             })}
           </nav>
