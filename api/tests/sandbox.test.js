@@ -19,6 +19,8 @@ const mockSupabase = createFakeSupabase({
 
 jest.mock('../src/config/supabase', () => mockSupabase);
 
+process.env.SANDBOX_RESET_ENABLED = 'true';
+
 const request = require('supertest');
 const app = require('../src/app');
 
@@ -46,5 +48,21 @@ describe('DELETE /api/v1/sandbox/reset', () => {
       .set('X-CEF-Signature', 'wrong-signature-not-hex-of-anything00000000000000000000000000');
 
     expect(res.status).toBe(401);
+  });
+
+  it('is disabled by default when SANDBOX_RESET_ENABLED is not set, even outside production', async () => {
+    let disabledApp;
+    jest.isolateModules(() => {
+      delete process.env.SANDBOX_RESET_ENABLED;
+      disabledApp = require('../src/app');
+    });
+
+    const res = await request(disabledApp)
+      .delete('/api/v1/sandbox/reset')
+      .set('X-CEF-AssetCo-Id', 'DEMOSOLAR')
+      .set('X-CEF-Signature', sign('', 'demo-secret'));
+
+    expect(res.status).toBe(404);
+    process.env.SANDBOX_RESET_ENABLED = 'true';
   });
 });

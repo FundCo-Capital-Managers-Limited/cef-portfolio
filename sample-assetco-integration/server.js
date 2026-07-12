@@ -16,7 +16,9 @@ const { loadDotEnv, sign, requireEnv } = require('./common');
 loadDotEnv();
 requireEnv();
 const { CEF_API_URL, ASSETCO_ID, HMAC_SECRET } = process.env;
-const PORT = process.env.SANDBOX_UI_PORT || 4100;
+// Render (and most PaaS hosts) assign PORT dynamically and expect the app to
+// bind to it; SANDBOX_UI_PORT stays as the local-dev override.
+const PORT = process.env.PORT || process.env.SANDBOX_UI_PORT || 4100;
 
 const app = express();
 app.use(express.json());
