@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArrowRight } from 'lucide-react';
 import { getAssetCoDetail, getAssetcoCustomers, getCurrentUserProfile, getMonthlyCollectionsTrend } from '../../../lib/data';
 import { formatCurrency, timeAgo } from '../../../lib/format';
 import ManualEntryButton from '../ManualEntryButton';
 import { canManageAssetco } from '../../../lib/access';
 import MonthlyTrendChart from '../charts/MonthlyTrendChart';
 import CustomerTable from './CustomerTable';
+import BackLink from '../BackLink';
 
 export const metadata = { title: "AssetCo Dashboard" };
 
@@ -28,15 +30,13 @@ export default async function AssetCoDashboardPage({ params }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
-            ← Portfolio
-          </Link>
+          <BackLink href="/dashboard">Portfolio</BackLink>
           <h1 className="text-xl font-semibold mt-1">{assetco.name} Dashboard</h1>
         </div>
         <div className="flex items-center gap-3">
           {showManualEntry && <ManualEntryButton assetcoId={assetco.id} customers={allCustomers} assetIds={allAssetIds} />}
-          <Link href={`/dashboard/${assetco.id}/profile`} className="text-sm text-gray-500 hover:text-gray-800">
-            Profile →
+          <Link href={`/dashboard/${assetco.id}/profile`} className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
+            Profile <ArrowRight size={14} />
           </Link>
         </div>
       </div>
@@ -100,7 +100,7 @@ export default async function AssetCoDashboardPage({ params }) {
                   <p className="text-xs text-gray-500">{c.location_state || 'state n/a'} · {c.status}</p>
                 </div>
                 <div className="text-right">
-                  <p>{c.expected_monthly_payment_ngn ? formatCurrency(c.expected_monthly_payment_ngn) : '—'}/mo</p>
+                  <p>{c.expected_monthly_payment_ngn ? formatCurrency(c.expected_monthly_payment_ngn) : 'N/A'}/mo</p>
                   <p className="text-xs text-gray-500">expected install: {c.expected_installation_date || 'TBD'}</p>
                 </div>
               </div>

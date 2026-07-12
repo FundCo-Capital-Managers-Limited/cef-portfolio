@@ -1,10 +1,10 @@
-import Link from 'next/link';
 import { Landmark, PiggyBank, TrendingDown, ShieldCheck } from 'lucide-react';
 import { getLoanBookDetail } from '../../../lib/data';
 import { formatCurrency } from '../../../lib/format';
 import LoanBookChart from '../charts/LoanBookChart';
 import FacilityTable from './FacilityTable';
 import StatCard from '../StatCard';
+import BackLink from '../BackLink';
 
 function repaymentRateTone(rate) {
   if (rate > 80) return 'text-green-600';
@@ -20,15 +20,13 @@ export default async function LoanBookPage() {
   return (
     <div className="space-y-6">
       <div>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
-          ← Portfolio
-        </Link>
+        <BackLink href="/dashboard">Portfolio</BackLink>
         <h1 className="text-xl font-semibold mt-1 flex items-center gap-2 dark:text-white">
           <Landmark size={22} className="text-brand-navy dark:text-brand-teal" />
           CEF Loan Book
         </h1>
         <p className="text-sm text-gray-500">
-          Every facility CEF has extended to an AssetCo — principal, repayments, and outstanding balance.
+          Every facility CEF has extended to an AssetCo: principal, repayments, and outstanding balance.
         </p>
       </div>
 

@@ -66,13 +66,13 @@ export default function DreefTable({ relationships }) {
                     {r.assetco?.name || r.assetco_id}
                   </Link>
                 </td>
-                <td className="p-3">{r.assetco?.sector || '—'}</td>
+                <td className="p-3">{r.assetco?.sector || 'N/A'}</td>
                 <td className="p-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${DREEF_BADGE_STYLES[r.dreef_stage] || 'bg-gray-100 text-gray-500'}`}>
                     {DREEF_STAGE_LABELS[r.dreef_stage] || r.dreef_stage}
                   </span>
                 </td>
-                <td className="p-3">{PIPELINE_STAGE_LABELS[r.assetco?.pipeline_stage] || '—'}</td>
+                <td className="p-3">{PIPELINE_STAGE_LABELS[r.assetco?.pipeline_stage] || 'N/A'}</td>
                 <td className="p-3">
                   {r.assetco?.pipeline_stage === 'PORTFOLIO_MONITORING' ? (
                     <span className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700">Yes</span>

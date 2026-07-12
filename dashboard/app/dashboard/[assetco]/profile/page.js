@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { ArrowRight } from 'lucide-react';
 import { getAssetcoProfile, getCurrentUserProfile, getCefSeriesList, getAssetcoFacilities } from '../../../../lib/data';
 import { formatCurrency, formatDateTime, timeAgo } from '../../../../lib/format';
 import { PIPELINE_STAGE_LABELS, DREEF_STAGE_LABELS } from '../../../../lib/constants';
@@ -11,6 +12,7 @@ import AddFacilityButton from '../../AddFacilityButton';
 import FacilityCard from '../../FacilityCard';
 import RegenerateSecretButton from '../../RegenerateSecretButton';
 import RunReconciliationButton from '../../RunReconciliationButton';
+import BackLink from '../../BackLink';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -42,13 +44,11 @@ export default async function AssetcoProfilePage({ params }) {
     <div className="space-y-8">
       <div className="flex items-center justify-between">
         <div>
-          <Link href={`/dashboard/${assetco.id}`} className="text-sm text-gray-500 hover:text-gray-800">
-            ← {assetco.id} Dashboard
-          </Link>
-          <h1 className="text-xl font-semibold mt-1">{assetco.name} — Profile</h1>
+          <BackLink href={`/dashboard/${assetco.id}`}>{assetco.id} Dashboard</BackLink>
+          <h1 className="text-xl font-semibold mt-1">{assetco.name} · Profile</h1>
         </div>
-        <Link href="/dashboard/pipeline" className="text-sm text-gray-500 hover:text-gray-800">
-          Pipeline Board →
+        <Link href="/dashboard/pipeline" className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-800">
+          Pipeline Board <ArrowRight size={14} />
         </Link>
       </div>
 
@@ -57,17 +57,17 @@ export default async function AssetcoProfilePage({ params }) {
           <h2 className="text-lg font-semibold mb-3">Company Information</h2>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
             <div className="flex justify-between"><span className="text-gray-500">Trading name</span><span>{assetco.name}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Legal entity</span><span>{assetco.legal_entity_name || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Registration No.</span><span>{assetco.registration_number || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Legal entity</span><span>{assetco.legal_entity_name || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Registration No.</span><span>{assetco.registration_number || 'N/A'}</span></div>
             <div className="flex justify-between">
               <span className="text-gray-500">Website</span>
-              <span>{assetco.website ? <a href={assetco.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{assetco.website}</a> : '—'}</span>
+              <span>{assetco.website ? <a href={assetco.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline">{assetco.website}</a> : 'N/A'}</span>
             </div>
-            <div className="flex justify-between"><span className="text-gray-500">Sector</span><span>{assetco.sector || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">HQ State</span><span>{assetco.hq_state || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Operating States</span><span>{(assetco.operating_states || []).join(', ') || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Asset Types</span><span>{(assetco.asset_types || []).join(', ') || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Customer Types</span><span>{(assetco.customer_types || []).join(', ') || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Sector</span><span>{assetco.sector || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">HQ State</span><span>{assetco.hq_state || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Operating States</span><span>{(assetco.operating_states || []).join(', ') || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Asset Types</span><span>{(assetco.asset_types || []).join(', ') || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Customer Types</span><span>{(assetco.customer_types || []).join(', ') || 'N/A'}</span></div>
             {assetco.business_description && (
               <p className="text-gray-600 pt-2 border-t">{assetco.business_description}</p>
             )}
@@ -91,8 +91,13 @@ export default async function AssetcoProfilePage({ params }) {
                 {stageLog.length === 0 && <p className="text-gray-400 text-xs">No stage changes recorded yet.</p>}
                 {stageLog.map((entry) => (
                   <div key={entry.id} className="text-xs border-b pb-2 last:border-b-0">
-                    <p>
-                      {entry.from_stage ? `${PIPELINE_STAGE_LABELS[entry.from_stage] || entry.from_stage} → ` : ''}
+                    <p className="flex items-center gap-1">
+                      {entry.from_stage && (
+                        <>
+                          {PIPELINE_STAGE_LABELS[entry.from_stage] || entry.from_stage}
+                          <ArrowRight size={11} className="text-gray-400" />
+                        </>
+                      )}
                       <strong>{PIPELINE_STAGE_LABELS[entry.to_stage] || entry.to_stage}</strong>
                     </p>
                     <p className="text-gray-400">
@@ -122,11 +127,11 @@ export default async function AssetcoProfilePage({ params }) {
             </div>
             {infracredit ? (
               <>
-                <div className="flex justify-between"><span className="text-gray-500">Reference</span><span>{infracredit.infracredit_reference || '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Mandate date</span><span>{infracredit.mandate_date || '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Guarantee type</span><span>{infracredit.guarantee_type || '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">Guarantee amount</span><span>{infracredit.guarantee_amount_ngn ? formatCurrency(infracredit.guarantee_amount_ngn) : '—'}</span></div>
-                <div className="flex justify-between"><span className="text-gray-500">InfraCredit contact</span><span>{infracredit.infracredit_contact_name || '—'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Reference</span><span>{infracredit.infracredit_reference || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Mandate date</span><span>{infracredit.mandate_date || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Guarantee type</span><span>{infracredit.guarantee_type || 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">Guarantee amount</span><span>{infracredit.guarantee_amount_ngn ? formatCurrency(infracredit.guarantee_amount_ngn) : 'N/A'}</span></div>
+                <div className="flex justify-between"><span className="text-gray-500">InfraCredit contact</span><span>{infracredit.infracredit_contact_name || 'N/A'}</span></div>
                 {infracredit.dreef_notes && <p className="text-gray-600 pt-2 border-t">{infracredit.dreef_notes}</p>}
               </>
             ) : (
@@ -148,7 +153,7 @@ export default async function AssetcoProfilePage({ params }) {
                   <p className="font-medium">{link.series?.display_name || link.series_id}</p>
                   <p className="text-xs text-gray-500">{link.instrument_type} · {link.status}</p>
                 </div>
-                <p>{link.disbursement_amount_ngn ? formatCurrency(link.disbursement_amount_ngn) : '—'}</p>
+                <p>{link.disbursement_amount_ngn ? formatCurrency(link.disbursement_amount_ngn) : 'N/A'}</p>
               </div>
             ))}
           </div>
@@ -157,9 +162,9 @@ export default async function AssetcoProfilePage({ params }) {
         <div>
           <h2 className="text-lg font-semibold mb-3">Contact & Integration</h2>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
-            <div className="flex justify-between"><span className="text-gray-500">Primary contact</span><span>{assetco.primary_contact_name || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Contact email</span><span>{assetco.primary_contact_email || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Contact phone</span><span>{assetco.primary_contact_phone || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Primary contact</span><span>{assetco.primary_contact_name || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Contact email</span><span>{assetco.primary_contact_email || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Contact phone</span><span>{assetco.primary_contact_phone || 'N/A'}</span></div>
             <div className="flex justify-between">
               <span className="text-gray-500">Integration type</span>
               <span className="text-xs px-2 py-0.5 rounded-full bg-gray-100">{assetco.integration_type}</span>
@@ -171,7 +176,7 @@ export default async function AssetcoProfilePage({ params }) {
                 {syncState?.last_reconciliation_at ? (
                   <>
                     {timeAgo(syncState.last_reconciliation_at)}
-                    {' — '}
+                    {' · '}
                     <span className={
                       syncState.last_reconciliation_status === 'OK' ? 'text-green-700'
                         : syncState.last_reconciliation_status === 'MISMATCH' ? 'text-amber-700'

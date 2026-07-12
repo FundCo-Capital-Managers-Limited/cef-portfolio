@@ -1,7 +1,7 @@
-import Link from 'next/link';
 import { getAssetRegistry, getPortfolioSummary } from '../../../lib/data';
-import AssetCoRegistryCards from '../AssetCoRegistryCards';
+import AssetCoRegistryList from '../AssetCoRegistryList';
 import RegistryTable from './RegistryTable';
+import BackLink from '../BackLink';
 
 export const metadata = { title: "AssetCo Registry" };
 
@@ -11,16 +11,14 @@ export default async function AssetCoRegistryPage() {
   return (
     <div className="space-y-8">
       <div>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
-          ← Portfolio
-        </Link>
+        <BackLink href="/dashboard">Portfolio</BackLink>
         <h1 className="text-xl font-semibold mt-1 dark:text-white">AssetCo Registry</h1>
         <p className="text-sm text-gray-500">
           Every AssetCo CEF has onboarded ({summary.assetCoCards.length} total).
         </p>
       </div>
 
-      <AssetCoRegistryCards assetCoCards={summary.assetCoCards} />
+      <AssetCoRegistryList assetCoCards={summary.assetCoCards} />
 
       <div className="space-y-4">
         <div>

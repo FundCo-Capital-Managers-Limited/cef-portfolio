@@ -67,8 +67,8 @@ export default function FacilityTable({ facilities }) {
                     {f.assetCoName}
                   </Link>
                 </td>
-                <td className="p-3 text-gray-600">{f.facilityReference || '—'}</td>
-                <td className="p-3 text-gray-600">{f.seriesName || '—'}</td>
+                <td className="p-3 text-gray-600">{f.facilityReference || 'N/A'}</td>
+                <td className="p-3 text-gray-600">{f.seriesName || 'N/A'}</td>
                 <td className="p-3 text-gray-600">{f.facilityType}</td>
                 <td className="p-3">{formatCurrency(f.principalAmountNgn)}</td>
                 <td className="p-3">{formatCurrency(f.totalRepaidNgn)}</td>
@@ -78,7 +78,7 @@ export default function FacilityTable({ facilities }) {
                     {f.facilityStatus}
                   </span>
                 </td>
-                <td className="p-3 text-gray-500 text-xs">{f.disbursementDate ? formatDateTime(f.disbursementDate) : '—'}</td>
+                <td className="p-3 text-gray-500 text-xs">{f.disbursementDate ? formatDateTime(f.disbursementDate) : 'N/A'}</td>
               </tr>
             ))}
             {paginated.length === 0 && (

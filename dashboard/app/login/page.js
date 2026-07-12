@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import { createClient } from '../../lib/supabaseClient';
 
 export default function LoginPage() {
@@ -99,9 +100,9 @@ export default function LoginPage() {
           <button
             type="button"
             onClick={() => { setForgotMode(false); setResetSent(false); setError(null); }}
-            className="w-full text-sm text-gray-500 hover:text-brand-blue"
+            className="w-full inline-flex items-center justify-center gap-1 text-sm text-gray-500 hover:text-brand-blue"
           >
-            ← Back to sign in
+            <ArrowLeft size={14} /> Back to sign in
           </button>
         </form>
       </main>

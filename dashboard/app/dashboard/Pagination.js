@@ -1,5 +1,7 @@
 'use client';
 
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+
 export default function Pagination({ page, totalPages, totalCount, onPageChange, itemLabel = 'items' }) {
   if (totalPages <= 1) {
     return totalCount > 0 ? (
@@ -16,16 +18,16 @@ export default function Pagination({ page, totalPages, totalCount, onPageChange,
         <button
           disabled={page <= 1}
           onClick={() => onPageChange(page - 1)}
-          className="px-2 py-1 text-xs rounded border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
+          className="flex items-center gap-0.5 px-2 py-1 text-xs rounded border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
         >
-          ← Prev
+          <ChevronLeft size={14} /> Prev
         </button>
         <button
           disabled={page >= totalPages}
           onClick={() => onPageChange(page + 1)}
-          className="px-2 py-1 text-xs rounded border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
+          className="flex items-center gap-0.5 px-2 py-1 text-xs rounded border border-gray-300 disabled:opacity-40 hover:bg-gray-50"
         >
-          Next →
+          Next <ChevronRight size={14} />
         </button>
       </div>
     </div>

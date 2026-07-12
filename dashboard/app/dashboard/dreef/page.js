@@ -1,6 +1,6 @@
-import Link from 'next/link';
 import { getDreefPipeline } from '../../../lib/data';
 import DreefTable from './DreefTable';
+import BackLink from '../BackLink';
 
 export const metadata = { title: "DREEF Pipeline" };
 
@@ -10,12 +10,10 @@ export default async function DreefPipelinePage() {
   return (
     <div className="space-y-4">
       <div>
-        <Link href="/dashboard" className="text-sm text-gray-500 hover:text-gray-800">
-          ← Portfolio
-        </Link>
+        <BackLink href="/dashboard">Portfolio</BackLink>
         <h1 className="text-xl font-semibold mt-1">DREEF Pipeline</h1>
         <p className="text-sm text-gray-500">
-          Every AssetCo with an InfraCredit/DREEF relationship — including those not yet funded by CEF.
+          Every AssetCo with an InfraCredit/DREEF relationship, including those not yet funded by CEF.
         </p>
       </div>
 

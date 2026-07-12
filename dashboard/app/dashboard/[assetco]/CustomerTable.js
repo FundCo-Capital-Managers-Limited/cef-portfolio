@@ -58,8 +58,8 @@ export default function CustomerTable({ assetcoId, customers }) {
                     {c.name || c.id}
                   </Link>
                 </td>
-                <td className="p-3">{c.dealType ? OWNERSHIP_MODEL_LABELS[c.dealType] || c.dealType : '—'}</td>
-                <td className="p-3">{c.assetTypes.length ? c.assetTypes.join(', ') : '—'}</td>
+                <td className="p-3">{c.dealType ? OWNERSHIP_MODEL_LABELS[c.dealType] || c.dealType : 'N/A'}</td>
+                <td className="p-3">{c.assetTypes.length ? c.assetTypes.join(', ') : 'N/A'}</td>
                 <td className="p-3">{formatCurrency(c.projectValueNgn)}</td>
                 <td className="p-3">
                   {c.isDefaulted ? (

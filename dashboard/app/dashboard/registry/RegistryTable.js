@@ -88,7 +88,7 @@ export default function RegistryTable({ assets }) {
                   </Link>
                 </td>
                 <td className="p-3">
-                  <div>{a.asset_type || '—'}</div>
+                  <div>{a.asset_type || 'N/A'}</div>
                   {a.equipment_spec && <div className="text-xs text-gray-400">{a.equipment_spec}</div>}
                 </td>
                 <td className="p-3">
@@ -101,7 +101,7 @@ export default function RegistryTable({ assets }) {
                     <Link href={`/dashboard/${a.assetco_id}/customers/${a.customer_id}`} className="text-blue-600 hover:underline">
                       {a.customerName}
                     </Link>
-                  ) : '—'}
+                  ) : 'N/A'}
                 </td>
                 <td className="p-3">{a.status}</td>
                 <td className="p-3"><SyncBadge status={a.sync_status} /></td>

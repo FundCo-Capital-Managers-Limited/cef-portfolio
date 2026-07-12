@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getAssetDetail } from '../../../../../lib/data';
 import { formatCurrency, formatDateTime, timeAgo } from '../../../../../lib/format';
 import { OWNERSHIP_MODEL_LABELS } from '../../../../../lib/constants';
+import BackLink from '../../../BackLink';
 
 export const metadata = { title: "Asset Detail" };
 
@@ -15,17 +16,15 @@ export default async function AssetDetailPage({ params }) {
     <div className="space-y-8">
       <div>
         {asset.customer_id ? (
-          <Link href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`} className="text-sm text-gray-500 hover:text-gray-800">
-            ← {customerName || asset.customer_id}
-          </Link>
+          <BackLink href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`}>
+            {customerName || asset.customer_id}
+          </BackLink>
         ) : (
-          <Link href={`/dashboard/${params.assetco}`} className="text-sm text-gray-500 hover:text-gray-800">
-            ← {params.assetco}
-          </Link>
+          <BackLink href={`/dashboard/${params.assetco}`}>{params.assetco}</BackLink>
         )}
         <h1 className="text-xl font-semibold mt-1">
           Asset {asset.id}
-          {customerName && <span className="text-gray-400 font-normal"> — {customerName}</span>}
+          {customerName && <span className="text-gray-400 font-normal"> · {customerName}</span>}
         </h1>
       </div>
 
@@ -41,10 +40,10 @@ export default async function AssetDetailPage({ params }) {
                   <Link href={`/dashboard/${params.assetco}/customers/${asset.customer_id}`} className="text-blue-600 hover:underline">
                     {customerName || asset.customer_id}
                   </Link>
-                ) : '—'}
+                ) : 'N/A'}
               </span>
             </div>
-            <div className="flex justify-between"><span className="text-gray-500">Asset type</span><span>{asset.asset_type || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Asset type</span><span>{asset.asset_type || 'N/A'}</span></div>
             {asset.equipment_spec && (
               <div className="flex justify-between"><span className="text-gray-500">Equipment</span><span>{asset.equipment_spec}</span></div>
             )}
@@ -54,7 +53,7 @@ export default async function AssetDetailPage({ params }) {
             <div className="flex justify-between"><span className="text-gray-500">Last synced</span><span>{timeAgo(asset.last_synced_at)}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Deal type</span><span>{OWNERSHIP_MODEL_LABELS[asset.ownership_model] || asset.ownership_model}</span></div>
             {(asset.oem_model || asset.oem_manufacturer) && (
-              <div className="flex justify-between"><span className="text-gray-500">OEM</span><span>{[asset.oem_manufacturer, asset.oem_model].filter(Boolean).join(' — ')}</span></div>
+              <div className="flex justify-between"><span className="text-gray-500">OEM</span><span>{[asset.oem_manufacturer, asset.oem_model].filter(Boolean).join(' · ')}</span></div>
             )}
           </div>
         </div>
@@ -86,19 +85,19 @@ export default async function AssetDetailPage({ params }) {
             <div className="space-y-2">
               <p className="text-gray-600">
                 This asset supports remote control. Control actions (dual-approval, audit trail) are a
-                Phase 2 capability — these buttons are inert for now.
+                Phase 2 capability, so these buttons are inert for now.
               </p>
               <div className="flex gap-2">
                 <button
                   disabled
-                  title="Remote control actions are Phase 2 — flag tracking only for now"
+                  title="Remote control actions are a Phase 2 feature (flag tracking only for now)"
                   className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-400 cursor-not-allowed"
                 >
                   Disable Asset
                 </button>
                 <button
                   disabled
-                  title="Remote control actions are Phase 2 — flag tracking only for now"
+                  title="Remote control actions are a Phase 2 feature (flag tracking only for now)"
                   className="text-sm px-3 py-1.5 rounded border border-gray-300 text-gray-400 cursor-not-allowed"
                 >
                   Enable Asset
@@ -144,7 +143,7 @@ export default async function AssetDetailPage({ params }) {
                   <td className="p-3">{formatDateTime(p.occurred_at)}</td>
                   <td className="p-3">{formatCurrency(p.amount, p.currency)}</td>
                   <td className="p-3">{p.status}</td>
-                  <td className="p-3 text-gray-500">{p.source_ref || '—'}</td>
+                  <td className="p-3 text-gray-500">{p.source_ref || 'N/A'}</td>
                 </tr>
               ))}
               {payments.length === 0 && (

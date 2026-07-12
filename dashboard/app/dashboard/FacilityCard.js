@@ -140,7 +140,7 @@ export default function FacilityCard({ facility }) {
           <div className="flex justify-between"><span>Principal</span><span>{formatCurrency(facility.principal_amount_ngn)}</span></div>
           <div className="flex justify-between"><span>Interest rate</span><span>{facility.interest_rate_percent ? `${facility.interest_rate_percent}% p.a.` : 'N/A'}</span></div>
           <div className="flex justify-between"><span>Tenor</span><span>{facility.tenor_months} months</span></div>
-          <div className="flex justify-between"><span>Disbursed</span><span>{facility.disbursement_date || '—'}</span></div>
+          <div className="flex justify-between"><span>Disbursed</span><span>{facility.disbursement_date || 'N/A'}</span></div>
           <div className="flex justify-between"><span>Maturity</span><span>{facility.maturity_date || 'N/A'}</span></div>
           <div className="flex justify-between"><span>Frequency</span><span>{facility.repayment_frequency}</span></div>
         </div>
@@ -185,7 +185,7 @@ export default function FacilityCard({ facility }) {
                   <td className="p-2">{formatCurrency(row.interest_due_ngn)}</td>
                   <td className="p-2">{formatCurrency(row.total_due_ngn ?? Number(row.principal_due_ngn) + Number(row.interest_due_ngn))}</td>
                   <td className="p-2">{row.status}</td>
-                  <td className="p-2">{row.paid_date ? formatDateTime(row.paid_date) : '—'}</td>
+                  <td className="p-2">{row.paid_date ? formatDateTime(row.paid_date) : 'N/A'}</td>
                 </tr>
               ))}
             </tbody>

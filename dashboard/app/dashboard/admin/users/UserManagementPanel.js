@@ -168,7 +168,7 @@ export default function UserManagementPanel({ assetcos }) {
               Temporary password: <code className="bg-white px-1 py-0.5 rounded border">{created.tempPassword}</code>
             </p>
             <p className="mt-1 text-xs text-green-700">
-              Share this with the user securely — it is shown only once. They should change it on first login.
+              Share this with the user securely. It is shown only once. They should change it on first login.
             </p>
           </div>
         )}
@@ -182,7 +182,7 @@ export default function UserManagementPanel({ assetcos }) {
               New temporary password: <code className="bg-white px-1 py-0.5 rounded border">{resetResult.tempPassword}</code>
             </p>
             <p className="mt-1 text-xs text-green-700">
-              Share this with the user securely — it is shown only once. They should change it on first login.
+              Share this with the user securely. It is shown only once. They should change it on first login.
             </p>
           </div>
         )}
@@ -218,8 +218,8 @@ export default function UserManagementPanel({ assetcos }) {
                   <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
                   <td className="p-3">
                     {u.role === 'assetco_dev'
-                      ? (u.assetco_ids || []).join(', ') || '—'
-                      : u.assetco_id || '—'}
+                      ? (u.assetco_ids || []).join(', ') || 'N/A'
+                      : u.assetco_id || 'N/A'}
                   </td>
                   <td className="p-3 text-right">
                     <button

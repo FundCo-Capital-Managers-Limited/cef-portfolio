@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { ArrowRight } from 'lucide-react';
 import { apiFetch } from '../../../../lib/apiClient';
 import { usePaginatedList } from '../../../../lib/usePaginatedList';
 import Pagination from '../../Pagination';
@@ -76,19 +77,19 @@ function ReviewForm({ application, onReviewed }) {
   if (approvedSecret) {
     return (
       <div className="mt-3 pt-3 border-t border-gray-100 text-sm bg-green-50 border border-green-200 rounded p-3 text-green-800">
-        <p>Approved — <strong>{approvedSecret.assetcoId}</strong> is now live in Onboarding.</p>
+        <p>Approved: <strong>{approvedSecret.assetcoId}</strong> is now live in Onboarding.</p>
         <p className="mt-1">
           HMAC signing secret: <code className="bg-white px-1 py-0.5 rounded border break-all">{approvedSecret.secret}</code>
         </p>
         <p className="mt-1 text-xs text-green-700">
-          Share this with the AssetCo's developers securely — it is shown only once. It's what they use to sign
+          Share this with the AssetCo's developers securely. It is shown only once, and it's what they use to sign
           every event they send to POST /api/v1/events (see the API Integration Guide).
         </p>
         <button
           onClick={onReviewed}
           className="mt-2 text-xs text-green-800 underline hover:no-underline"
         >
-          I've saved it — refresh the queue
+          I've saved it, refresh the queue
         </button>
       </div>
     );
@@ -117,9 +118,9 @@ function ReviewForm({ application, onReviewed }) {
         <button
           disabled={submitting || !assetcoId}
           onClick={() => review('APPROVED')}
-          className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
+          className="inline-flex items-center gap-1 text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue transition-all active:scale-95"
         >
-          Approve → Onboarding
+          Approve <ArrowRight size={14} /> Onboarding
         </button>
         <button
           disabled={submitting}
@@ -162,7 +163,7 @@ export default function ApplicationsPanel() {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-500">
-          Share this link with prospective AssetCos — anyone can submit, only logged-in CEF staff can copy it.
+          Share this link with prospective AssetCos. Anyone can submit; only logged-in CEF staff can copy it.
         </p>
         <CopyLinkButton />
       </div>

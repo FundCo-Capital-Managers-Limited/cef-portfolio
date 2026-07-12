@@ -32,7 +32,7 @@ export default async function PortfolioDashboardPage() {
           <StatCard label="Outstanding" value={formatCurrency(summary.totalOutstanding)} Icon={TrendingDown} iconTone="amber" />
           <StatCard
             label="Collection Rate"
-            value={summary.collectionRate === null ? '—' : `${Math.round(summary.collectionRate * 100)}%`}
+            value={summary.collectionRate === null ? 'N/A' : `${Math.round(summary.collectionRate * 100)}%`}
             Icon={Percent}
             iconTone="blue"
           />

@@ -50,8 +50,8 @@ export default function DevConsolePanel() {
         {selected && (
           <div className="text-sm space-y-2">
             <div className="flex justify-between"><span className="text-gray-500">AssetCo ID</span><span>{selected.id}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Integration type</span><span>{selected.integration_type || '—'}</span></div>
-            <div className="flex justify-between"><span className="text-gray-500">Pipeline stage</span><span>{selected.pipeline_stage || '—'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Integration type</span><span>{selected.integration_type || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Pipeline stage</span><span>{selected.pipeline_stage || 'N/A'}</span></div>
             <div className="pt-2 border-t">
               <RegenerateSecretButton key={selected.id} assetcoId={selected.id} />
             </div>
