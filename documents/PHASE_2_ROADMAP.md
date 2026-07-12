@@ -13,6 +13,39 @@ plan and mid-sprint change spec drove Phase 1.
   `_dmarc.updates.fundco.ng`) is in place — this was recommended after the Outlook quarantine issue
   but add a checkmark here once it's actually live and propagated.
 
+## Nice to have — before Phase 2 (raised 2026-07-12, not yet scoped/built)
+
+**Management approval workflow for key mutations, with email notifications.** Raised by the user as
+a "nice to have" for next convergence, not yet designed in detail. Captured here so the shape of the
+ask survives to the next session:
+
+- Certain mutations (explicit example given: **CEF Series modifications** — exact full list of
+  which actions require approval is still open; needs deciding when this is picked up) should not
+  take effect immediately. Instead they go into a **pending/awaiting-approval** state and only
+  actually apply once a management-level person approves them.
+- A dedicated **Approvals page**, linked from the navbar:
+  - Visible to **management and it_admin** (user explicitly said "make it possible for the IT
+    people to be able to approve as well") — they see the queue of pending requests and can
+    approve/reject.
+  - Visible to **everyone else** too, but scoped to their own submissions — they can see the status
+    of requests they personally raised (pending / approved / rejected), not the full queue.
+- **Email notifications**, using the already-working Resend integration:
+  - Management/it_admin get an email when a new approval request is raised (so it doesn't just sit
+    silently in a queue nobody checks).
+  - The requester gets an email once their request is approved (presumably also on rejection,
+    though the user didn't explicitly say — worth confirming).
+- **Executive role**: confirmed by the user that executives should be able to **view** almost
+  everything (consistent with today's `CEF_WIDE_ROLES` read access), but **must go through the same
+  approval flow to modify anything** — i.e. executive is not exempt from approval-gating just
+  because it's a senior/read-heavy role today.
+
+Design considerations for whoever picks this up: this is a genuine "change request" pattern, not
+just a stricter audit log — it likely needs a staging/pending-change table (or a status column on
+whatever's being changed) separate from `audit_log`, since the mutation must NOT apply until
+approved. Reuse the existing audit_log actor_email pattern for "who requested / who approved."
+Decide the exact list of approval-gated actions before building — "CEF Series modifications" was
+the one concrete example given, not necessarily the only one intended.
+
 ## Feature work
 
 - **Email notifications for important updates.** Today, everything in `audit_log` only surfaces
