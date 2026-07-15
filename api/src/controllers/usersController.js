@@ -19,6 +19,16 @@ async function create(req, res, next) {
   }
 }
 
+async function update(req, res, next) {
+  try {
+    const { name, role, assetcoId, assetcoIds } = req.body;
+    const user = await userService.updateUser(req.params.id, { name, role, assetcoId, assetcoIds }, req.user);
+    res.status(200).json({ user });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function resetPassword(req, res, next) {
   try {
     const { user, tempPassword } = await userService.resetUserPassword(req.params.id, req.user);
@@ -48,4 +58,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, create, resetPassword, setActive, remove };
+module.exports = { list, create, update, resetPassword, setActive, remove };

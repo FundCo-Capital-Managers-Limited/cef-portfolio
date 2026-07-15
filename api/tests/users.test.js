@@ -91,6 +91,48 @@ describe('User management endpoints', () => {
     expect(res.status).toBe(400);
   });
 
+  it('management can update a user\'s name and role', async () => {
+    const withAuth = as('auth-mgmt');
+    const createRes = await withAuth(request(app).post('/api/users').send({ email: 'ops1@cef.example', role: 'ops' }));
+
+    const updateRes = await withAuth(
+      request(app).patch(`/api/users/${createRes.body.user.id}`).send({ name: 'Ops One', role: 'risk' })
+    );
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.user.name).toBe('Ops One');
+    expect(updateRes.body.user.role).toBe('risk');
+
+    const auditEntry = mockSupabase._store.audit_log.find(
+      (a) => a.action === 'user_updated' && a.entity_id === createRes.body.user.id
+    );
+    expect(auditEntry).toBeTruthy();
+  });
+
+  it('changing a user to assetco_admin without an assetcoId is rejected', async () => {
+    const withAuth = as('auth-mgmt');
+    const createRes = await withAuth(request(app).post('/api/users').send({ email: 'ops2@cef.example', role: 'ops' }));
+
+    const updateRes = await withAuth(
+      request(app).patch(`/api/users/${createRes.body.user.id}`).send({ role: 'assetco_admin' })
+    );
+    expect(updateRes.status).toBe(400);
+  });
+
+  it('changing role away from assetco_dev clears its AssetCo access grants', async () => {
+    const withAuth = as('auth-mgmt');
+    const createRes = await withAuth(
+      request(app).post('/api/users').send({ email: 'dev1@cef.example', role: 'assetco_dev', assetcoIds: ['GROSOLAR'] })
+    );
+
+    const updateRes = await withAuth(
+      request(app).patch(`/api/users/${createRes.body.user.id}`).send({ role: 'ops' })
+    );
+    expect(updateRes.status).toBe(200);
+
+    const remainingAccess = mockSupabase._store.user_assetco_dev_access.filter((a) => a.user_id === createRes.body.user.id);
+    expect(remainingAccess).toHaveLength(0);
+  });
+
   it('management can reset a user\'s password', async () => {
     const withAuth = as('auth-mgmt');
     const res = await withAuth(request(app).post('/api/users/user-exec/reset-password'));
