@@ -46,8 +46,8 @@ async function get(req, res, next) {
 }
 
 function requireManagement(req, res) {
-  if (!['management', 'it_admin'].includes(req.user.role)) {
-    res.status(403).json({ error: 'Only CEF Management or IT Admin can manage InfraCredit/DREEF data' });
+  if (!['management', 'it_admin', 'finance', 'risk'].includes(req.user.role)) {
+    res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, or Risk can manage InfraCredit/DREEF data' });
     return false;
   }
   return true;

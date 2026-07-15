@@ -17,9 +17,10 @@ export const metadata = { title: "CEF Series" };
 
 export default async function SeriesOverviewPage() {
   const [series, profile] = await Promise.all([getSeriesOverview(), getCurrentUserProfile()]);
-  // Finance can create/edit series and disbursement info day-to-day;
-  // deleting a series outright stays restricted to management/it_admin.
-  const canEdit = ['management', 'it_admin', 'finance'].includes(profile?.role);
+  // Finance and risk can create/edit series and disbursement info
+  // day-to-day; deleting a series outright stays restricted to
+  // management/it_admin.
+  const canEdit = ['management', 'it_admin', 'finance', 'risk'].includes(profile?.role);
   const canDelete = ['management', 'it_admin'].includes(profile?.role);
 
   return (

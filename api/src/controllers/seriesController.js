@@ -39,8 +39,8 @@ async function seriesForAssetco(req, res, next) {
 
 async function linkToSeries(req, res, next) {
   try {
-    if (!['management', 'it_admin', 'finance'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or Finance can link an AssetCo to a series' });
+    if (!['management', 'it_admin', 'finance', 'risk'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, or Risk can link an AssetCo to a series' });
     }
 
     const { seriesId, disbursementAmountNgn, disbursementDate, instrumentType, status, notes } = req.body;
@@ -70,8 +70,8 @@ async function linkToSeries(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    if (!['management', 'it_admin', 'finance'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or Finance can create a series' });
+    if (!['management', 'it_admin', 'finance', 'risk'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, or Risk can create a series' });
     }
 
     const { code, displayName, status, totalFundSizeNgn, closeDate, description } = req.body;
@@ -102,8 +102,8 @@ async function create(req, res, next) {
 
 async function update(req, res, next) {
   try {
-    if (!['management', 'it_admin', 'finance'].includes(req.user.role)) {
-      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or Finance can edit a series' });
+    if (!['management', 'it_admin', 'finance', 'risk'].includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, or Risk can edit a series' });
     }
 
     const { displayName, status, totalFundSizeNgn, closeDate, description } = req.body;

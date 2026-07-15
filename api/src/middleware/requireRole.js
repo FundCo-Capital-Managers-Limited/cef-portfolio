@@ -16,7 +16,7 @@ function requireRole(...allowedRoles) {
   };
 }
 
-const CEF_WIDE_ROLES = ['executive', 'management', 'finance', 'ops', 'it_admin'];
+const CEF_WIDE_ROLES = ['executive', 'management', 'finance', 'ops', 'it_admin', 'risk'];
 
 /**
  * True if the user can act on the given AssetCo: any CEF-wide role can act on
@@ -30,15 +30,16 @@ function canAccessAssetco(user, assetCoId) {
 }
 
 /**
- * True if the user can WRITE data for the given AssetCo: management/it_admin
- * for any AssetCo, or the AssetCo's own assetco_admin. Narrower than
- * canAccessAssetco (which also lets finance/ops/executive read) — used for
- * manual entry, customer status changes, and other mutating endpoints where
- * the spec restricts write access to "CEF_MANAGEMENT, ASSETCO_ADMIN (own
- * AssetCo only)".
+ * True if the user can WRITE data for the given AssetCo: management/it_admin/
+ * finance/risk for any AssetCo, or the AssetCo's own assetco_admin. Narrower
+ * than canAccessAssetco (which also lets ops/executive read) — used for
+ * manual entry, facility/loan-book records, InfraCredit/DREEF data, customer
+ * status changes, and other mutating endpoints. finance/risk were added here
+ * so they can actually enter/adjust financial data (facility disbursements,
+ * manually-recorded payments) rather than only reading it.
  */
 function canManageAssetco(user, assetCoId) {
-  if (['management', 'it_admin'].includes(user.role)) return true;
+  if (['management', 'it_admin', 'finance', 'risk'].includes(user.role)) return true;
   return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
 }
 

@@ -16,6 +16,7 @@ const ACCOUNTS = [
   { email: 'management@fundco.ng', role: 'management' },
   { email: 'finance@fundco.ng', role: 'finance' },
   { email: 'ops@fundco.ng', role: 'ops' },
+  { email: 'risk@fundco.ng', role: 'risk' },
   // it@fundco.ng already exists from earlier manual setup — skipped here.
   { email: 'admin@grosolar.example.com', role: 'assetco_admin', assetcoId: 'GROSOLAR' },
   { email: 'admin@emlgrid.example.com', role: 'assetco_admin', assetcoId: 'EMLGRID' },
