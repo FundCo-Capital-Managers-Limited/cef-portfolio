@@ -31,7 +31,13 @@ async function resetSandboxData(assetCoId) {
   // alerts.event_id references events(id) — must go before events, same reason
   // payments/faults have to go before assets/customers.
   await deleteWhere('alerts', [['assetco_id', 'eq', assetCoId], ['asset_id', 'like', SAMPLE_ASSET_PREFIX]]);
-  await deleteWhere('events', [['assetco_id', 'eq', assetCoId], ['asset_id', 'like', SAMPLE_ASSET_PREFIX]]);
+  // No asset_id filter here (unlike the tables above): customer.created and
+  // sync.heartbeat events carry no asset_id at all, so filtering on it left
+  // those rows behind on every wipe. assetco_id alone is still a safe scope
+  // — verifyHmac has already authenticated the caller as this one AssetCo,
+  // and this endpoint only exists for dedicated sandbox AssetCos that hold
+  // no other data.
+  await deleteWhere('events', [['assetco_id', 'eq', assetCoId]]);
   await deleteWhere('assets', [['assetco_id', 'eq', assetCoId], ['id', 'like', SAMPLE_ASSET_PREFIX]]);
   await deleteWhere('customers', [['assetco_id', 'eq', assetCoId], ['id', 'like', SAMPLE_CUSTOMER_PREFIX]]);
 

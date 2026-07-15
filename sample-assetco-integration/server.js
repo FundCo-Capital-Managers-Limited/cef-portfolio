@@ -11,7 +11,7 @@ const express = require('express');
 const path = require('path');
 const { buildPayload, ALL_ORDER } = require('./payloads');
 const { getMockAssets, getMockPayments, getMockFaults } = require('./reconciliationMockData');
-const { loadDotEnv, sign, requireEnv } = require('./common');
+const { loadDotEnv, sign, requireEnv, fetchWithRetry } = require('./common');
 
 loadDotEnv();
 requireEnv();
@@ -35,7 +35,7 @@ app.post('/api/trigger', async (req, res) => {
     const rawBody = JSON.stringify(payload);
     const signature = sign(rawBody, HMAC_SECRET);
 
-    const apiRes = await fetch(`${CEF_API_URL}/api/v1/events`, {
+    const apiRes = await fetchWithRetry(`${CEF_API_URL}/api/v1/events`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ app.post('/api/trigger', async (req, res) => {
 app.post('/api/wipe', async (req, res) => {
   try {
     const signature = sign('', HMAC_SECRET);
-    const apiRes = await fetch(`${CEF_API_URL}/api/v1/sandbox/reset`, {
+    const apiRes = await fetchWithRetry(`${CEF_API_URL}/api/v1/sandbox/reset`, {
       method: 'DELETE',
       headers: {
         'X-CEF-AssetCo-Id': ASSETCO_ID,

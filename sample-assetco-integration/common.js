@@ -25,6 +25,20 @@ function sign(rawBody, secret) {
   return crypto.createHmac('sha256', secret).update(rawBody).digest('hex');
 }
 
+// Render's free tier spins a sleeping instance back up on the first request,
+// which shows up here as a 502/503 that has nothing to do with the request
+// itself. Retrying a couple of times before giving up avoids reporting a
+// cold-start blip as a real failure.
+async function fetchWithRetry(url, options, attempts = 3) {
+  let lastRes;
+  for (let i = 0; i < attempts; i += 1) {
+    lastRes = await fetch(url, options);
+    if (lastRes.status !== 502 && lastRes.status !== 503) return lastRes;
+    if (i < attempts - 1) await new Promise((resolve) => setTimeout(resolve, 1500 * (i + 1)));
+  }
+  return lastRes;
+}
+
 function requireEnv() {
   const missing = ['CEF_API_URL', 'ASSETCO_ID', 'HMAC_SECRET'].filter((k) => !process.env[k]);
   if (missing.length) {
@@ -34,4 +48,4 @@ function requireEnv() {
   }
 }
 
-module.exports = { loadDotEnv, sign, requireEnv };
+module.exports = { loadDotEnv, sign, requireEnv, fetchWithRetry };
