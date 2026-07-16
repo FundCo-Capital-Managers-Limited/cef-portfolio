@@ -10,6 +10,7 @@ export default function AddSeriesButton() {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(null);
   const [submitting, setSubmitting] = useState(false);
+  const [pendingNotice, setPendingNotice] = useState(false);
   const [form, setForm] = useState({
     code: '',
     displayName: '',
@@ -26,7 +27,7 @@ export default function AddSeriesButton() {
     setSubmitting(true);
     setError(null);
     try {
-      await apiFetch('/api/series', {
+      const data = await apiFetch('/api/series', {
         method: 'POST',
         body: {
           ...form,
@@ -36,7 +37,11 @@ export default function AddSeriesButton() {
       });
       setOpen(false);
       setForm({ code: '', displayName: '', status: 'PLANNING', totalFundSizeNgn: '', description: '' });
-      router.refresh();
+      if (data.approvalRequest) {
+        setPendingNotice(true);
+      } else {
+        router.refresh();
+      }
     } catch (err) {
       setError(err.message);
     } finally {
@@ -52,6 +57,23 @@ export default function AddSeriesButton() {
       >
         New Series
       </button>
+
+      {pendingNotice && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-sm space-y-3 text-sm">
+            <p>Your request to create this series has been submitted and is awaiting management/IT admin approval.</p>
+            <p className="text-gray-500">You can track its status on the Approvals page.</p>
+            <div className="flex justify-end">
+              <button
+                onClick={() => { setPendingNotice(false); router.refresh(); }}
+                className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded hover:bg-brand-blue transition-all active:scale-95"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {open && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">

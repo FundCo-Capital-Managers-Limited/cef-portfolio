@@ -34,6 +34,7 @@ export default async function DashboardLayout({ children }) {
     : [
         { href: '/dashboard/registry', label: 'AssetCo Registry' },
         ...(profile?.role !== 'assetco_admin' ? [{ href: '/dashboard/flags', label: 'Flags' }] : []),
+        ...(profile?.role !== 'assetco_admin' ? [{ href: '/dashboard/approvals', label: 'Approvals' }] : []),
         {
           label: 'Pipelines',
           icon: 'Workflow',

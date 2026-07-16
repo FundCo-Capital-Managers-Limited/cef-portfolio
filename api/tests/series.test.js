@@ -112,36 +112,38 @@ describe('CEF Series endpoints', () => {
     expect(auditEntry.actor_email).toBe('mgmt@cef.example');
   });
 
-  it('finance can create and edit a series, but not delete one', async () => {
+  it('finance creating or editing a series submits a pending approval request instead of applying immediately', async () => {
     const withAuth = as('auth-finance');
     const createRes = await withAuth(
       request(app).post('/api/series').send({ code: 'SERIES_F', displayName: 'Series F' })
     );
-    expect(createRes.status).toBe(201);
+    expect(createRes.status).toBe(202);
+    expect(createRes.body.approvalRequest.status).toBe('pending');
+    expect(createRes.body.approvalRequest.action_type).toBe('SERIES_CREATE');
+
+    // Not created yet - still pending.
+    const seriesAfterSubmit = mockSupabase._store.cef_series.find((s) => s.code === 'SERIES_F');
+    expect(seriesAfterSubmit).toBeUndefined();
 
     const updateRes = await withAuth(
-      request(app).patch(`/api/series/${createRes.body.series.id}`).send({ totalFundSizeNgn: 500000000 })
+      request(app).patch('/api/series/series-a').send({ totalFundSizeNgn: 500000000 })
     );
-    expect(updateRes.status).toBe(200);
-    expect(updateRes.body.series.total_fund_size_ngn).toBe(500000000);
+    expect(updateRes.status).toBe(202);
+    expect(updateRes.body.approvalRequest.action_type).toBe('SERIES_UPDATE');
 
-    const deleteRes = await withAuth(request(app).delete(`/api/series/${createRes.body.series.id}`));
+    const deleteRes = await withAuth(request(app).delete('/api/series/series-a'));
     expect(deleteRes.status).toBe(403);
   });
 
-  it('risk can create and edit a series, but not delete one', async () => {
+  it('risk creating a series also requires approval, and cannot delete one', async () => {
     const withAuth = as('auth-risk');
     const createRes = await withAuth(
       request(app).post('/api/series').send({ code: 'SERIES_R', displayName: 'Series R' })
     );
-    expect(createRes.status).toBe(201);
+    expect(createRes.status).toBe(202);
+    expect(createRes.body.approvalRequest.status).toBe('pending');
 
-    const updateRes = await withAuth(
-      request(app).patch(`/api/series/${createRes.body.series.id}`).send({ totalFundSizeNgn: 100000000 })
-    );
-    expect(updateRes.status).toBe(200);
-
-    const deleteRes = await withAuth(request(app).delete(`/api/series/${createRes.body.series.id}`));
+    const deleteRes = await withAuth(request(app).delete('/api/series/series-a'));
     expect(deleteRes.status).toBe(403);
   });
 

@@ -108,7 +108,11 @@ export default function NotificationBell({ userId }) {
     } catch {
       // Not worth blocking navigation over - worst case it stays unread until the next poll.
     }
-    if (notification.flag_id) router.push(`/dashboard/flags/${notification.flag_id}`);
+    if (notification.flag_id) {
+      router.push(`/dashboard/flags/${notification.flag_id}`);
+    } else if (notification.type?.startsWith('approval_')) {
+      router.push('/dashboard/approvals');
+    }
   }
 
   return (
@@ -129,7 +133,7 @@ export default function NotificationBell({ userId }) {
         <div className="absolute right-0 mt-2 w-80 max-w-[90vw] bg-white border border-gray-200 rounded-lg shadow-lg z-10 max-h-96 overflow-y-auto">
           {myItems.length > 0 && (
             <>
-              <div className="p-3 border-b text-sm font-medium bg-amber-50">Flags & mentions</div>
+              <div className="p-3 border-b text-sm font-medium bg-amber-50">Flags & approvals</div>
               {myItems.map((n) => (
                 <button
                   key={n.id}

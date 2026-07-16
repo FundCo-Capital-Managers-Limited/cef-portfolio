@@ -1,5 +1,11 @@
 const { canAccessAssetco } = require('../middleware/requireRole');
 const seriesService = require('../services/seriesService');
+const approvalService = require('../services/approvalService');
+
+// management/it_admin are the approval authority, so their own series writes
+// stay immediate; everyone else who can write series (finance, risk) goes
+// through the pending-approval queue instead of applying directly.
+const DIRECT_WRITE_ROLES = ['management', 'it_admin'];
 
 const INSTRUMENT_TYPES = ['EQUITY', 'DEBT', 'CONVERTIBLE', 'GRANT'];
 const LINK_STATUSES = ['CANDIDATE', 'COMMITTED', 'DISBURSED', 'EXITED'];
@@ -83,17 +89,21 @@ async function create(req, res, next) {
       return res.status(400).json({ error: `status must be one of: ${SERIES_STATUSES.join(', ')}` });
     }
 
-    const series = await seriesService.createSeries(
-      {
-        code,
-        display_name: displayName,
-        status: status || 'PLANNING',
-        total_fund_size_ngn: totalFundSizeNgn ?? null,
-        close_date: closeDate ?? null,
-        description: description ?? null,
-      },
-      req.user
-    );
+    const fields = {
+      code,
+      display_name: displayName,
+      status: status || 'PLANNING',
+      total_fund_size_ngn: totalFundSizeNgn ?? null,
+      close_date: closeDate ?? null,
+      description: description ?? null,
+    };
+
+    if (!DIRECT_WRITE_ROLES.includes(req.user.role)) {
+      const request = await approvalService.createRequest({ actionType: 'SERIES_CREATE', payload: fields }, req.user);
+      return res.status(202).json({ approvalRequest: request });
+    }
+
+    const series = await seriesService.createSeries(fields, req.user);
     return res.status(201).json({ series });
   } catch (err) {
     return next(err);
@@ -117,6 +127,14 @@ async function update(req, res, next) {
     if (totalFundSizeNgn !== undefined) fields.total_fund_size_ngn = totalFundSizeNgn;
     if (closeDate !== undefined) fields.close_date = closeDate;
     if (description !== undefined) fields.description = description;
+
+    if (!DIRECT_WRITE_ROLES.includes(req.user.role)) {
+      const request = await approvalService.createRequest(
+        { actionType: 'SERIES_UPDATE', targetSeriesId: req.params.id, payload: fields },
+        req.user
+      );
+      return res.status(202).json({ approvalRequest: request });
+    }
 
     const series = await seriesService.updateSeries(req.params.id, fields, req.user);
     return res.status(200).json({ series });
