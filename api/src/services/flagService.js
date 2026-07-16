@@ -76,7 +76,19 @@ async function getFlag(flagId) {
   if (commentsError) throw commentsError;
   if (viewsError) throw viewsError;
 
-  return { ...flag, comments: comments || [], views: views || [] };
+  const viewerIds = [...new Set((views || []).map((v) => v.user_id))];
+  let emailByUserId = new Map();
+  if (viewerIds.length) {
+    const { data: viewers, error: viewersError } = await supabase.from('users').select('id, email').in('id', viewerIds);
+    if (viewersError) throw viewersError;
+    emailByUserId = new Map((viewers || []).map((u) => [u.id, u.email]));
+  }
+
+  return {
+    ...flag,
+    comments: comments || [],
+    views: (views || []).map((v) => ({ ...v, email: emailByUserId.get(v.user_id) || v.user_id })),
+  };
 }
 
 async function recordView(flagId, user) {

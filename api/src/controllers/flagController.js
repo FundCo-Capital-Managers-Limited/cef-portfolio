@@ -27,7 +27,7 @@ async function get(req, res, next) {
     // re-querying - so the viewer sees themselves in "who's seen this"
     // immediately, on this same request, not only on their next load.
     if (!flag.views.some((v) => v.user_id === req.user.id)) {
-      flag.views.push({ flag_id: req.params.id, user_id: req.user.id, viewed_at: new Date().toISOString() });
+      flag.views.push({ flag_id: req.params.id, user_id: req.user.id, email: req.user.email, viewed_at: new Date().toISOString() });
     }
     res.status(200).json({ flag });
   } catch (err) {
