@@ -1,4 +1,5 @@
 const supabase = require('../config/supabase');
+const notificationService = require('../services/notificationService');
 
 async function getCursor(userId) {
   const { data, error } = await supabase
@@ -62,4 +63,35 @@ async function markSeen(req, res, next) {
   }
 }
 
-module.exports = { getUnreadCount, getRecent, markSeen };
+// Distinct from the bell above: these are per-recipient, targeted
+// notifications (flags today, other event types later) with their own
+// read/unread state per user - see migration 021 and notificationService.js.
+
+async function listMine(req, res, next) {
+  try {
+    const items = await notificationService.listForUser(req.user.id);
+    res.status(200).json({ items });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function myUnreadCount(req, res, next) {
+  try {
+    const count = await notificationService.unreadCount(req.user.id);
+    res.status(200).json({ unreadCount: count });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function markOneRead(req, res, next) {
+  try {
+    await notificationService.markRead(req.params.id, req.user.id);
+    res.status(200).json({ status: 'ok' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { getUnreadCount, getRecent, markSeen, listMine, myUnreadCount, markOneRead };

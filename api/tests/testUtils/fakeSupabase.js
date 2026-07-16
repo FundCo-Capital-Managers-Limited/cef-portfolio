@@ -130,7 +130,15 @@ function createFakeSupabase(seed = {}) {
           return { data: { user: { id: authUserId } }, error: null };
         },
         async generateLink({ email }) {
-          return { data: { properties: { action_link: `https://fake-recovery-link.example/${encodeURIComponent(email)}` } }, error: null };
+          return {
+            data: {
+              properties: {
+                action_link: `https://fake-recovery-link.example/${encodeURIComponent(email)}`,
+                hashed_token: `fake-token-hash-${encodeURIComponent(email)}`,
+              },
+            },
+            error: null,
+          };
         },
       },
     },
@@ -170,35 +178,44 @@ function createFakeSupabase(seed = {}) {
           return chain;
         },
         update(patch) {
-          return {
+          const filters = [];
+          function apply() {
+            const updatedRows = [];
+            table(name).forEach((r) => {
+              if (filters.every((f) => matchesFilter(r, f))) {
+                Object.assign(r, patch);
+                updatedRows.push(r);
+              }
+            });
+            return updatedRows;
+          }
+          const chain = {
             eq(col, val) {
-              const updatedRows = [];
-              table(name).forEach((r) => {
-                if (r[col] === val) {
-                  Object.assign(r, patch);
-                  updatedRows.push(r);
-                }
-              });
+              filters.push({ type: 'eq', col, val });
+              return chain;
+            },
+            then(resolve) {
+              apply();
+              resolve({ error: null });
+            },
+            select() {
               return {
-                then(resolve) {
-                  resolve({ error: null });
+                async single() {
+                  const updatedRows = apply();
+                  return { data: updatedRows[0] || null, error: null };
                 },
-                select() {
-                  return {
-                    async single() {
-                      return { data: updatedRows[0] || null, error: null };
-                    },
-                    async maybeSingle() {
-                      return { data: updatedRows[0] || null, error: null };
-                    },
-                    then(resolve) {
-                      resolve({ data: updatedRows, error: null });
-                    },
-                  };
+                async maybeSingle() {
+                  const updatedRows = apply();
+                  return { data: updatedRows[0] || null, error: null };
+                },
+                then(resolve) {
+                  const updatedRows = apply();
+                  resolve({ data: updatedRows, error: null });
                 },
               };
             },
           };
+          return chain;
         },
       };
     },
