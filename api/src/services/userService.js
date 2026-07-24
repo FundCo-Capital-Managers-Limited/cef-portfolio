@@ -38,7 +38,7 @@ async function listUsers() {
  * against (the exact gap ENVIRONMENTS.md's old manual process could leave
  * behind).
  */
-async function createUser({ email, name, role, assetcoId, assetcoIds, createdBy }) {
+async function createUser({ email, name, role, assetcoId, assetcoIds, canAccessIc, createdBy }) {
   if (!email || !role) throw Object.assign(new Error('email and role are required'), { status: 400 });
   if (!ROLES.includes(role)) {
     throw Object.assign(new Error(`role must be one of: ${ROLES.join(', ')}`), { status: 400 });
@@ -66,6 +66,7 @@ async function createUser({ email, name, role, assetcoId, assetcoIds, createdBy 
       name: name || null,
       role,
       assetco_id: role === 'assetco_admin' ? assetcoId : null,
+      can_access_ic: Boolean(canAccessIc),
     })
     .select()
     .single();

@@ -43,4 +43,20 @@ function canManageAssetco(user, assetCoId) {
   return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
 }
 
-module.exports = { requireRole, canAccessAssetco, canManageAssetco, CEF_WIDE_ROLES };
+/**
+ * Gates a route to the IC Engagement portal — req.user.canAccessIc is set by
+ * verifySupabaseAuth from users.can_access_ic (or an auto-access role; see
+ * ../utils/icAccess.js). Separate from requireRole since IC access isn't a
+ * role, it's a capability that can sit on top of any existing role.
+ */
+function requireIcAccess(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  if (!req.user.canAccessIc) {
+    return res.status(403).json({ error: 'No access to the IC Engagement portal' });
+  }
+  next();
+}
+
+module.exports = { requireRole, canAccessAssetco, canManageAssetco, requireIcAccess, CEF_WIDE_ROLES };
