@@ -1,18 +1,24 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { UserCircle, ChevronDown, LogOut } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { UserCircle, ChevronDown, LogOut, ArrowLeftRight } from 'lucide-react';
 import { createClient } from '../../lib/supabaseClient';
 
 // Same hover/click dropdown pattern as NavDropdown, applied to the
 // profile/sign-out corner — collapses "email + role text + Sign out link"
 // into one control instead of three separate items competing for header
-// space at every breakpoint.
-export default function UserMenu({ name, email, role }) {
+// space at every breakpoint. Shared between the PIP dashboard and the IC
+// Engagement portal — canAccessIc controls whether the portal-switch link
+// appears at all, so a PIP-only account never sees a link to a page
+// middleware would just bounce them back from.
+export default function UserMenu({ name, email, role, canAccessIc = false }) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef(null);
   const router = useRouter();
+  const pathname = usePathname();
+  const inEngagement = pathname?.startsWith('/engagement');
 
   const cancelClose = () => {
     if (closeTimer.current) clearTimeout(closeTimer.current);
@@ -57,6 +63,15 @@ export default function UserMenu({ name, email, role }) {
               {name && <p className="text-xs text-gray-500 dark:text-gray-400 truncate">{email}</p>}
               {role && <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">{role.replace(/_/g, ' ')}</p>}
             </div>
+            {canAccessIc && !inEngagement && (
+              <Link
+                href="/engagement"
+                className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-brand-blue transition-colors"
+              >
+                <ArrowLeftRight size={15} />
+                Switch to IC Engagement
+              </Link>
+            )}
             <button
               onClick={handleSignOut}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-brand-blue transition-colors"

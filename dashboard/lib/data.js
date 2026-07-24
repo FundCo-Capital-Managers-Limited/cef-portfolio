@@ -16,11 +16,11 @@ export async function getCurrentUserProfile() {
 
   const { data: profile } = await supabase
     .from('users')
-    .select('id, email, name, role, assetco_id')
+    .select('id, email, name, role, assetco_id, can_access_ic')
     .eq('auth_user_id', user.id)
     .maybeSingle();
 
-  return profile || { id: null, email: user.email, name: null, role: null, assetco_id: null };
+  return profile || { id: null, email: user.email, name: null, role: null, assetco_id: null, can_access_ic: false };
 }
 
 /**

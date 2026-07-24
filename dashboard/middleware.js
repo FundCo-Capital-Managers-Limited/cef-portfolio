@@ -1,5 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
+import { canAccessIc } from './lib/icAccess';
 
 export async function middleware(request) {
   let response = NextResponse.next({ request });
@@ -26,7 +27,9 @@ export async function middleware(request) {
   } = await supabase.auth.getUser();
 
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login');
-  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard');
+  const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard');
+  const isEngagementRoute = request.nextUrl.pathname.startsWith('/engagement');
+  const isProtectedRoute = isDashboardRoute || isEngagementRoute;
 
   if (!user && isProtectedRoute) {
     const redirectUrl = new URL('/login', request.url);
@@ -37,15 +40,27 @@ export async function middleware(request) {
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 
-  // assetco_dev is a narrower-trust role than every other provisioned user —
-  // but RLS here is a single is_cef_user() check (any row in `users` can read
-  // all AssetCos' data), so nothing stops an assetco_dev login from reading
-  // everything if they land on, say, /dashboard/registry. Real enforcement
-  // has to happen here (the one place that sees every request), not just by
-  // hiding nav links — confine them to the Developer Console outright.
-  if (user && isProtectedRoute && !request.nextUrl.pathname.startsWith('/dashboard/dev-console')) {
-    const { data: profile } = await supabase.from('users').select('role').eq('auth_user_id', user.id).maybeSingle();
-    if (profile?.role === 'assetco_dev') {
+  if (user && isProtectedRoute) {
+    const { data: profile } = await supabase
+      .from('users')
+      .select('role, can_access_ic')
+      .eq('auth_user_id', user.id)
+      .maybeSingle();
+
+    // Every provisioned role has PIP dashboard access today, so /engagement
+    // is the only gate that can actually deny someone — a future IC-only
+    // identity (no PIP access at all) would need its own check here too.
+    if (isEngagementRoute && !canAccessIc(profile)) {
+      return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    // assetco_dev is a narrower-trust role than every other provisioned user —
+    // but RLS here is a single is_cef_user() check (any row in `users` can read
+    // all AssetCos' data), so nothing stops an assetco_dev login from reading
+    // everything if they land on, say, /dashboard/registry. Real enforcement
+    // has to happen here (the one place that sees every request), not just by
+    // hiding nav links — confine them to the Developer Console outright.
+    if (isDashboardRoute && !request.nextUrl.pathname.startsWith('/dashboard/dev-console') && profile?.role === 'assetco_dev') {
       return NextResponse.redirect(new URL('/dashboard/dev-console', request.url));
     }
   }
@@ -54,5 +69,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/login'],
+  matcher: ['/dashboard/:path*', '/engagement/:path*', '/login'],
 };
