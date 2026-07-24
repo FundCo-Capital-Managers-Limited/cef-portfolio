@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ExternalLink, X } from 'lucide-react';
+import { ExternalLink, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiFetch } from '../../lib/apiClient';
 import { formatDateTime } from '../../lib/format';
+import AgendaItemVoting from './AgendaItemVoting';
 
 const STATUS_STYLES = {
   SCHEDULED: 'bg-blue-100 text-blue-700',
@@ -15,10 +16,11 @@ const STATUS_STYLES = {
 
 const STATUS_OPTIONS = Object.keys(STATUS_STYLES);
 
-export default function MeetingDetail({ meetingId }) {
+export default function MeetingDetail({ meetingId, currentUserId, autoManage }) {
   const [meeting, setMeeting] = useState(null);
   const [openMatters, setOpenMatters] = useState([]);
   const [selectedMatterId, setSelectedMatterId] = useState('');
+  const [expandedItemId, setExpandedItemId] = useState(null);
   const [error, setError] = useState(null);
   const [busy, setBusy] = useState(false);
 
@@ -85,6 +87,7 @@ export default function MeetingDetail({ meetingId }) {
 
   const agendaMatterIds = new Set(meeting.agendaItems.map((a) => a.matter_id));
   const availableMatters = openMatters.filter((m) => !agendaMatterIds.has(m.id));
+  const canDecide = autoManage || currentUserId === meeting.chair_user_id || currentUserId === meeting.secretary_user_id;
 
   return (
     <div className="space-y-4">
@@ -124,21 +127,45 @@ export default function MeetingDetail({ meetingId }) {
 
         {meeting.agendaItems.length === 0 && <p className="text-sm text-gray-500 dark:text-gray-400">No matters on the agenda yet.</p>}
         <div className="divide-y divide-gray-100 dark:divide-gray-800">
-          {meeting.agendaItems.map((item, idx) => (
-            <div key={item.id} className="py-2 flex items-center justify-between gap-2">
-              <Link href={`/engagement/matters/${item.matter_id}`} className="text-sm text-blue-600 hover:underline">
-                {idx + 1}. {item.matter?.title || item.matter_id}
-              </Link>
-              <button
-                disabled={busy}
-                onClick={() => handleRemoveAgendaItem(item.id)}
-                className="text-gray-400 hover:text-red-600 disabled:opacity-50"
-                aria-label="Remove from agenda"
-              >
-                <X size={15} />
-              </button>
-            </div>
-          ))}
+          {meeting.agendaItems.map((item, idx) => {
+            const isExpanded = expandedItemId === item.id;
+            return (
+              <div key={item.id} className="py-2">
+                <div className="flex items-center justify-between gap-2">
+                  <Link href={`/engagement/matters/${item.matter_id}`} className="text-sm text-blue-600 hover:underline">
+                    {idx + 1}. {item.matter?.title || item.matter_id}
+                  </Link>
+                  <div className="flex items-center gap-1 shrink-0">
+                    <button
+                      onClick={() => setExpandedItemId(isExpanded ? null : item.id)}
+                      className="text-gray-400 hover:text-brand-blue"
+                      aria-label={isExpanded ? 'Hide voting' : 'Show voting'}
+                    >
+                      {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+                    </button>
+                    <button
+                      disabled={busy}
+                      onClick={() => handleRemoveAgendaItem(item.id)}
+                      className="text-gray-400 hover:text-red-600 disabled:opacity-50"
+                      aria-label="Remove from agenda"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                </div>
+                {isExpanded && (
+                  <div className="mt-2">
+                    <AgendaItemVoting
+                      meetingId={meetingId}
+                      matterId={item.matter_id}
+                      currentUserId={currentUserId}
+                      canDecide={canDecide}
+                    />
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <div className="flex gap-2 pt-2 border-t border-gray-100 dark:border-gray-800">
