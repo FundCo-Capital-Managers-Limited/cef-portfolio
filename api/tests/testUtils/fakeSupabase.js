@@ -23,6 +23,7 @@ function createFakeSupabase(seed = {}) {
       const pattern = new RegExp(`^${val.replace(/%/g, '.*')}$`);
       return typeof row[col] === 'string' && pattern.test(row[col]);
     }
+    if (type === 'is') return (row[col] ?? null) === val;
     return true;
   }
 
@@ -63,6 +64,10 @@ function createFakeSupabase(seed = {}) {
       },
       like(col, pattern) {
         filters.push({ type: 'like', col, val: pattern });
+        return chain;
+      },
+      is(col, val) {
+        filters.push({ type: 'is', col, val });
         return chain;
       },
       order(col, { ascending } = {}) {

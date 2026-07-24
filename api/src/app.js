@@ -23,6 +23,7 @@ const approvalsRoutes = require('./routes/approvals');
 const icMattersRoutes = require('./routes/icMatters');
 const icDocumentsRoutes = require('./routes/icDocuments');
 const icMeetingsRoutes = require('./routes/icMeetings');
+const icCommitteeRoutes = require('./routes/icCommittee');
 const errorHandler = require('./middleware/errorHandler');
 const env = require('./config/env');
 const logger = require('./utils/logger');
@@ -79,6 +80,7 @@ app.use('/api/approvals', approvalsRoutes);
 app.use('/api/ic/matters', icMattersRoutes);
 app.use('/api/ic/documents', icDocumentsRoutes);
 app.use('/api/ic/meetings', icMeetingsRoutes);
+app.use('/api/ic/committee', icCommitteeRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });
