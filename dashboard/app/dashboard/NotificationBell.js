@@ -110,6 +110,8 @@ export default function NotificationBell({ userId }) {
     }
     if (notification.flag_id) {
       router.push(`/dashboard/flags/${notification.flag_id}`);
+    } else if (notification.ic_matter_id) {
+      router.push(`/engagement/matters/${notification.ic_matter_id}`);
     } else if (notification.type?.startsWith('approval_')) {
       router.push('/dashboard/approvals');
     }

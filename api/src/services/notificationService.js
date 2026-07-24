@@ -8,7 +8,7 @@ const supabase = require('../config/supabase');
  * caller has already decided who should be notified (and excluded, e.g. the
  * actor themselves) — this function just persists and delivers.
  */
-async function notify({ type, message, flagId, createdByEmail, recipientEmails }) {
+async function notify({ type, message, flagId, icMatterId, createdByEmail, recipientEmails }) {
   const targets = [...new Set(recipientEmails.filter(Boolean))];
   if (!targets.length) return null;
 
@@ -20,7 +20,7 @@ async function notify({ type, message, flagId, createdByEmail, recipientEmails }
 
   const { data: notification, error: notificationError } = await supabase
     .from('notifications')
-    .insert({ type, message, flag_id: flagId || null, created_by_email: createdByEmail || null })
+    .insert({ type, message, flag_id: flagId || null, ic_matter_id: icMatterId || null, created_by_email: createdByEmail || null })
     .select()
     .single();
   if (notificationError) throw notificationError;

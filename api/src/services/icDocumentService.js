@@ -70,6 +70,10 @@ async function updateDocument(documentId, { status, sharepointUrl, title, classi
 
   const existing = await getDocument(documentId);
   const matter = await assertMatterExists(existing.matter_id);
+  // Snapshotted before the update call — see icMatterService.updateMatter
+  // for why (some clients, including the fake one in tests, return/mutate
+  // the same row object in place).
+  const previousStatus = existing.status;
 
   const patch = { updated_at: new Date().toISOString() };
   if (status !== undefined) patch.status = status;
@@ -88,7 +92,7 @@ async function updateDocument(documentId, { status, sharepointUrl, title, classi
     action: 'IC_DOCUMENT_UPDATED',
     entityType: 'ic_document',
     entityId: documentId,
-    details: { fromStatus: existing.status, status, sharepointUrl },
+    details: { fromStatus: previousStatus, status, sharepointUrl },
   });
 
   return updated;

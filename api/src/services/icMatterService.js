@@ -63,6 +63,12 @@ async function updateMatter(matterId, fields, user) {
   }
 
   const existing = await getMatter(matterId);
+  // Snapshotted before the update call — some clients (including the fake
+  // one used in tests) return/mutate the same row object in place, so
+  // reading existing.status AFTER the update would silently see the new
+  // value instead of the old one.
+  const previousStatus = existing.status;
+  const assetcoId = existing.assetco_id;
 
   const patch = { updated_at: new Date().toISOString() };
   if (status !== undefined) patch.status = status;
@@ -78,11 +84,11 @@ async function updateMatter(matterId, fields, user) {
     actorType: 'user',
     actorUserId: user.id,
     actorEmail: user.email,
-    actorAssetcoId: existing.assetco_id,
+    actorAssetcoId: assetcoId,
     action: 'IC_MATTER_UPDATED',
     entityType: 'ic_matter',
     entityId: matterId,
-    details: { fromStatus: existing.status, ...fields },
+    details: { fromStatus: previousStatus, ...fields },
   });
 
   return updated;

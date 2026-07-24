@@ -5,6 +5,7 @@ import { getCurrentUserProfile } from '../../lib/data';
 import { canAccessIc } from '../../lib/icAccess';
 import ThemeToggle from '../dashboard/ThemeToggle';
 import UserMenu from '../dashboard/UserMenu';
+import NotificationBell from '../dashboard/NotificationBell';
 
 // middleware.js already redirects anyone without IC access away from
 // /engagement — this is the same defense-in-depth pattern used for
@@ -34,6 +35,7 @@ export default async function EngagementLayout({ children }) {
               Portfolio Dashboard
             </Link>
             <ThemeToggle />
+            <NotificationBell userId={profile?.id} />
             <UserMenu name={profile?.name} email={profile?.email} role={profile?.role} canAccessIc />
           </div>
         </div>
