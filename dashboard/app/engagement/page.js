@@ -6,10 +6,10 @@ export default function EngagementHomePage() {
       <div className="bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-6">
         <h1 className="text-xl font-semibold text-brand-navy dark:text-gray-100 mb-2">IC Engagement</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400">
-          Voting, conditions/actions, and email correspondence are on the way. The matter register, meetings, and committee roster are live.
+          The matter register, meetings, committee roster, voting, conditions/actions, minutes, and email correspondence are all live.
         </p>
       </div>
-      <div className="grid sm:grid-cols-3 gap-4">
+      <div className="grid sm:grid-cols-4 gap-4">
         <Link
           href="/engagement/matters"
           className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:border-brand-blue transition-colors"
@@ -35,6 +35,15 @@ export default function EngagementHomePage() {
           <h2 className="font-semibold text-sm">Committee Roster</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Who's currently on the IC, and who holds Chair/Secretary.
+          </p>
+        </Link>
+        <Link
+          href="/engagement/email"
+          className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:border-brand-blue transition-colors"
+        >
+          <h2 className="font-semibold text-sm">Email</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Send correspondence to sponsors, counsel, or other external parties.
           </p>
         </Link>
       </div>
