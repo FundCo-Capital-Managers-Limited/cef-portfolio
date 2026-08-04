@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import IcDashboardSummary from './IcDashboardSummary';
 
 export default function EngagementHomePage() {
   return (
@@ -9,6 +10,9 @@ export default function EngagementHomePage() {
           The matter register, meetings, committee roster, voting, conditions/actions, minutes, and email correspondence are all live.
         </p>
       </div>
+
+      <IcDashboardSummary />
+
       <div className="grid sm:grid-cols-4 gap-4">
         <Link
           href="/engagement/matters"
