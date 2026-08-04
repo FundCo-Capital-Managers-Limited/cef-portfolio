@@ -16,7 +16,7 @@ function requireRole(...allowedRoles) {
   };
 }
 
-const CEF_WIDE_ROLES = ['executive', 'management', 'finance', 'ops', 'it_admin'];
+const CEF_WIDE_ROLES = ['executive', 'management', 'finance', 'ops', 'it_admin', 'risk'];
 
 /**
  * True if the user can act on the given AssetCo: any CEF-wide role can act on
@@ -30,16 +30,33 @@ function canAccessAssetco(user, assetCoId) {
 }
 
 /**
- * True if the user can WRITE data for the given AssetCo: management/it_admin
- * for any AssetCo, or the AssetCo's own assetco_admin. Narrower than
- * canAccessAssetco (which also lets finance/ops/executive read) — used for
- * manual entry, customer status changes, and other mutating endpoints where
- * the spec restricts write access to "CEF_MANAGEMENT, ASSETCO_ADMIN (own
- * AssetCo only)".
+ * True if the user can WRITE data for the given AssetCo: management/it_admin/
+ * finance/risk for any AssetCo, or the AssetCo's own assetco_admin. Narrower
+ * than canAccessAssetco (which also lets ops/executive read) — used for
+ * manual entry, facility/loan-book records, InfraCredit/DREEF data, customer
+ * status changes, and other mutating endpoints. finance/risk were added here
+ * so they can actually enter/adjust financial data (facility disbursements,
+ * manually-recorded payments) rather than only reading it.
  */
 function canManageAssetco(user, assetCoId) {
-  if (['management', 'it_admin'].includes(user.role)) return true;
+  if (['management', 'it_admin', 'finance', 'risk'].includes(user.role)) return true;
   return user.role === 'assetco_admin' && user.assetcoId === assetCoId;
 }
 
-module.exports = { requireRole, canAccessAssetco, canManageAssetco, CEF_WIDE_ROLES };
+/**
+ * Gates a route to the IC Engagement portal — req.user.canAccessIc is set by
+ * verifySupabaseAuth from users.can_access_ic (or an auto-access role; see
+ * ../utils/icAccess.js). Separate from requireRole since IC access isn't a
+ * role, it's a capability that can sit on top of any existing role.
+ */
+function requireIcAccess(req, res, next) {
+  if (!req.user) {
+    return res.status(401).json({ error: 'Not authenticated' });
+  }
+  if (!req.user.canAccessIc) {
+    return res.status(403).json({ error: 'No access to the IC Engagement portal' });
+  }
+  next();
+}
+
+module.exports = { requireRole, canAccessAssetco, canManageAssetco, requireIcAccess, CEF_WIDE_ROLES };

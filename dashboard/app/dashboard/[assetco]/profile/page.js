@@ -35,11 +35,12 @@ export default async function AssetcoProfilePage({ params }) {
 
   if (!assetco) notFound();
 
+  // Operational controls (pipeline stage, secret rotation, reconciliation,
+  // internal notes) stay management/it_admin only.
   const canManage = ['management', 'it_admin'].includes(profile?.role);
-  // Scoped narrower than canManage — finance handles series/disbursement
-  // data day-to-day but shouldn't see pipeline-stage/DREEF/reconciliation
-  // controls meant for management/it_admin.
-  const canManageFunding = ['management', 'it_admin', 'finance'].includes(profile?.role);
+  // Financial controls (DREEF/InfraCredit, CEF Series linking, facilities)
+  // also open to finance and risk, matching the API's canManageAssetco.
+  const canManageFunding = ['management', 'it_admin', 'finance', 'risk'].includes(profile?.role);
   const daysInStage = assetco.stage_updated_at
     ? Math.floor((Date.now() - new Date(assetco.stage_updated_at).getTime()) / 86400000)
     : null;
@@ -120,7 +121,7 @@ export default async function AssetcoProfilePage({ params }) {
         <div>
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-semibold">InfraCredit / DREEF</h2>
-            {canManage && <DreefEditButton assetcoId={assetco.id} existing={infracredit} />}
+            {canManageFunding && <DreefEditButton assetcoId={assetco.id} existing={infracredit} />}
           </div>
           <div className="bg-white rounded-lg border border-gray-200 p-4 text-sm space-y-2">
             <div className="flex justify-between items-center">
@@ -216,7 +217,7 @@ export default async function AssetcoProfilePage({ params }) {
       <div>
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-semibold">CEF Facilities</h2>
-          {canManage && <AddFacilityButton assetcoId={assetco.id} allSeries={allSeries} />}
+          {canManageFunding && <AddFacilityButton assetcoId={assetco.id} allSeries={allSeries} />}
         </div>
         <div className="space-y-4">
           {facilities.map((facility) => (

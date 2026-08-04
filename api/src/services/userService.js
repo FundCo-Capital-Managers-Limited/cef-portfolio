@@ -38,7 +38,7 @@ async function listUsers() {
  * against (the exact gap ENVIRONMENTS.md's old manual process could leave
  * behind).
  */
-async function createUser({ email, name, role, assetcoId, assetcoIds, createdBy }) {
+async function createUser({ email, name, role, assetcoId, assetcoIds, canAccessIc, createdBy }) {
   if (!email || !role) throw Object.assign(new Error('email and role are required'), { status: 400 });
   if (!ROLES.includes(role)) {
     throw Object.assign(new Error(`role must be one of: ${ROLES.join(', ')}`), { status: 400 });
@@ -66,6 +66,7 @@ async function createUser({ email, name, role, assetcoId, assetcoIds, createdBy 
       name: name || null,
       role,
       assetco_id: role === 'assetco_admin' ? assetcoId : null,
+      can_access_ic: Boolean(canAccessIc),
     })
     .select()
     .single();
@@ -176,6 +177,72 @@ async function setUserActive(userId, isActive, actor) {
 }
 
 /**
+ * Edits an existing user's name, role, and role-specific AssetCo assignment
+ * (assetco_id for assetco_admin, the user_assetco_dev_access rows for
+ * assetco_dev). Changing role away from assetco_admin/assetco_dev clears
+ * whichever assignment no longer applies, so a stale assetco_id/access row
+ * can't linger and silently scope a different role's RLS access.
+ */
+async function updateUser(userId, { name, role, assetcoId, assetcoIds }, actor) {
+  const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+  if (error) throw error;
+  if (!userRow) throw Object.assign(new Error('User not found'), { status: 404 });
+
+  if (role !== undefined && !ROLES.includes(role)) {
+    throw Object.assign(new Error(`role must be one of: ${ROLES.join(', ')}`), { status: 400 });
+  }
+  const nextRole = role !== undefined ? role : userRow.role;
+  if (nextRole === 'assetco_admin' && !(assetcoId !== undefined ? assetcoId : userRow.assetco_id)) {
+    throw Object.assign(new Error('assetcoId is required for role assetco_admin'), { status: 400 });
+  }
+  if (nextRole === 'assetco_dev' && role !== undefined && !assetcoIds?.length) {
+    throw Object.assign(new Error('assetcoIds (at least one) is required when changing role to assetco_dev'), { status: 400 });
+  }
+
+  const fields = {};
+  if (name !== undefined) fields.name = name || null;
+  if (role !== undefined) fields.role = role;
+  fields.assetco_id = nextRole === 'assetco_admin' ? (assetcoId !== undefined ? assetcoId : userRow.assetco_id) : null;
+
+  const { data: updated, error: updateError } = await supabase
+    .from('users')
+    .update(fields)
+    .eq('id', userId)
+    .select()
+    .single();
+  if (updateError) throw updateError;
+
+  if (nextRole === 'assetco_dev' && assetcoIds !== undefined) {
+    const { error: deleteAccessError } = await supabase.from('user_assetco_dev_access').delete().eq('user_id', userId);
+    if (deleteAccessError) throw deleteAccessError;
+    if (assetcoIds.length) {
+      const { error: insertAccessError } = await supabase
+        .from('user_assetco_dev_access')
+        .insert(assetcoIds.map((id) => ({ user_id: userId, assetco_id: id })));
+      if (insertAccessError) throw insertAccessError;
+    }
+  } else if (nextRole !== 'assetco_dev') {
+    // Role changed away from assetco_dev — don't leave old access grants
+    // pointing at a role that no longer uses them.
+    await supabase.from('user_assetco_dev_access').delete().eq('user_id', userId);
+  }
+
+  await supabase.from('audit_log').insert({
+    actor_type: 'user',
+    actor_user_id: actor?.id || null,
+    actor_email: actor?.email || null,
+    action: 'user_updated',
+    entity_type: 'user',
+    entity_id: userId,
+    details: { email: userRow.email, changes: { name, role, assetcoId, assetcoIds } },
+  });
+
+  logger.info('User updated', { email: userRow.email, actor: actor?.email });
+
+  return { ...updated, assetco_ids: nextRole === 'assetco_dev' ? (assetcoIds !== undefined ? assetcoIds : undefined) : undefined };
+}
+
+/**
  * Hard delete: removes both the public.users row and the underlying
  * Supabase Auth account. audit_log.actor_user_id is ON DELETE SET NULL (see
  * migration 018) and audit_log.actor_email is denormalized, so history
@@ -216,6 +283,7 @@ async function deleteUser(userId, actor) {
 module.exports = {
   listUsers,
   createUser,
+  updateUser,
   resetUserPassword,
   setUserActive,
   deleteUser,

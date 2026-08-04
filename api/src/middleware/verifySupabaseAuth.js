@@ -1,5 +1,6 @@
 const supabase = require('../config/supabase');
 const { verifyAccessToken } = require('../services/jwtVerifier');
+const { canAccessIc } = require('../utils/icAccess');
 
 /**
  * Authenticates dashboard-originated requests (manual entry, facility
@@ -20,7 +21,7 @@ async function verifySupabaseAuth(req, res, next) {
 
     const { data: profile, error } = await supabase
       .from('users')
-      .select('id, email, role, assetco_id, is_active')
+      .select('id, email, name, role, assetco_id, is_active, can_access_ic')
       .eq('auth_user_id', payload.sub)
       .maybeSingle();
     if (error) throw error;
@@ -49,9 +50,11 @@ async function verifySupabaseAuth(req, res, next) {
       id: profile.id,
       authUserId: payload.sub,
       email: profile.email,
+      name: profile.name,
       role: profile.role,
       assetcoId: profile.assetco_id,
       assetcoIds,
+      canAccessIc: canAccessIc(profile),
     };
     next();
   } catch (err) {

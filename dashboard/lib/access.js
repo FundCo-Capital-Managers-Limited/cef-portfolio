@@ -5,6 +5,6 @@
 // boundary by itself.
 export function canManageAssetco(profile, assetCoId) {
   if (!profile) return false;
-  if (['management', 'it_admin'].includes(profile.role)) return true;
+  if (['management', 'it_admin', 'finance', 'risk'].includes(profile.role)) return true;
   return profile.role === 'assetco_admin' && profile.assetco_id === assetCoId;
 }

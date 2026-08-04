@@ -9,6 +9,7 @@ router.use(verifySupabaseAuth);
 router.use(requireRole('it_admin', 'management'));
 router.get('/', usersController.list);
 router.post('/', usersController.create);
+router.patch('/:id', usersController.update);
 router.post('/:id/reset-password', usersController.resetPassword);
 router.patch('/:id/active', usersController.setActive);
 router.delete('/:id', usersController.remove);

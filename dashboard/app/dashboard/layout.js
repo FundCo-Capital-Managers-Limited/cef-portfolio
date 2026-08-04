@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Boxes } from 'lucide-react';
 import { getCurrentUserProfile } from '../../lib/data';
+import { canAccessIc } from '../../lib/icAccess';
 import NotificationBell from './NotificationBell';
 import ThemeToggle from './ThemeToggle';
 import MobileMenu from './MobileMenu';
@@ -33,6 +34,8 @@ export default async function DashboardLayout({ children }) {
     ? [{ href: '/dashboard/dev-console', label: 'Developer Console' }]
     : [
         { href: '/dashboard/registry', label: 'AssetCo Registry' },
+        ...(profile?.role !== 'assetco_admin' ? [{ href: '/dashboard/flags', label: 'Flags' }] : []),
+        ...(profile?.role !== 'assetco_admin' ? [{ href: '/dashboard/approvals', label: 'Approvals' }] : []),
         {
           label: 'Pipelines',
           icon: 'Workflow',
@@ -111,7 +114,7 @@ export default async function DashboardLayout({ children }) {
                 real boundary, but there's no reason to show them CEF-wide
                 change history regardless. */}
             {!isAssetcoDev && <NotificationBell userId={profile?.id} />}
-            <UserMenu name={profile?.name} email={profile?.email} role={profile?.role} />
+            <UserMenu name={profile?.name} email={profile?.email} role={profile?.role} canAccessIc={canAccessIc(profile)} />
             <MobileMenu links={navLinks} />
           </div>
         </div>

@@ -46,4 +46,14 @@ module.exports = {
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean),
+  // Comma-separated allowlist for the IC Engagement email feature. Unlike
+  // the password-reset allowlist above, an unlisted recipient here is
+  // rejected with a clear error rather than silently dropped — this tool
+  // lets someone actively choose who to email, so a silent no-op would be
+  // misleading. Empty means no restriction (real send to anyone), which is
+  // the production default once the team is ready.
+  icEmailAllowedRecipients: (process.env.IC_EMAIL_ALLOWED_RECIPIENTS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
 };

@@ -35,6 +35,16 @@ async function requestPasswordReset(email) {
     return;
   }
 
+  // Don't send data.properties.action_link — that URL relies on the
+  // browser's PKCE code_verifier, which only exists if the SAME browser
+  // initiated the flow. Since this link is generated server-side (not by
+  // the user's browser calling resetPasswordForEmail themselves), the
+  // exchange always fails and the reset page always reports "expired",
+  // regardless of the link's actual age. Sending our own URL with the
+  // token_hash lets the client call verifyOtp() directly instead, which
+  // has no such requirement.
+  const resetLink = `${env.frontendUrl}/reset-password?token_hash=${data.properties.hashed_token}&type=recovery`;
+
   const allowlist = env.passwordResetAllowedRecipients;
   if (allowlist.length && !allowlist.includes(email.toLowerCase())) {
     logger.info('Password reset requested but recipient is outside the dev allowlist — email not sent', { email });

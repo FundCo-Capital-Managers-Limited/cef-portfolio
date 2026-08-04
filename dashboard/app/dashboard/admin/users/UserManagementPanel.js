@@ -39,6 +39,9 @@ export default function UserManagementPanel({ assetcos }) {
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
   const [roleFilter, setRoleFilter] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [savingEdit, setSavingEdit] = useState(false);
 
   const preFiltered = roleFilter ? (users || []).filter((u) => u.role === roleFilter) : users || [];
   const { search, setSearch, page, setPage, totalPages, totalCount, paginated, sortKey, sortDir, toggleSort } = usePaginatedList(preFiltered, {
@@ -108,6 +111,40 @@ export default function UserManagementPanel({ assetcos }) {
       setError(err.message);
     } finally {
       setTogglingId(null);
+    }
+  }
+
+  function startEdit(user) {
+    setError(null);
+    setEditingId(user.id);
+    setEditForm({
+      name: user.name || '',
+      role: user.role,
+      assetcoId: user.assetco_id || assetcos[0]?.id || '',
+      assetcoIds: user.assetco_ids || [],
+    });
+  }
+
+  async function handleSaveEdit(userId) {
+    setSavingEdit(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/users/${userId}`, {
+        method: 'PATCH',
+        body: {
+          name: editForm.name || null,
+          role: editForm.role,
+          assetcoId: editForm.role === 'assetco_admin' ? editForm.assetcoId : undefined,
+          assetcoIds: editForm.role === 'assetco_dev' ? editForm.assetcoIds : undefined,
+        },
+      });
+      setEditingId(null);
+      setEditForm(null);
+      await loadUsers();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSavingEdit(false);
     }
   }
 
@@ -254,64 +291,150 @@ export default function UserManagementPanel({ assetcos }) {
               </tr>
             </thead>
             <tbody className="divide-y">
-              {paginated.map((u) => (
-                <tr key={u.id} className={u.is_active === false ? 'opacity-60' : ''}>
-                  <td className="p-3">
-                    {u.name ? (
-                      <>
-                        <div>{u.name}</div>
-                        <div className="text-xs text-gray-400">{u.email}</div>
-                      </>
-                    ) : (
-                      u.email
-                    )}
-                  </td>
-                  <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
-                  <td className="p-3">
-                    {u.role === 'assetco_dev'
-                      ? (u.assetco_ids || []).join(', ') || 'N/A'
-                      : u.assetco_id || 'N/A'}
-                  </td>
-                  <td className="p-3">
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${u.is_active === false ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-700'}`}>
-                      {u.is_active === false ? 'Suspended' : 'Active'}
-                    </span>
-                  </td>
-                  <td className="p-3 text-right space-x-2 whitespace-nowrap">
-                    <button
-                      disabled={resettingId === u.id}
-                      onClick={() => handleResetPassword(u)}
-                      className="text-xs text-brand-blue hover:underline disabled:opacity-50"
-                    >
-                      {resettingId === u.id ? 'Resetting…' : 'Reset Password'}
-                    </button>
-                    <button
-                      disabled={togglingId === u.id}
-                      onClick={() => handleToggleActive(u)}
-                      className="text-xs text-amber-700 hover:underline disabled:opacity-50"
-                    >
-                      {togglingId === u.id ? 'Working…' : u.is_active === false ? 'Reactivate' : 'Suspend'}
-                    </button>
-                    {confirmDeleteId === u.id ? (
-                      <span className="text-xs">
-                        <button
-                          disabled={deletingId === u.id}
-                          onClick={() => handleDelete(u)}
-                          className="text-red-700 font-medium hover:underline disabled:opacity-50"
+              {paginated.map((u) =>
+                editingId === u.id ? (
+                  <tr key={u.id} className="bg-blue-50/40">
+                    <td className="p-3">
+                      <input
+                        type="text"
+                        placeholder="Name (optional)"
+                        className={inputCls}
+                        value={editForm.name}
+                        onChange={(e) => setEditForm((f) => ({ ...f, name: e.target.value }))}
+                      />
+                      <div className="text-xs text-gray-400 mt-1">{u.email}</div>
+                    </td>
+                    <td className="p-3">
+                      <select
+                        className={inputCls}
+                        value={editForm.role}
+                        onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value }))}
+                      >
+                        {USER_ROLES.map((r) => (
+                          <option key={r} value={r}>{USER_ROLE_LABELS[r]}</option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="p-3">
+                      {editForm.role === 'assetco_admin' && (
+                        <select
+                          className={inputCls}
+                          value={editForm.assetcoId}
+                          onChange={(e) => setEditForm((f) => ({ ...f, assetcoId: e.target.value }))}
                         >
-                          {deletingId === u.id ? 'Deleting…' : 'Confirm?'}
-                        </button>
-                        {' '}
-                        <button onClick={() => setConfirmDeleteId(null)} className="text-gray-500 hover:underline">Cancel</button>
+                          {assetcos.map((a) => (
+                            <option key={a.id} value={a.id}>{a.name}</option>
+                          ))}
+                        </select>
+                      )}
+                      {editForm.role === 'assetco_dev' && (
+                        <div className="space-y-1 border border-gray-300 rounded p-2 max-h-32 overflow-y-auto">
+                          {assetcos.map((a) => (
+                            <label key={a.id} className="flex items-center gap-2 text-xs">
+                              <input
+                                type="checkbox"
+                                checked={editForm.assetcoIds.includes(a.id)}
+                                onChange={(e) =>
+                                  setEditForm((f) => ({
+                                    ...f,
+                                    assetcoIds: e.target.checked
+                                      ? [...f.assetcoIds, a.id]
+                                      : f.assetcoIds.filter((id) => id !== a.id),
+                                  }))
+                                }
+                              />
+                              {a.name}
+                            </label>
+                          ))}
+                        </div>
+                      )}
+                      {!['assetco_admin', 'assetco_dev'].includes(editForm.role) && (
+                        <span className="text-xs text-gray-400">N/A</span>
+                      )}
+                    </td>
+                    <td className="p-3">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${u.is_active === false ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-700'}`}>
+                        {u.is_active === false ? 'Suspended' : 'Active'}
                       </span>
-                    ) : (
-                      <button onClick={() => setConfirmDeleteId(u.id)} className="text-xs text-red-600 hover:underline">
-                        Delete
+                    </td>
+                    <td className="p-3 text-right space-x-2 whitespace-nowrap">
+                      <button
+                        disabled={savingEdit || (editForm.role === 'assetco_dev' && editForm.assetcoIds.length === 0)}
+                        onClick={() => handleSaveEdit(u.id)}
+                        className="text-xs text-white bg-brand-navy px-2 py-1 rounded hover:bg-brand-blue disabled:opacity-50"
+                      >
+                        {savingEdit ? 'Saving…' : 'Save'}
                       </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
+                      <button
+                        onClick={() => { setEditingId(null); setEditForm(null); }}
+                        className="text-xs text-gray-500 hover:underline"
+                      >
+                        Cancel
+                      </button>
+                    </td>
+                  </tr>
+                ) : (
+                  <tr key={u.id} className={u.is_active === false ? 'opacity-60' : ''}>
+                    <td className="p-3">
+                      {u.name ? (
+                        <>
+                          <div>{u.name}</div>
+                          <div className="text-xs text-gray-400">{u.email}</div>
+                        </>
+                      ) : (
+                        u.email
+                      )}
+                    </td>
+                    <td className="p-3">{USER_ROLE_LABELS[u.role] || u.role}</td>
+                    <td className="p-3">
+                      {u.role === 'assetco_dev'
+                        ? (u.assetco_ids || []).join(', ') || 'N/A'
+                        : u.assetco_id || 'N/A'}
+                    </td>
+                    <td className="p-3">
+                      <span className={`text-xs px-2 py-0.5 rounded-full ${u.is_active === false ? 'bg-gray-100 text-gray-500' : 'bg-green-100 text-green-700'}`}>
+                        {u.is_active === false ? 'Suspended' : 'Active'}
+                      </span>
+                    </td>
+                    <td className="p-3 text-right space-x-2 whitespace-nowrap">
+                      <button onClick={() => startEdit(u)} className="text-xs text-brand-blue hover:underline">
+                        Edit
+                      </button>
+                      <button
+                        disabled={resettingId === u.id}
+                        onClick={() => handleResetPassword(u)}
+                        className="text-xs text-brand-blue hover:underline disabled:opacity-50"
+                      >
+                        {resettingId === u.id ? 'Resetting…' : 'Reset Password'}
+                      </button>
+                      <button
+                        disabled={togglingId === u.id}
+                        onClick={() => handleToggleActive(u)}
+                        className="text-xs text-amber-700 hover:underline disabled:opacity-50"
+                      >
+                        {togglingId === u.id ? 'Working…' : u.is_active === false ? 'Reactivate' : 'Suspend'}
+                      </button>
+                      {confirmDeleteId === u.id ? (
+                        <span className="text-xs">
+                          <button
+                            disabled={deletingId === u.id}
+                            onClick={() => handleDelete(u)}
+                            className="text-red-700 font-medium hover:underline disabled:opacity-50"
+                          >
+                            {deletingId === u.id ? 'Deleting…' : 'Confirm?'}
+                          </button>
+                          {' '}
+                          <button onClick={() => setConfirmDeleteId(null)} className="text-gray-500 hover:underline">Cancel</button>
+                        </span>
+                      ) : (
+                        <button onClick={() => setConfirmDeleteId(u.id)} className="text-xs text-red-600 hover:underline">
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              )}
               {users && paginated.length === 0 && (
                 <tr><td className="p-3 text-gray-500" colSpan={5}>No users match your search.</td></tr>
               )}
