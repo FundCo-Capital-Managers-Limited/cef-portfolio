@@ -47,11 +47,16 @@ export async function middleware(request) {
       .eq('auth_user_id', user.id)
       .maybeSingle();
 
-    // Every provisioned role has PIP dashboard access today, so /engagement
-    // is the only gate that can actually deny someone — a future IC-only
-    // identity (no PIP access at all) would need its own check here too.
     if (isEngagementRoute && !canAccessIc(profile)) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    // board_member is the one role with no PIP dashboard access at all —
+    // confine them to /engagement entirely, the mirror image of
+    // assetco_dev's confinement to the Developer Console below. Same
+    // "hiding nav links isn't the boundary" reasoning applies.
+    if (isDashboardRoute && profile?.role === 'board_member') {
+      return NextResponse.redirect(new URL('/engagement', request.url));
     }
 
     // assetco_dev is a narrower-trust role than every other provisioned user —

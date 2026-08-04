@@ -2,7 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
 import { getCurrentUserProfile } from '../../lib/data';
-import { canAccessIc } from '../../lib/icAccess';
+import { canAccessIc, canAccessPip } from '../../lib/icAccess';
 import ThemeToggle from '../dashboard/ThemeToggle';
 import UserMenu from '../dashboard/UserMenu';
 import NotificationBell from '../dashboard/NotificationBell';
@@ -31,9 +31,11 @@ export default async function EngagementLayout({ children }) {
             </span>
           </div>
           <div className="flex items-center gap-2 xl:gap-4 text-sm text-gray-600 shrink-0">
-            <Link href="/dashboard" className="text-sm text-gray-600 dark:text-gray-300 hover:text-brand-blue transition-colors whitespace-nowrap">
-              Portfolio Dashboard
-            </Link>
+            {canAccessPip(profile) && (
+              <Link href="/dashboard" className="text-sm text-gray-600 dark:text-gray-300 hover:text-brand-blue transition-colors whitespace-nowrap">
+                Portfolio Dashboard
+              </Link>
+            )}
             <ThemeToggle />
             <NotificationBell userId={profile?.id} />
             <UserMenu name={profile?.name} email={profile?.email} role={profile?.role} canAccessIc />
