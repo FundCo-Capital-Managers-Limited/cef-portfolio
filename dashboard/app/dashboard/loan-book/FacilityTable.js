@@ -69,7 +69,11 @@ export default function FacilityTable({ facilities }) {
                     {f.assetCoName}
                   </Link>
                 </td>
-                <td className="p-3 text-gray-600">{f.facilityReference || 'N/A'}</td>
+                <td className="p-3 text-gray-600">
+                  <Link href={`/dashboard/loan-book/${f.id}`} className="text-blue-600 hover:underline">
+                    {f.facilityReference || 'View details'}
+                  </Link>
+                </td>
                 <td className="p-3 text-gray-600">{f.seriesName || 'N/A'}</td>
                 <td className="p-3 text-gray-600">{f.facilityType}</td>
                 <td className="p-3">{formatCurrency(f.principalAmountNgn)}</td>

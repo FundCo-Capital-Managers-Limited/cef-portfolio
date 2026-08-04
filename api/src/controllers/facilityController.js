@@ -1,8 +1,18 @@
 const { canAccessAssetco, canManageAssetco, CEF_WIDE_ROLES } = require('../middleware/requireRole');
 const facilityService = require('../services/facilityService');
+const repaymentNotificationService = require('../services/facilityRepaymentNotificationService');
+const facilityRiskDashboardService = require('../services/facilityRiskDashboardService');
 const supabase = require('../config/supabase');
 const { recordAudit } = require('../services/auditLog');
 const { FACILITY_TYPES, REPAYMENT_FREQUENCIES, FACILITY_STATUSES, PAYMENT_TYPES } = require('../utils/facilityEnums');
+
+// AssetCos repay CEF by bank transfer and notify separately, they never
+// record a repayment on the platform directly - canManageAssetco is too
+// broad here (it includes the AssetCo's own admin, which is right for
+// managing the facility's terms but wrong for recording CEF's own loan-book
+// cash receipts). See facilityRepaymentNotificationService.js for the
+// notify-then-confirm workflow AssetCo reps actually use instead.
+const CEF_STAFF_ROLES = ['management', 'it_admin', 'finance', 'risk'];
 
 const FACILITY_FIELD_MAP = {
   assetCoId: 'assetco_id',
@@ -129,8 +139,8 @@ async function recordRepayment(req, res, next) {
   try {
     const facility = await facilityService.getFacility(req.params.id);
     if (!facility) return res.status(404).json({ error: 'Facility not found' });
-    if (!canManageAssetco(req.user, facility.assetco_id)) {
-      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or the AssetCo\'s own admin can record repayments' });
+    if (!CEF_STAFF_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Finance, Risk, IT Admin, or Management can record repayments' });
     }
 
     const { paymentDate, principalPaidNgn, interestPaidNgn } = req.body;
@@ -173,6 +183,69 @@ async function repaymentHistory(req, res, next) {
   }
 }
 
+async function submitRepaymentNotification(req, res, next) {
+  try {
+    const facility = await facilityService.getFacility(req.params.id);
+    if (!facility) return res.status(404).json({ error: 'Facility not found' });
+    if (!canAccessAssetco(req.user, facility.assetco_id)) {
+      return res.status(403).json({ error: 'Cannot access this facility' });
+    }
+    const { amountNgn, paymentDate, paymentReference, periodCovered, notes } = req.body;
+    const notification = await repaymentNotificationService.submitNotification(
+      req.params.id,
+      { amountNgn, paymentDate, paymentReference, periodCovered, notes },
+      req.user
+    );
+    return res.status(201).json({ notification });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function listRepaymentNotifications(req, res, next) {
+  try {
+    const facility = await facilityService.getFacility(req.params.id);
+    if (!facility) return res.status(404).json({ error: 'Facility not found' });
+    if (!canAccessAssetco(req.user, facility.assetco_id)) {
+      return res.status(403).json({ error: 'Cannot access this facility' });
+    }
+    const notifications = await repaymentNotificationService.listForFacility(req.params.id);
+    return res.status(200).json({ notifications });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function listPendingRepaymentNotifications(req, res, next) {
+  try {
+    if (!CEF_STAFF_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Finance, Risk, IT Admin, or Management can view the pending repayment queue' });
+    }
+    const notifications = await repaymentNotificationService.listPending();
+    return res.status(200).json({ notifications });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function confirmRepaymentNotification(req, res, next) {
+  try {
+    const result = await repaymentNotificationService.confirmNotification(req.params.notificationId, req.user);
+    return res.status(200).json(result);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function rejectRepaymentNotification(req, res, next) {
+  try {
+    const notification = await repaymentNotificationService.rejectNotification(req.params.notificationId, req.body.reason, req.user);
+    return res.status(200).json({ notification });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function loanBook(req, res, next) {
   try {
     if (!CEF_WIDE_ROLES.includes(req.user.role)) {
@@ -185,4 +258,20 @@ async function loanBook(req, res, next) {
   }
 }
 
-module.exports = { create, listForAssetco, getOne, update, changeStatus, recordRepayment, repaymentHistory, loanBook };
+async function riskSummary(req, res, next) {
+  try {
+    if (!CEF_WIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF-wide roles can view the portfolio risk summary' });
+    }
+    const summary = await facilityRiskDashboardService.getRiskSummary();
+    return res.status(200).json({ summary });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = {
+  create, listForAssetco, getOne, update, changeStatus, recordRepayment, repaymentHistory, loanBook, riskSummary,
+  submitRepaymentNotification, listRepaymentNotifications, listPendingRepaymentNotifications,
+  confirmRepaymentNotification, rejectRepaymentNotification,
+};

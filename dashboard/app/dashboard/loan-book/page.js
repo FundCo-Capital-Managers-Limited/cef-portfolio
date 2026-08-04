@@ -3,6 +3,7 @@ import { getLoanBookDetail } from '../../../lib/data';
 import { formatCurrency } from '../../../lib/format';
 import LoanBookChart from '../charts/LoanBookChart';
 import FacilityTable from './FacilityTable';
+import RiskSummaryTiles from './RiskSummaryTiles';
 import StatCard from '../StatCard';
 import BackLink from '../BackLink';
 
@@ -41,6 +42,11 @@ export default async function LoanBookPage() {
           Icon={ShieldCheck}
           iconTone="green"
         />
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3 dark:text-white">Credit Risk Summary</h2>
+        <RiskSummaryTiles />
       </div>
 
       <LoanBookChart byAssetCo={loanBook.byAssetCo} />
