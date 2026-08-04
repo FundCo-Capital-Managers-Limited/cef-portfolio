@@ -6,6 +6,7 @@ import { ExternalLink, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { apiFetch } from '../../lib/apiClient';
 import { formatDateTime } from '../../lib/format';
 import AgendaItemVoting from './AgendaItemVoting';
+import MinutesPanel from './MinutesPanel';
 
 const STATUS_STYLES = {
   SCHEDULED: 'bg-blue-100 text-blue-700',
@@ -189,6 +190,8 @@ export default function MeetingDetail({ meetingId, currentUserId, autoManage }) 
         </div>
         {error && <p className="text-sm text-red-600">{error}</p>}
       </div>
+
+      <MinutesPanel meetingId={meetingId} canLock={canDecide} />
     </div>
   );
 }

@@ -3,6 +3,7 @@ const verifySupabaseAuth = require('../middleware/verifySupabaseAuth');
 const { requireIcAccess } = require('../middleware/requireRole');
 const icMeetingsController = require('../controllers/icMeetingsController');
 const icVotingController = require('../controllers/icVotingController');
+const icMinutesController = require('../controllers/icMinutesController');
 
 const router = express.Router();
 
@@ -22,5 +23,9 @@ router.post('/:meetingId/matters/:matterId/conflicts', icVotingController.declar
 router.post('/:meetingId/matters/:matterId/vote', icVotingController.castVote);
 router.get('/:meetingId/matters/:matterId/vote-summary', icVotingController.getVoteSummary);
 router.post('/:meetingId/matters/:matterId/decision', icVotingController.recordDecision);
+
+router.get('/:meetingId/minutes', icMinutesController.get);
+router.patch('/:meetingId/minutes', icMinutesController.update);
+router.post('/:meetingId/minutes/lock', icMinutesController.lock);
 
 module.exports = router;
