@@ -14,6 +14,12 @@ const { FACILITY_TYPES, REPAYMENT_FREQUENCIES, FACILITY_STATUSES, PAYMENT_TYPES 
 // notify-then-confirm workflow AssetCo reps actually use instead.
 const CEF_STAFF_ROLES = ['management', 'it_admin', 'finance', 'risk'];
 
+// The discretionary reclassification call (Oluseyi's ask, 2026-08-05
+// walkthrough) is narrower than general facility management — it's a credit
+// judgment call, not a data-entry task, so it's restricted to the roles who
+// actually make that call rather than canManageAssetco's broader set.
+const CLASSIFICATION_OVERRIDE_ROLES = ['management', 'risk', 'executive'];
+
 const FACILITY_FIELD_MAP = {
   assetCoId: 'assetco_id',
   seriesId: 'series_id',
@@ -130,6 +136,37 @@ async function changeStatus(req, res, next) {
     }
     const updated = await facilityService.updateFacilityStatus(req.params.id, req.body.status, req.body.notes, req.user);
     return res.status(200).json({ facility: updated });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function setClassificationOverride(req, res, next) {
+  try {
+    if (!CLASSIFICATION_OVERRIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Management, Risk, or Executive can set a discretionary classification override' });
+    }
+    const { status, reason } = req.body;
+    if (!FACILITY_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${FACILITY_STATUSES.join(', ')}` });
+    }
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ error: 'reason is required when overriding a facility\'s classification' });
+    }
+    const facility = await facilityService.setClassificationOverride(req.params.id, status, reason, req.user);
+    return res.status(200).json({ facility });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function clearClassificationOverride(req, res, next) {
+  try {
+    if (!CLASSIFICATION_OVERRIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Management, Risk, or Executive can clear a discretionary classification override' });
+    }
+    const facility = await facilityService.clearClassificationOverride(req.params.id, req.user);
+    return res.status(200).json({ facility });
   } catch (err) {
     return next(err);
   }
@@ -272,6 +309,7 @@ async function riskSummary(req, res, next) {
 
 module.exports = {
   create, listForAssetco, getOne, update, changeStatus, recordRepayment, repaymentHistory, loanBook, riskSummary,
+  setClassificationOverride, clearClassificationOverride,
   submitRepaymentNotification, listRepaymentNotifications, listPendingRepaymentNotifications,
   confirmRepaymentNotification, rejectRepaymentNotification,
 };

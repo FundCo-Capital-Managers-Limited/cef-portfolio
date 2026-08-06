@@ -80,8 +80,12 @@ export default function FacilityTable({ facilities }) {
                 <td className="p-3">{formatCurrency(f.totalRepaidNgn)}</td>
                 <td className="p-3">{formatCurrency(f.outstandingBalanceNgn)}</td>
                 <td className="p-3">
-                  <span className={`text-xs px-2 py-0.5 rounded-full ${FACILITY_STATUS_STYLES[f.facilityStatus] || 'bg-gray-100 text-gray-500'}`}>
+                  <span
+                    title={f.isClassificationOverridden ? `Overridden — computed status: ${f.computedFacilityStatus}` : undefined}
+                    className={`text-xs px-2 py-0.5 rounded-full ${FACILITY_STATUS_STYLES[f.facilityStatus] || 'bg-gray-100 text-gray-500'}`}
+                  >
                     {f.facilityStatus}
+                    {f.isClassificationOverridden && ' *'}
                   </span>
                 </td>
                 <td className="p-3 text-gray-500 text-xs">{f.disbursementDate ? formatDateTime(f.disbursementDate) : 'N/A'}</td>

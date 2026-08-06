@@ -446,7 +446,9 @@ export async function getLoanBook() {
       if (coFacilities.length === 0) return null;
       const totalFacilityNgn = coFacilities.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
       const totalRepaid = coFacilities.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
-      const worstStatus = coFacilities.map((f) => f.facility_status).sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
+      const worstStatus = coFacilities
+        .map((f) => f.classification_override || f.facility_status)
+        .sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
       return {
         assetCoId: a.id,
         assetCoName: a.name,
@@ -497,7 +499,9 @@ export async function getLoanBookDetail() {
       if (coFacilities.length === 0) return null;
       const totalFacilityNgn = coFacilities.reduce((sum, f) => sum + Number(f.principal_amount_ngn || 0), 0);
       const totalRepaid = coFacilities.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
-      const worstStatus = coFacilities.map((f) => f.facility_status).sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
+      const worstStatus = coFacilities
+        .map((f) => f.classification_override || f.facility_status)
+        .sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
       return {
         assetCoId: a.id,
         assetCoName: a.name,
@@ -535,7 +539,9 @@ export async function getLoanBookDetail() {
     principalAmountNgn: Number(f.principal_amount_ngn || 0),
     totalRepaidNgn: Number(f.total_repaid_ngn || 0),
     outstandingBalanceNgn: Number(f.outstanding_balance_ngn ?? f.principal_amount_ngn - f.total_repaid_ngn),
-    facilityStatus: f.facility_status,
+    facilityStatus: f.classification_override || f.facility_status,
+    computedFacilityStatus: f.facility_status,
+    isClassificationOverridden: Boolean(f.classification_override),
     disbursementDate: f.disbursement_date,
     maturityDate: f.maturity_date,
   }));

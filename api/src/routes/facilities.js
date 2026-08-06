@@ -11,6 +11,8 @@ router.get('/repayment-notifications/pending', facilityController.listPendingRep
 router.get('/:id', facilityController.getOne);
 router.patch('/:id', facilityController.update);
 router.patch('/:id/status', facilityController.changeStatus);
+router.patch('/:id/classification-override', facilityController.setClassificationOverride);
+router.delete('/:id/classification-override', facilityController.clearClassificationOverride);
 router.post('/:id/repayments', facilityController.recordRepayment);
 router.get('/:id/repayments', facilityController.repaymentHistory);
 

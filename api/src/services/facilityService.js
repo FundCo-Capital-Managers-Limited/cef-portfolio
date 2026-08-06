@@ -14,6 +14,13 @@ function periodLabel(dateStr) {
   return dateStr.slice(0, 7);
 }
 
+// The status portfolio-wide views (loan book, risk summary, byAssetCo
+// rollups) should actually report — a management override takes precedence
+// over the automatically-computed facility_status, without erasing it.
+function effectiveStatus(facility) {
+  return facility.classification_override || facility.facility_status;
+}
+
 /**
  * Generates the expected repayment schedule for a fixed-frequency facility.
  * Equal principal instalments scaled to the period length (principal/tenor
@@ -145,6 +152,81 @@ async function updateFacilityStatus(id, status, notes, user) {
     entityType: 'cef_facility',
     entityId: id,
     details: { status, notes },
+  });
+
+  return getFacility(id);
+}
+
+/**
+ * Discretionary classification override — layered on top of facility_status
+ * rather than replacing it, so the automatic KRI-based recompute in
+ * recordRepayment/checkFacilityArrears keeps running against the true signal
+ * underneath. getFacilityDetail/getPortfolioLoanBook/getRiskSummary read
+ * classification_override ?? facility_status as the "effective" status.
+ */
+async function setClassificationOverride(id, status, reason, user) {
+  const facility = await getFacility(id);
+  if (!facility) {
+    const err = new Error('Facility not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const { error } = await supabase
+    .from('cef_facilities')
+    .update({
+      classification_override: status,
+      classification_override_reason: reason,
+      classification_override_by: user.id,
+      classification_override_at: new Date().toISOString(),
+    })
+    .eq('id', id);
+  if (error) throw error;
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    actorEmail: user.email,
+    actorAssetcoId: facility.assetco_id,
+    action: 'FACILITY_CLASSIFICATION_OVERRIDDEN',
+    entityType: 'cef_facility',
+    entityId: id,
+    details: { status, reason, computedStatus: facility.facility_status },
+  });
+
+  return getFacility(id);
+}
+
+async function clearClassificationOverride(id, user) {
+  const facility = await getFacility(id);
+  if (!facility) {
+    const err = new Error('Facility not found');
+    err.status = 404;
+    throw err;
+  }
+
+  const previousOverride = facility.classification_override;
+
+  const { error } = await supabase
+    .from('cef_facilities')
+    .update({
+      classification_override: null,
+      classification_override_reason: null,
+      classification_override_by: null,
+      classification_override_at: null,
+    })
+    .eq('id', id);
+  if (error) throw error;
+
+  await recordAudit({
+    actorType: 'user',
+    actorUserId: user.id,
+    actorEmail: user.email,
+    actorAssetcoId: facility.assetco_id,
+    action: 'FACILITY_CLASSIFICATION_OVERRIDE_CLEARED',
+    entityType: 'cef_facility',
+    entityId: id,
+    details: { previousOverride },
   });
 
   return getFacility(id);
@@ -290,7 +372,7 @@ async function getPortfolioLoanBook() {
       const totalRepaid = coFacilities.reduce((sum, f) => sum + Number(f.total_repaid_ngn || 0), 0);
       const statusPriority = ['IN_DEFAULT', 'IN_ARREARS', 'RESTRUCTURED', 'ACTIVE', 'WRITTEN_OFF', 'FULLY_REPAID'];
       const worstStatus = coFacilities
-        .map((f) => f.facility_status)
+        .map(effectiveStatus)
         .sort((x, y) => statusPriority.indexOf(x) - statusPriority.indexOf(y))[0];
       return {
         assetCoId: a.id,
@@ -325,10 +407,10 @@ async function getPortfolioLoanBook() {
     totalOutstandingNgn: totalFacilitiesNgn - totalRepaidNgn,
     repaymentRatePercent: totalFacilitiesNgn > 0 ? (totalRepaidNgn / totalFacilitiesNgn) * 100 : 0,
     totalFacilitiesCount: all.length,
-    activeFacilitiesCount: all.filter((f) => f.facility_status === 'ACTIVE').length,
-    inArrearsCount: all.filter((f) => f.facility_status === 'IN_ARREARS').length,
-    inDefaultCount: all.filter((f) => f.facility_status === 'IN_DEFAULT').length,
-    fullyRepaidCount: all.filter((f) => f.facility_status === 'FULLY_REPAID').length,
+    activeFacilitiesCount: all.filter((f) => effectiveStatus(f) === 'ACTIVE').length,
+    inArrearsCount: all.filter((f) => effectiveStatus(f) === 'IN_ARREARS').length,
+    inDefaultCount: all.filter((f) => effectiveStatus(f) === 'IN_DEFAULT').length,
+    fullyRepaidCount: all.filter((f) => effectiveStatus(f) === 'FULLY_REPAID').length,
     byAssetCo,
     bySeries,
   };
@@ -441,6 +523,9 @@ module.exports = {
   getFacility,
   getFacilityDetail,
   updateFacilityStatus,
+  setClassificationOverride,
+  clearClassificationOverride,
+  effectiveStatus,
   recordRepayment,
   getRepaymentHistory,
   getPortfolioLoanBook,
