@@ -5,7 +5,19 @@ const logger = require('../utils/logger');
 
 const FROM_ADDRESS = 'CEF-PIP Alerts <alerts@updates.fundco.ng>';
 
-async function logAlert({ alertType, assetCoId, assetId, customerId, message, eventId, facilityId, scheduleId }) {
+async function logAlert({
+  alertType,
+  assetCoId,
+  assetId,
+  customerId,
+  message,
+  eventId,
+  facilityId,
+  scheduleId,
+  facilityDocumentId,
+  facilitySecurityId,
+  facilityCovenantId,
+}) {
   const { error } = await supabase.from('alerts').insert({
     alert_type: alertType,
     assetco_id: assetCoId,
@@ -15,6 +27,9 @@ async function logAlert({ alertType, assetCoId, assetId, customerId, message, ev
     event_id: eventId || null,
     facility_id: facilityId || null,
     schedule_id: scheduleId || null,
+    facility_document_id: facilityDocumentId || null,
+    facility_security_id: facilitySecurityId || null,
+    facility_covenant_id: facilityCovenantId || null,
   });
   if (error) throw error;
   logger.info('Alert recorded', { alertType, assetCoId, assetId, facilityId });
@@ -91,9 +106,18 @@ async function sendFaultAlert(payload, eventId) {
  * Recipients: CEF Management + Finance Analyst (env.alertRecipients is a
  * single configured list for MVP — no per-role routing yet).
  */
-async function sendFacilityAlert({ alertType, assetCoId, facilityId, scheduleId, message }) {
+async function sendFacilityAlert({
+  alertType,
+  assetCoId,
+  facilityId,
+  scheduleId,
+  facilityDocumentId,
+  facilitySecurityId,
+  facilityCovenantId,
+  message,
+}) {
   await sendEmail(`[CEF-PIP] ${alertType.replace(/_/g, ' ')}`, message);
-  await logAlert({ alertType, assetCoId, message, facilityId, scheduleId });
+  await logAlert({ alertType, assetCoId, message, facilityId, scheduleId, facilityDocumentId, facilitySecurityId, facilityCovenantId });
 }
 
 module.exports = { sendDefaultAlert, sendFaultAlert, sendFacilityAlert };

@@ -14,7 +14,7 @@ async function assertFacilityExists(facilityId) {
 
 // --- Documents (Module A: Loan Documentation Monitoring) ---
 
-async function addDocument(facilityId, { title, classification, sharepointUrl }, user) {
+async function addDocument(facilityId, { title, classification, sharepointUrl, expiryDate }, user) {
   if (!title || !classification) throw Object.assign(new Error('title and classification are required'), { status: 400 });
   const facility = await assertFacilityExists(facilityId);
 
@@ -26,6 +26,7 @@ async function addDocument(facilityId, { title, classification, sharepointUrl },
       classification,
       status: 'DRAFT',
       sharepoint_url: sharepointUrl || null,
+      expiry_date: expiryDate || null,
       created_by_user_id: user.id,
       created_by_email: user.email,
     })
@@ -75,13 +76,14 @@ async function getCovenantFacility(covenantId) {
   return assertFacilityExists(cov.facility_id);
 }
 
-async function updateDocument(documentId, { status, sharepointUrl }, user) {
+async function updateDocument(documentId, { status, sharepointUrl, expiryDate }, user) {
   if (status !== undefined && !DOCUMENT_STATUSES.includes(status)) {
     throw Object.assign(new Error(`status must be one of: ${DOCUMENT_STATUSES.join(', ')}`), { status: 400 });
   }
   const patch = { updated_at: new Date().toISOString() };
   if (status !== undefined) patch.status = status;
   if (sharepointUrl !== undefined) patch.sharepoint_url = sharepointUrl;
+  if (expiryDate !== undefined) patch.expiry_date = expiryDate;
 
   const { data: updated, error } = await supabase.from('facility_documents').update(patch).eq('id', documentId).select().single();
   if (error) throw error;
@@ -107,7 +109,7 @@ async function confirmDocumentUpload(documentId, user) {
 
 // --- Security (Module B: Security Monitoring Register) ---
 
-async function addSecurity(facilityId, { securityType, valueNgn, perfectionStatus, insuranceStatus, notes }, user) {
+async function addSecurity(facilityId, { securityType, valueNgn, perfectionStatus, insuranceStatus, insuranceExpiryDate, notes }, user) {
   if (!securityType) throw Object.assign(new Error('securityType is required'), { status: 400 });
   const facility = await assertFacilityExists(facilityId);
 
@@ -119,6 +121,7 @@ async function addSecurity(facilityId, { securityType, valueNgn, perfectionStatu
       value_ngn: valueNgn ?? null,
       perfection_status: perfectionStatus || null,
       insurance_status: insuranceStatus || null,
+      insurance_expiry_date: insuranceExpiryDate || null,
       notes: notes || null,
       created_by_user_id: user.id,
       created_by_email: user.email,
@@ -148,11 +151,12 @@ async function listSecurity(facilityId) {
   return data || [];
 }
 
-async function updateSecurity(securityId, { valueNgn, perfectionStatus, insuranceStatus, notes }, user) {
+async function updateSecurity(securityId, { valueNgn, perfectionStatus, insuranceStatus, insuranceExpiryDate, notes }, user) {
   const patch = { updated_at: new Date().toISOString() };
   if (valueNgn !== undefined) patch.value_ngn = valueNgn;
   if (perfectionStatus !== undefined) patch.perfection_status = perfectionStatus;
   if (insuranceStatus !== undefined) patch.insurance_status = insuranceStatus;
+  if (insuranceExpiryDate !== undefined) patch.insurance_expiry_date = insuranceExpiryDate;
   if (notes !== undefined) patch.notes = notes;
 
   const { data: updated, error } = await supabase.from('facility_security').update(patch).eq('id', securityId).select().single();
@@ -163,7 +167,7 @@ async function updateSecurity(securityId, { valueNgn, perfectionStatus, insuranc
 
 // --- Covenants (Module E: Covenant Monitoring Register) ---
 
-async function addCovenant(facilityId, { covenantDescription, covenantType, frequency, dueDate }, user) {
+async function addCovenant(facilityId, { covenantDescription, covenantType, frequency, dueDate, nextTestDueDate }, user) {
   if (!covenantDescription || !covenantType || !COVENANT_TYPES.includes(covenantType)) {
     throw Object.assign(new Error(`covenantDescription is required and covenantType must be one of: ${COVENANT_TYPES.join(', ')}`), { status: 400 });
   }
@@ -178,6 +182,7 @@ async function addCovenant(facilityId, { covenantDescription, covenantType, freq
       frequency: frequency || null,
       compliance_status: 'PENDING',
       last_tested_date: dueDate || null,
+      next_test_due_date: nextTestDueDate || null,
       created_by_user_id: user.id,
       created_by_email: user.email,
     })
@@ -206,13 +211,14 @@ async function listCovenants(facilityId) {
   return data || [];
 }
 
-async function updateCovenant(covenantId, { complianceStatus, lastTestedDate, notes }, user) {
+async function updateCovenant(covenantId, { complianceStatus, lastTestedDate, nextTestDueDate, notes }, user) {
   if (complianceStatus !== undefined && !COMPLIANCE_STATUSES.includes(complianceStatus)) {
     throw Object.assign(new Error(`complianceStatus must be one of: ${COMPLIANCE_STATUSES.join(', ')}`), { status: 400 });
   }
   const patch = { updated_at: new Date().toISOString() };
   if (complianceStatus !== undefined) patch.compliance_status = complianceStatus;
   if (lastTestedDate !== undefined) patch.last_tested_date = lastTestedDate;
+  if (nextTestDueDate !== undefined) patch.next_test_due_date = nextTestDueDate;
   if (notes !== undefined) patch.notes = notes;
 
   const { data: updated, error } = await supabase.from('facility_covenants').update(patch).eq('id', covenantId).select().single();

@@ -22,7 +22,7 @@ export default function FacilityDocumentsPanel({ facilityId }) {
   const [documents, setDocuments] = useState(null);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title: '', classification: '', sharepointUrl: '' });
+  const [form, setForm] = useState({ title: '', classification: '', sharepointUrl: '', expiryDate: '' });
   const [busyId, setBusyId] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
@@ -46,9 +46,9 @@ export default function FacilityDocumentsPanel({ facilityId }) {
     try {
       await apiFetch(`/api/facilities/${facilityId}/documents`, {
         method: 'POST',
-        body: { title: form.title, classification: form.classification, sharepointUrl: form.sharepointUrl || undefined },
+        body: { title: form.title, classification: form.classification, sharepointUrl: form.sharepointUrl || undefined, expiryDate: form.expiryDate || undefined },
       });
-      setForm({ title: '', classification: '', sharepointUrl: '' });
+      setForm({ title: '', classification: '', sharepointUrl: '', expiryDate: '' });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -84,6 +84,19 @@ export default function FacilityDocumentsPanel({ facilityId }) {
     }
   }
 
+  async function handleExpiryChange(docId, expiryDate) {
+    setBusyId(docId);
+    setError(null);
+    try {
+      await apiFetch(`/api/facilities/documents/${docId}`, { method: 'PATCH', body: { expiryDate: expiryDate || null } });
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 p-4 space-y-3">
       <div className="flex items-center justify-between">
@@ -103,6 +116,11 @@ export default function FacilityDocumentsPanel({ facilityId }) {
           </div>
           <input type="url" placeholder="SharePoint URL (once uploaded)" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm"
             value={form.sharepointUrl} onChange={(e) => setForm((f) => ({ ...f, sharepointUrl: e.target.value }))} />
+          <label className="block text-xs text-gray-500">
+            Expiry date (optional — enables expiry alerts)
+            <input type="date" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm mt-0.5"
+              value={form.expiryDate} onChange={(e) => setForm((f) => ({ ...f, expiryDate: e.target.value }))} />
+          </label>
           <button disabled={submitting || !form.title || !form.classification} onClick={handleCreate}
             className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue">
             {submitting ? 'Adding…' : 'Add Document'}
@@ -123,6 +141,9 @@ export default function FacilityDocumentsPanel({ facilityId }) {
               </span>
             </div>
             <p className="text-xs text-gray-500">{doc.classification} · added by {doc.created_by_email} · {timeAgo(doc.created_at)}</p>
+            {doc.expiry_date && (
+              <p className={`text-xs ${new Date(doc.expiry_date) < new Date() ? 'text-red-600' : 'text-gray-500'}`}>Expires {doc.expiry_date}</p>
+            )}
             {doc.confirmed_at && (
               <p className="text-xs text-green-700 flex items-center gap-1">
                 <CheckCircle2 size={12} /> Uploaded and shared, confirmed by {doc.confirmed_by_email} · {timeAgo(doc.confirmed_at)}
@@ -142,6 +163,14 @@ export default function FacilityDocumentsPanel({ facilityId }) {
               <select disabled={busyId === doc.id} value={doc.status} onChange={(e) => handleStatusChange(doc.id, e.target.value)} className="text-xs border border-gray-300 rounded px-1.5 py-1">
                 {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>)}
               </select>
+              <input
+                type="date"
+                title="Expiry date"
+                defaultValue={doc.expiry_date || ''}
+                disabled={busyId === doc.id}
+                onBlur={(e) => e.target.value !== (doc.expiry_date || '') && handleExpiryChange(doc.id, e.target.value)}
+                className="text-xs border border-gray-300 rounded px-1.5 py-1"
+              />
             </div>
           </div>
         ))}

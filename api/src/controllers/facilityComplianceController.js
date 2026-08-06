@@ -33,8 +33,8 @@ async function assertWrite(req, res) {
 async function addDocument(req, res, next) {
   try {
     if (!(await assertWrite(req, res))) return;
-    const { title, classification, sharepointUrl } = req.body;
-    const document = await facilityComplianceService.addDocument(req.params.id, { title, classification, sharepointUrl }, req.user);
+    const { title, classification, sharepointUrl, expiryDate } = req.body;
+    const document = await facilityComplianceService.addDocument(req.params.id, { title, classification, sharepointUrl, expiryDate }, req.user);
     res.status(201).json({ document });
   } catch (err) {
     next(err);
@@ -57,8 +57,8 @@ async function updateDocument(req, res, next) {
     if (!canManageAssetco(req.user, facility.assetco_id)) {
       return res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, Risk, or the AssetCo\'s own admin can manage this facility\'s records' });
     }
-    const { status, sharepointUrl } = req.body;
-    const document = await facilityComplianceService.updateDocument(req.params.documentId, { status, sharepointUrl }, req.user);
+    const { status, sharepointUrl, expiryDate } = req.body;
+    const document = await facilityComplianceService.updateDocument(req.params.documentId, { status, sharepointUrl, expiryDate }, req.user);
     return res.status(200).json({ document });
   } catch (err) {
     return next(err);
@@ -83,8 +83,12 @@ async function confirmDocument(req, res, next) {
 async function addSecurity(req, res, next) {
   try {
     if (!(await assertWrite(req, res))) return;
-    const { securityType, valueNgn, perfectionStatus, insuranceStatus, notes } = req.body;
-    const security = await facilityComplianceService.addSecurity(req.params.id, { securityType, valueNgn, perfectionStatus, insuranceStatus, notes }, req.user);
+    const { securityType, valueNgn, perfectionStatus, insuranceStatus, insuranceExpiryDate, notes } = req.body;
+    const security = await facilityComplianceService.addSecurity(
+      req.params.id,
+      { securityType, valueNgn, perfectionStatus, insuranceStatus, insuranceExpiryDate, notes },
+      req.user
+    );
     res.status(201).json({ security });
   } catch (err) {
     next(err);
@@ -107,8 +111,12 @@ async function updateSecurity(req, res, next) {
     if (!canManageAssetco(req.user, facility.assetco_id)) {
       return res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, Risk, or the AssetCo\'s own admin can manage this facility\'s records' });
     }
-    const { valueNgn, perfectionStatus, insuranceStatus, notes } = req.body;
-    const security = await facilityComplianceService.updateSecurity(req.params.securityId, { valueNgn, perfectionStatus, insuranceStatus, notes }, req.user);
+    const { valueNgn, perfectionStatus, insuranceStatus, insuranceExpiryDate, notes } = req.body;
+    const security = await facilityComplianceService.updateSecurity(
+      req.params.securityId,
+      { valueNgn, perfectionStatus, insuranceStatus, insuranceExpiryDate, notes },
+      req.user
+    );
     return res.status(200).json({ security });
   } catch (err) {
     return next(err);
@@ -120,8 +128,12 @@ async function updateSecurity(req, res, next) {
 async function addCovenant(req, res, next) {
   try {
     if (!(await assertWrite(req, res))) return;
-    const { covenantDescription, covenantType, frequency, dueDate } = req.body;
-    const covenant = await facilityComplianceService.addCovenant(req.params.id, { covenantDescription, covenantType, frequency, dueDate }, req.user);
+    const { covenantDescription, covenantType, frequency, dueDate, nextTestDueDate } = req.body;
+    const covenant = await facilityComplianceService.addCovenant(
+      req.params.id,
+      { covenantDescription, covenantType, frequency, dueDate, nextTestDueDate },
+      req.user
+    );
     res.status(201).json({ covenant });
   } catch (err) {
     next(err);
@@ -144,8 +156,12 @@ async function updateCovenant(req, res, next) {
     if (!canManageAssetco(req.user, facility.assetco_id)) {
       return res.status(403).json({ error: 'Only CEF Management, IT Admin, Finance, Risk, or the AssetCo\'s own admin can manage this facility\'s records' });
     }
-    const { complianceStatus, lastTestedDate, notes } = req.body;
-    const covenant = await facilityComplianceService.updateCovenant(req.params.covenantId, { complianceStatus, lastTestedDate, notes }, req.user);
+    const { complianceStatus, lastTestedDate, nextTestDueDate, notes } = req.body;
+    const covenant = await facilityComplianceService.updateCovenant(
+      req.params.covenantId,
+      { complianceStatus, lastTestedDate, nextTestDueDate, notes },
+      req.user
+    );
     return res.status(200).json({ covenant });
   } catch (err) {
     return next(err);

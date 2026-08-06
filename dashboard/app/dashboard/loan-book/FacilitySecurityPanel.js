@@ -12,7 +12,7 @@ export default function FacilitySecurityPanel({ facilityId }) {
   const [security, setSecurity] = useState(null);
   const [error, setError] = useState(null);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ securityType: '', valueNgn: '', perfectionStatus: '', insuranceStatus: '', notes: '' });
+  const [form, setForm] = useState({ securityType: '', valueNgn: '', perfectionStatus: '', insuranceStatus: '', insuranceExpiryDate: '', notes: '' });
   const [submitting, setSubmitting] = useState(false);
   const [busyId, setBusyId] = useState(null);
 
@@ -41,10 +41,11 @@ export default function FacilitySecurityPanel({ facilityId }) {
           valueNgn: form.valueNgn ? Number(form.valueNgn) : undefined,
           perfectionStatus: form.perfectionStatus || undefined,
           insuranceStatus: form.insuranceStatus || undefined,
+          insuranceExpiryDate: form.insuranceExpiryDate || undefined,
           notes: form.notes || undefined,
         },
       });
-      setForm({ securityType: '', valueNgn: '', perfectionStatus: '', insuranceStatus: '', notes: '' });
+      setForm({ securityType: '', valueNgn: '', perfectionStatus: '', insuranceStatus: '', insuranceExpiryDate: '', notes: '' });
       setShowForm(false);
       await load();
     } catch (err) {
@@ -88,6 +89,11 @@ export default function FacilitySecurityPanel({ facilityId }) {
             value={form.perfectionStatus} onChange={(e) => setForm((f) => ({ ...f, perfectionStatus: e.target.value }))} />
           <input type="text" placeholder="Insurance status" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm"
             value={form.insuranceStatus} onChange={(e) => setForm((f) => ({ ...f, insuranceStatus: e.target.value }))} />
+          <label className="block text-xs text-gray-500">
+            Insurance expiry date (optional — enables expiry alerts)
+            <input type="date" className="w-full border border-gray-300 rounded px-2 py-1.5 text-sm mt-0.5"
+              value={form.insuranceExpiryDate} onChange={(e) => setForm((f) => ({ ...f, insuranceExpiryDate: e.target.value }))} />
+          </label>
           <button disabled={submitting || !form.securityType} onClick={handleCreate}
             className="text-sm bg-brand-navy text-white px-3 py-1.5 rounded disabled:opacity-50 hover:bg-brand-blue">
             {submitting ? 'Adding…' : 'Add Security'}
@@ -121,6 +127,16 @@ export default function FacilitySecurityPanel({ facilityId }) {
                 disabled={busyId === s.id}
                 onBlur={(e) => e.target.value !== (s.insurance_status || '') && handleUpdateField(s.id, 'insuranceStatus', e.target.value)}
                 className="text-xs border border-gray-300 rounded px-2 py-1"
+              />
+            </div>
+            <div className="flex items-center gap-2 pt-1">
+              <label className="text-xs text-gray-500">Insurance expiry:</label>
+              <input
+                type="date"
+                defaultValue={s.insurance_expiry_date || ''}
+                disabled={busyId === s.id}
+                onBlur={(e) => e.target.value !== (s.insurance_expiry_date || '') && handleUpdateField(s.id, 'insuranceExpiryDate', e.target.value)}
+                className={`text-xs border rounded px-1.5 py-1 ${s.insurance_expiry_date && new Date(s.insurance_expiry_date) < new Date() ? 'border-red-300 text-red-600' : 'border-gray-300'}`}
               />
             </div>
           </div>
