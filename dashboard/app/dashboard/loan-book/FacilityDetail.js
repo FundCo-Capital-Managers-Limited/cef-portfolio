@@ -7,6 +7,7 @@ import { FACILITY_STATUS_STYLES } from '../../../lib/constants';
 import FacilityDocumentsPanel from './FacilityDocumentsPanel';
 import FacilitySecurityPanel from './FacilitySecurityPanel';
 import FacilityCovenantsPanel from './FacilityCovenantsPanel';
+import FacilityMilestonesPanel from './FacilityMilestonesPanel';
 import FacilityRepaymentNotificationsPanel from './FacilityRepaymentNotificationsPanel';
 import FacilityClassificationPanel from './FacilityClassificationPanel';
 
@@ -65,6 +66,7 @@ export default function FacilityDetail({ facilityId, currentUserRole, currentUse
       <FacilityDocumentsPanel facilityId={facilityId} />
       <FacilitySecurityPanel facilityId={facilityId} />
       <FacilityCovenantsPanel facilityId={facilityId} />
+      <FacilityMilestonesPanel facilityId={facilityId} />
 
       <div className="bg-white rounded-lg border border-gray-200 p-4">
         <h2 className="text-sm font-semibold mb-2">Repayment History</h2>
