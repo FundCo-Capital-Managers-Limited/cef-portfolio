@@ -3,6 +3,7 @@ const verifySupabaseAuth = require('../middleware/verifySupabaseAuth');
 const facilityController = require('../controllers/facilityController');
 const facilityComplianceController = require('../controllers/facilityComplianceController');
 const facilityMilestoneController = require('../controllers/facilityMilestoneController');
+const facilityChecklistController = require('../controllers/facilityChecklistController');
 
 const router = express.Router();
 
@@ -38,5 +39,10 @@ router.patch('/covenants/:covenantId', facilityComplianceController.updateCovena
 router.post('/:id/milestones', facilityMilestoneController.addMilestone);
 router.get('/:id/milestones', facilityMilestoneController.listMilestones);
 router.patch('/milestones/:milestoneId', facilityMilestoneController.updateMilestone);
+
+router.post('/:id/checklist/apply', facilityChecklistController.applyChecklist);
+router.post('/:id/checklist', facilityChecklistController.addItem);
+router.get('/:id/checklist', facilityChecklistController.listChecklist);
+router.patch('/checklist/:itemId', facilityChecklistController.updateItem);
 
 module.exports = router;

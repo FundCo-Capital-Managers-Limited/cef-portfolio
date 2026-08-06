@@ -10,6 +10,7 @@ import FacilityCovenantsPanel from './FacilityCovenantsPanel';
 import FacilityMilestonesPanel from './FacilityMilestonesPanel';
 import FacilityRepaymentNotificationsPanel from './FacilityRepaymentNotificationsPanel';
 import FacilityClassificationPanel from './FacilityClassificationPanel';
+import FacilityChecklistPanel from './FacilityChecklistPanel';
 
 const CEF_STAFF_ROLES = ['management', 'it_admin', 'finance', 'risk'];
 
@@ -61,6 +62,7 @@ export default function FacilityDetail({ facilityId, currentUserRole, currentUse
         </div>
       </div>
 
+      <FacilityChecklistPanel facilityId={facilityId} />
       <FacilityClassificationPanel facility={facility} currentUserRole={currentUserRole} onChanged={load} />
       <FacilityRepaymentNotificationsPanel facilityId={facilityId} canConfirm={canConfirm} canSubmit={canSubmit} />
       <FacilityDocumentsPanel facilityId={facilityId} />
