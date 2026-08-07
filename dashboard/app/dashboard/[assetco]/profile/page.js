@@ -73,6 +73,7 @@ export default async function AssetcoProfilePage({ params }) {
             <div className="flex justify-between"><span className="text-gray-500">Operating States</span><span>{(assetco.operating_states || []).join(', ') || 'N/A'}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Asset Types</span><span>{(assetco.asset_types || []).join(', ') || 'N/A'}</span></div>
             <div className="flex justify-between"><span className="text-gray-500">Customer Types</span><span>{(assetco.customer_types || []).join(', ') || 'N/A'}</span></div>
+            <div className="flex justify-between"><span className="text-gray-500">Business Model(s)</span><span>{(assetco.business_models || []).join(', ') || 'N/A'}</span></div>
             {assetco.business_description && (
               <p className="text-gray-600 pt-2 border-t">{assetco.business_description}</p>
             )}
