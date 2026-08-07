@@ -44,6 +44,13 @@ describe('User management endpoints', () => {
     expect(auditEntry.entity_id).toBe(res.body.user.id);
   });
 
+  it('management can create a board_member account', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users').send({ email: 'board1@cef.example', role: 'board_member' }));
+    expect(res.status).toBe(201);
+    expect(res.body.user.role).toBe('board_member');
+  });
+
   it('requires assetcoId for an assetco_admin', async () => {
     const withAuth = as('auth-mgmt');
     const res = await withAuth(

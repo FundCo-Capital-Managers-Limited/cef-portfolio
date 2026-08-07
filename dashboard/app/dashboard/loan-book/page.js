@@ -3,8 +3,10 @@ import { getLoanBookDetail } from '../../../lib/data';
 import { formatCurrency } from '../../../lib/format';
 import LoanBookChart from '../charts/LoanBookChart';
 import FacilityTable from './FacilityTable';
+import RiskSummaryTiles from './RiskSummaryTiles';
 import StatCard from '../StatCard';
 import BackLink from '../BackLink';
+import ExportLoanBookButton from './ExportLoanBookButton';
 
 function repaymentRateTone(rate) {
   if (rate > 80) return 'text-green-600';
@@ -19,15 +21,18 @@ export default async function LoanBookPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <BackLink href="/dashboard">Portfolio</BackLink>
-        <h1 className="text-xl font-semibold mt-1 flex items-center gap-2 dark:text-white">
-          <Landmark size={22} className="text-brand-navy dark:text-brand-teal" />
-          CEF Loan Book
-        </h1>
-        <p className="text-sm text-gray-500">
-          Every facility CEF has extended to an AssetCo: principal, repayments, and outstanding balance.
-        </p>
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <BackLink href="/dashboard">Portfolio</BackLink>
+          <h1 className="text-xl font-semibold mt-1 flex items-center gap-2 dark:text-white">
+            <Landmark size={22} className="text-brand-navy dark:text-brand-teal" />
+            CEF Loan Book
+          </h1>
+          <p className="text-sm text-gray-500">
+            Every facility CEF has extended to an AssetCo: principal, repayments, and outstanding balance.
+          </p>
+        </div>
+        <ExportLoanBookButton />
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -41,6 +46,11 @@ export default async function LoanBookPage() {
           Icon={ShieldCheck}
           iconTone="green"
         />
+      </div>
+
+      <div>
+        <h2 className="text-lg font-semibold mb-3 dark:text-white">Credit Risk Summary</h2>
+        <RiskSummaryTiles />
       </div>
 
       <LoanBookChart byAssetCo={loanBook.byAssetCo} />

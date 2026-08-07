@@ -3,6 +3,8 @@ const { recordAudit } = require('./auditLog');
 
 const CATEGORIES = ['NEW_INVESTMENT', 'DISBURSEMENT', 'PORTFOLIO_MANAGEMENT', 'PROBLEM_ASSET', 'EXIT_CLOSURE', 'POLICY'];
 const STATUSES = ['OPEN', 'UNDER_REVIEW', 'SCHEDULED', 'DECIDED', 'CLOSED', 'WITHDRAWN'];
+const DELEGATED_AUTHORITY_STATUSES = ['NOT_REQUIRED', 'PENDING', 'GRANTED'];
+const TRUSTEE_NO_OBJECTION_STATUSES = ['NOT_REQUIRED', 'PENDING', 'RECEIVED'];
 
 async function createMatter({ category, decisionType, title, description, assetcoId, dealLeadUserId }, user) {
   if (!category || !CATEGORIES.includes(category)) {
@@ -22,6 +24,8 @@ async function createMatter({ category, decisionType, title, description, assetc
       assetco_id: assetcoId || null,
       deal_lead_user_id: dealLeadUserId || null,
       status: 'OPEN',
+      delegated_authority_status: 'NOT_REQUIRED',
+      trustee_no_objection_status: 'NOT_REQUIRED',
       created_by_user_id: user.id,
       created_by_email: user.email,
     })
@@ -57,9 +61,15 @@ async function getMatter(matterId) {
 }
 
 async function updateMatter(matterId, fields, user) {
-  const { status, decisionType, title, description, dealLeadUserId } = fields;
+  const { status, decisionType, title, description, dealLeadUserId, delegatedAuthorityStatus, trusteeNoObjectionStatus } = fields;
   if (status !== undefined && !STATUSES.includes(status)) {
     throw Object.assign(new Error(`status must be one of: ${STATUSES.join(', ')}`), { status: 400 });
+  }
+  if (delegatedAuthorityStatus !== undefined && !DELEGATED_AUTHORITY_STATUSES.includes(delegatedAuthorityStatus)) {
+    throw Object.assign(new Error(`delegatedAuthorityStatus must be one of: ${DELEGATED_AUTHORITY_STATUSES.join(', ')}`), { status: 400 });
+  }
+  if (trusteeNoObjectionStatus !== undefined && !TRUSTEE_NO_OBJECTION_STATUSES.includes(trusteeNoObjectionStatus)) {
+    throw Object.assign(new Error(`trusteeNoObjectionStatus must be one of: ${TRUSTEE_NO_OBJECTION_STATUSES.join(', ')}`), { status: 400 });
   }
 
   const existing = await getMatter(matterId);
@@ -76,6 +86,8 @@ async function updateMatter(matterId, fields, user) {
   if (title !== undefined) patch.title = title;
   if (description !== undefined) patch.description = description;
   if (dealLeadUserId !== undefined) patch.deal_lead_user_id = dealLeadUserId;
+  if (delegatedAuthorityStatus !== undefined) patch.delegated_authority_status = delegatedAuthorityStatus;
+  if (trusteeNoObjectionStatus !== undefined) patch.trustee_no_objection_status = trusteeNoObjectionStatus;
 
   const { data: updated, error } = await supabase.from('ic_matters').update(patch).eq('id', matterId).select().single();
   if (error) throw error;
@@ -94,4 +106,13 @@ async function updateMatter(matterId, fields, user) {
   return updated;
 }
 
-module.exports = { createMatter, listMatters, getMatter, updateMatter, CATEGORIES, STATUSES };
+module.exports = {
+  createMatter,
+  listMatters,
+  getMatter,
+  updateMatter,
+  CATEGORIES,
+  STATUSES,
+  DELEGATED_AUTHORITY_STATUSES,
+  TRUSTEE_NO_OBJECTION_STATUSES,
+};

@@ -41,6 +41,20 @@ async function createRequest({ actionType, targetSeriesId, payload }, user) {
   return request;
 }
 
+/**
+ * Full authorization trail (Abiodun's ask, 2026-08-05 walkthrough — a
+ * printable "cadre of authorization" record, requester → approver → decision
+ * → notes, in order). Unlike listForUser, this is never filtered down to the
+ * caller's own submissions — the router already restricts this endpoint to
+ * CEF-wide roles, and a trail that hides some decisions from some viewers
+ * defeats its own purpose.
+ */
+async function listAll() {
+  const { data, error } = await supabase.from('approval_requests').select('*').order('created_at', { ascending: false });
+  if (error) throw error;
+  return data || [];
+}
+
 async function listForUser(user) {
   let query = supabase.from('approval_requests').select('*');
   if (!APPROVER_ROLES.includes(user.role)) {
@@ -102,4 +116,4 @@ async function decide(id, decision, user, notes) {
   return updated;
 }
 
-module.exports = { createRequest, listForUser, getRequest, decide, APPROVER_ROLES };
+module.exports = { createRequest, listForUser, listAll, getRequest, decide, APPROVER_ROLES };

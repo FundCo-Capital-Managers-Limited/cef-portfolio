@@ -54,6 +54,7 @@ describe('AssetCo onboarding application endpoints', () => {
       companyName: 'BrightFuture Energy',
       primaryContactName: 'Sam Okoro',
       primaryContactEmail: 'sam@brightfuture.example',
+      businessModels: ['C&I', 'C2C'],
     });
     const applicationId = submitRes.body.application.id;
 
@@ -78,6 +79,7 @@ describe('AssetCo onboarding application endpoints', () => {
     expect(assetco.pipeline_stage).toBe('ONBOARDING');
     expect(assetco.name).toBe('BrightFuture Energy');
     expect(assetco.hmac_secret).toBe(reviewRes.body.application.hmacSecret);
+    expect(assetco.business_models).toEqual(['C&I', 'C2C']);
   });
 
   it('rejects approval without an assetcoId', async () => {

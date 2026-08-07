@@ -43,15 +43,20 @@ export async function middleware(request) {
   if (user && isProtectedRoute) {
     const { data: profile } = await supabase
       .from('users')
-      .select('role, can_access_ic')
+      .select('role, can_access_ic, assetco_id')
       .eq('auth_user_id', user.id)
       .maybeSingle();
 
-    // Every provisioned role has PIP dashboard access today, so /engagement
-    // is the only gate that can actually deny someone — a future IC-only
-    // identity (no PIP access at all) would need its own check here too.
     if (isEngagementRoute && !canAccessIc(profile)) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
+    }
+
+    // board_member is the one role with no PIP dashboard access at all —
+    // confine them to /engagement entirely, the mirror image of
+    // assetco_dev's confinement to the Developer Console below. Same
+    // "hiding nav links isn't the boundary" reasoning applies.
+    if (isDashboardRoute && profile?.role === 'board_member') {
+      return NextResponse.redirect(new URL('/engagement', request.url));
     }
 
     // assetco_dev is a narrower-trust role than every other provisioned user —
@@ -62,6 +67,21 @@ export async function middleware(request) {
     // hiding nav links — confine them to the Developer Console outright.
     if (isDashboardRoute && !request.nextUrl.pathname.startsWith('/dashboard/dev-console') && profile?.role === 'assetco_dev') {
       return NextResponse.redirect(new URL('/dashboard/dev-console', request.url));
+    }
+
+    // assetco_admin is likewise confined to their own AssetCo's pages. Several
+    // portfolio-wide tables (cef_facilities, cef_series links, DREEF, flags)
+    // still carry an is_cef_user()-broad RLS policy (migration 016 only
+    // covered the tables that existed at the time), so an assetco_admin
+    // landing on /dashboard/registry, /dashboard/pipeline, /dashboard/series,
+    // or /dashboard/loan-book could read every other AssetCo's data. This is
+    // the real fix — RLS tightening (migration 034) is defense-in-depth on
+    // top of it, not a substitute for it.
+    if (isDashboardRoute && profile?.role === 'assetco_admin') {
+      const ownPath = `/dashboard/${profile.assetco_id}`;
+      if (request.nextUrl.pathname !== ownPath && !request.nextUrl.pathname.startsWith(`${ownPath}/`)) {
+        return NextResponse.redirect(new URL(ownPath, request.url));
+      }
     }
   }
 

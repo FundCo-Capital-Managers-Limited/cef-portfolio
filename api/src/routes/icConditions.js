@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(verifySupabaseAuth);
 router.use(requireIcAccess);
 
+router.get('/', icConditionsController.listAll);
 router.patch('/:id', icConditionsController.update);
 
 module.exports = router;

@@ -1,8 +1,41 @@
 const { canAccessAssetco, canManageAssetco, CEF_WIDE_ROLES } = require('../middleware/requireRole');
 const facilityService = require('../services/facilityService');
+const repaymentNotificationService = require('../services/facilityRepaymentNotificationService');
+const facilityRiskDashboardService = require('../services/facilityRiskDashboardService');
 const supabase = require('../config/supabase');
 const { recordAudit } = require('../services/auditLog');
 const { FACILITY_TYPES, REPAYMENT_FREQUENCIES, FACILITY_STATUSES, PAYMENT_TYPES } = require('../utils/facilityEnums');
+const { toCsv } = require('../utils/csv');
+
+const LOAN_BOOK_CSV_COLUMNS = [
+  { label: 'Facility Reference', value: (r) => r.facilityReference },
+  { label: 'AssetCo', value: (r) => r.assetCoName },
+  { label: 'Series', value: (r) => r.seriesName },
+  { label: 'Facility Type', value: (r) => r.facilityType },
+  { label: 'Principal (NGN)', value: (r) => r.principalAmountNgn },
+  { label: 'Total Repaid (NGN)', value: (r) => r.totalRepaidNgn },
+  { label: 'Outstanding (NGN)', value: (r) => r.outstandingBalanceNgn },
+  { label: 'Status', value: (r) => r.effectiveStatus },
+  { label: 'Computed Status', value: (r) => r.computedStatus },
+  { label: 'Classification Overridden', value: (r) => (r.isClassificationOverridden ? 'Yes' : 'No') },
+  { label: 'Override Reason', value: (r) => r.classificationOverrideReason },
+  { label: 'Disbursement Date', value: (r) => r.disbursementDate },
+  { label: 'Maturity Date', value: (r) => r.maturityDate },
+];
+
+// AssetCos repay CEF by bank transfer and notify separately, they never
+// record a repayment on the platform directly - canManageAssetco is too
+// broad here (it includes the AssetCo's own admin, which is right for
+// managing the facility's terms but wrong for recording CEF's own loan-book
+// cash receipts). See facilityRepaymentNotificationService.js for the
+// notify-then-confirm workflow AssetCo reps actually use instead.
+const CEF_STAFF_ROLES = ['management', 'it_admin', 'finance', 'risk'];
+
+// The discretionary reclassification call (Oluseyi's ask, 2026-08-05
+// walkthrough) is narrower than general facility management — it's a credit
+// judgment call, not a data-entry task, so it's restricted to the roles who
+// actually make that call rather than canManageAssetco's broader set.
+const CLASSIFICATION_OVERRIDE_ROLES = ['management', 'risk', 'executive'];
 
 const FACILITY_FIELD_MAP = {
   assetCoId: 'assetco_id',
@@ -125,12 +158,43 @@ async function changeStatus(req, res, next) {
   }
 }
 
+async function setClassificationOverride(req, res, next) {
+  try {
+    if (!CLASSIFICATION_OVERRIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Management, Risk, or Executive can set a discretionary classification override' });
+    }
+    const { status, reason } = req.body;
+    if (!FACILITY_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `status must be one of: ${FACILITY_STATUSES.join(', ')}` });
+    }
+    if (!reason || !reason.trim()) {
+      return res.status(400).json({ error: 'reason is required when overriding a facility\'s classification' });
+    }
+    const facility = await facilityService.setClassificationOverride(req.params.id, status, reason, req.user);
+    return res.status(200).json({ facility });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function clearClassificationOverride(req, res, next) {
+  try {
+    if (!CLASSIFICATION_OVERRIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Management, Risk, or Executive can clear a discretionary classification override' });
+    }
+    const facility = await facilityService.clearClassificationOverride(req.params.id, req.user);
+    return res.status(200).json({ facility });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function recordRepayment(req, res, next) {
   try {
     const facility = await facilityService.getFacility(req.params.id);
     if (!facility) return res.status(404).json({ error: 'Facility not found' });
-    if (!canManageAssetco(req.user, facility.assetco_id)) {
-      return res.status(403).json({ error: 'Only CEF Management, IT Admin, or the AssetCo\'s own admin can record repayments' });
+    if (!CEF_STAFF_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Finance, Risk, IT Admin, or Management can record repayments' });
     }
 
     const { paymentDate, principalPaidNgn, interestPaidNgn } = req.body;
@@ -173,6 +237,69 @@ async function repaymentHistory(req, res, next) {
   }
 }
 
+async function submitRepaymentNotification(req, res, next) {
+  try {
+    const facility = await facilityService.getFacility(req.params.id);
+    if (!facility) return res.status(404).json({ error: 'Facility not found' });
+    if (!canAccessAssetco(req.user, facility.assetco_id)) {
+      return res.status(403).json({ error: 'Cannot access this facility' });
+    }
+    const { amountNgn, paymentDate, paymentReference, periodCovered, notes } = req.body;
+    const notification = await repaymentNotificationService.submitNotification(
+      req.params.id,
+      { amountNgn, paymentDate, paymentReference, periodCovered, notes },
+      req.user
+    );
+    return res.status(201).json({ notification });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function listRepaymentNotifications(req, res, next) {
+  try {
+    const facility = await facilityService.getFacility(req.params.id);
+    if (!facility) return res.status(404).json({ error: 'Facility not found' });
+    if (!canAccessAssetco(req.user, facility.assetco_id)) {
+      return res.status(403).json({ error: 'Cannot access this facility' });
+    }
+    const notifications = await repaymentNotificationService.listForFacility(req.params.id);
+    return res.status(200).json({ notifications });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function listPendingRepaymentNotifications(req, res, next) {
+  try {
+    if (!CEF_STAFF_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only Finance, Risk, IT Admin, or Management can view the pending repayment queue' });
+    }
+    const notifications = await repaymentNotificationService.listPending();
+    return res.status(200).json({ notifications });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function confirmRepaymentNotification(req, res, next) {
+  try {
+    const result = await repaymentNotificationService.confirmNotification(req.params.notificationId, req.user);
+    return res.status(200).json(result);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function rejectRepaymentNotification(req, res, next) {
+  try {
+    const notification = await repaymentNotificationService.rejectNotification(req.params.notificationId, req.body.reason, req.user);
+    return res.status(200).json({ notification });
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function loanBook(req, res, next) {
   try {
     if (!CEF_WIDE_ROLES.includes(req.user.role)) {
@@ -185,4 +312,37 @@ async function loanBook(req, res, next) {
   }
 }
 
-module.exports = { create, listForAssetco, getOne, update, changeStatus, recordRepayment, repaymentHistory, loanBook };
+async function exportLoanBookCsv(req, res, next) {
+  try {
+    if (!CEF_WIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF-wide roles can export the portfolio loan book' });
+    }
+    const rows = await facilityService.getPortfolioLoanBookFacilitiesDetailed();
+    const csv = toCsv(rows, LOAN_BOOK_CSV_COLUMNS);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="cef-loan-book-${new Date().toISOString().slice(0, 10)}.csv"`);
+    return res.status(200).send(csv);
+  } catch (err) {
+    return next(err);
+  }
+}
+
+async function riskSummary(req, res, next) {
+  try {
+    if (!CEF_WIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF-wide roles can view the portfolio risk summary' });
+    }
+    const summary = await facilityRiskDashboardService.getRiskSummary();
+    return res.status(200).json({ summary });
+  } catch (err) {
+    return next(err);
+  }
+}
+
+module.exports = {
+  create, listForAssetco, getOne, update, changeStatus, recordRepayment, repaymentHistory, loanBook, riskSummary,
+  exportLoanBookCsv,
+  setClassificationOverride, clearClassificationOverride,
+  submitRepaymentNotification, listRepaymentNotifications, listPendingRepaymentNotifications,
+  confirmRepaymentNotification, rejectRepaymentNotification,
+};

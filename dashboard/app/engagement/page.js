@@ -13,7 +13,7 @@ export default function EngagementHomePage() {
 
       <IcDashboardSummary />
 
-      <div className="grid sm:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-5 gap-4">
         <Link
           href="/engagement/matters"
           className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:border-brand-blue transition-colors"
@@ -39,6 +39,15 @@ export default function EngagementHomePage() {
           <h2 className="font-semibold text-sm">Committee Roster</h2>
           <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
             Who's currently on the IC, and who holds Chair/Secretary.
+          </p>
+        </Link>
+        <Link
+          href="/engagement/secretariat"
+          className="block bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-lg p-4 hover:border-brand-blue transition-colors"
+        >
+          <h2 className="font-semibold text-sm">Secretariat</h2>
+          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            Every open condition/action and every meeting still needing its minutes locked, in one place.
           </p>
         </Link>
         <Link

@@ -4,6 +4,9 @@ const mockSupabase = createFakeSupabase({
   users: [
     { id: 'user-mgmt', auth_user_id: 'auth-mgmt', email: 'mgmt@cef.example', role: 'management', assetco_id: null },
     { id: 'user-exec', auth_user_id: 'auth-exec', email: 'exec@cef.example', role: 'executive', assetco_id: null },
+    { id: 'user-risk', auth_user_id: 'auth-risk', email: 'risk@cef.example', role: 'risk', assetco_id: null },
+    { id: 'user-finance', auth_user_id: 'auth-finance', email: 'finance@cef.example', role: 'finance', assetco_id: null },
+    { id: 'user-admin-grosolar', auth_user_id: 'auth-admin-grosolar', email: 'admin@grosolar.example', role: 'assetco_admin', assetco_id: 'GROSOLAR' },
   ],
   assetcos: [
     { id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true },
@@ -154,6 +157,80 @@ describe('CEF Facility endpoints', () => {
     expect(res.body.totalFacilitiesCount).toBeGreaterThanOrEqual(4);
     expect(res.body.byAssetCo.length).toBeGreaterThanOrEqual(2);
     expect(res.body.totalFacilitiesNgn).toBeGreaterThan(0);
+  });
+
+  it('GET /api/portfolio/loan-book/export returns a CSV attachment for CEF-wide roles', async () => {
+    const res = await as('auth-exec')(request(app).get('/api/portfolio/loan-book/export'));
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/csv');
+    expect(res.headers['content-disposition']).toContain('attachment');
+    expect(res.text.split('\n')[0]).toBe(
+      'Facility Reference,AssetCo,Series,Facility Type,Principal (NGN),Total Repaid (NGN),Outstanding (NGN),Status,Computed Status,Classification Overridden,Override Reason,Disbursement Date,Maturity Date'
+    );
+    expect(res.text.split('\n').length).toBeGreaterThan(1);
+  });
+
+  it('exporting the loan book is rejected for a non-CEF-wide role', async () => {
+    const res = await as('auth-admin-grosolar')(request(app).get('/api/portfolio/loan-book/export'));
+    expect(res.status).toBe(403);
+  });
+});
+
+describe('discretionary classification override', () => {
+  let facilityId;
+
+  beforeAll(async () => {
+    const create = await as('auth-mgmt')(
+      request(app).post('/api/facilities').send({
+        assetCoId: 'GROSOLAR',
+        facilityReference: 'CEF-FA-TEST-OVERRIDE',
+        principalAmountNgn: 3000000,
+        tenorMonths: 12,
+        repaymentFrequency: 'MONTHLY',
+        disbursementDate: '2026-01-01',
+      })
+    );
+    facilityId = create.body.facility.id;
+  });
+
+  it('finance cannot set a classification override', async () => {
+    const res = await as('auth-finance')(
+      request(app).patch(`/api/facilities/${facilityId}/classification-override`).send({ status: 'ACTIVE', reason: 'x' })
+    );
+    expect(res.status).toBe(403);
+  });
+
+  it('rejects an override without a reason', async () => {
+    const res = await as('auth-risk')(
+      request(app).patch(`/api/facilities/${facilityId}/classification-override`).send({ status: 'ACTIVE' })
+    );
+    expect(res.status).toBe(400);
+  });
+
+  it('risk can set an override, and it takes precedence in the loan book without changing facility_status', async () => {
+    const res = await as('auth-risk')(
+      request(app).patch(`/api/facilities/${facilityId}/classification-override`).send({
+        status: 'ACTIVE',
+        reason: 'Aware of a one-off delay with the AssetCo; treating as performing pending resolution.',
+      })
+    );
+    expect(res.status).toBe(200);
+    expect(res.body.facility.classification_override).toBe('ACTIVE');
+    expect(res.body.facility.classification_override_reason).toBeTruthy();
+    expect(res.body.facility.classification_override_by).toBe('user-risk');
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'FACILITY_CLASSIFICATION_OVERRIDDEN' && a.entity_id === facilityId);
+    expect(auditEntry).toBeTruthy();
+    expect(auditEntry.actor_email).toBe('risk@cef.example');
+  });
+
+  it('management can clear the override', async () => {
+    const res = await as('auth-mgmt')(request(app).delete(`/api/facilities/${facilityId}/classification-override`));
+    expect(res.status).toBe(200);
+    expect(res.body.facility.classification_override).toBeNull();
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'FACILITY_CLASSIFICATION_OVERRIDE_CLEARED' && a.entity_id === facilityId);
+    expect(auditEntry).toBeTruthy();
   });
 });
 

@@ -26,12 +26,16 @@ const NAV_ICONS = {
 export default async function DashboardLayout({ children }) {
   const profile = await getCurrentUserProfile();
   const isAssetcoDev = profile?.role === 'assetco_dev';
+  const isAssetcoAdmin = profile?.role === 'assetco_admin';
 
-  // assetco_dev is confined to the Developer Console by middleware.js (that's
-  // the real enforcement — RLS here can't scope by role); this just keeps
-  // their nav from showing links to pages they'd get redirected away from.
+  // assetco_dev is confined to the Developer Console, and assetco_admin to
+  // their own AssetCo's page, by middleware.js (that's the real enforcement —
+  // RLS here can't scope by role); this just keeps their nav from showing
+  // links to pages they'd get redirected away from.
   const navGroups = isAssetcoDev
     ? [{ href: '/dashboard/dev-console', label: 'Developer Console' }]
+    : isAssetcoAdmin
+    ? [{ href: `/dashboard/${profile.assetco_id}`, label: 'My AssetCo' }]
     : [
         { href: '/dashboard/registry', label: 'AssetCo Registry' },
         ...(profile?.role !== 'assetco_admin' ? [{ href: '/dashboard/flags', label: 'Flags' }] : []),
@@ -81,7 +85,10 @@ export default async function DashboardLayout({ children }) {
       <header className="bg-white border-b border-gray-200 relative">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-4 min-w-0">
-            <Link href={isAssetcoDev ? '/dashboard/dev-console' : '/dashboard'} className="flex items-center gap-2 shrink-0">
+            <Link
+              href={isAssetcoDev ? '/dashboard/dev-console' : isAssetcoAdmin ? `/dashboard/${profile.assetco_id}` : '/dashboard'}
+              className="flex items-center gap-2 shrink-0"
+            >
               <Image src="/logo.png" alt="Clean Energy Local Currency Fund" width={140} height={32} priority />
             </Link>
             {/* Related pages are grouped into hover dropdowns (Pipelines, Funding,

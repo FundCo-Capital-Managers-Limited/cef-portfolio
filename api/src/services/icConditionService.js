@@ -82,6 +82,25 @@ async function listConditionsForMatter(matterId) {
   return data || [];
 }
 
+/**
+ * Secretariat dashboard (Abiodun's ask, 2026-08-05 walkthrough): every
+ * condition/action across every matter, not sliced to a top-5 summary like
+ * icDashboardService's — this is the actual working list secretariat staff
+ * triage from, with the matter title attached so it reads without a
+ * separate lookup per row.
+ */
+async function listAllWithMatterTitle() {
+  const [{ data: conditions, error }, { data: matters, error: mattersError }] = await Promise.all([
+    supabase.from('ic_conditions').select('*').order('due_date', { ascending: true }),
+    supabase.from('ic_matters').select('id, title'),
+  ]);
+  if (error) throw error;
+  if (mattersError) throw mattersError;
+
+  const titleByMatterId = new Map((matters || []).map((m) => [m.id, m.title]));
+  return (conditions || []).map((c) => ({ ...c, matter_title: titleByMatterId.get(c.matter_id) || null }));
+}
+
 async function getCondition(conditionId) {
   const { data: condition, error } = await supabase.from('ic_conditions').select('*').eq('id', conditionId).maybeSingle();
   if (error) throw error;
@@ -132,4 +151,4 @@ async function updateCondition(conditionId, { status, wording, ownerUserId, dueD
   return updated;
 }
 
-module.exports = { createCondition, listConditionsForMatter, getCondition, updateCondition, TYPES, STATUSES };
+module.exports = { createCondition, listConditionsForMatter, listAllWithMatterTitle, getCondition, updateCondition, TYPES, STATUSES };

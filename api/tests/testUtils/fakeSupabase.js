@@ -13,7 +13,7 @@ function createFakeSupabase(seed = {}) {
     return store[name];
   }
 
-  function matchesFilter(row, { type, col, val }) {
+  function matchesFilter(row, { type, col, val, op }) {
     if (type === 'eq') return row[col] === val;
     if (type === 'gte') return row[col] >= val;
     if (type === 'lte') return row[col] <= val;
@@ -24,6 +24,9 @@ function createFakeSupabase(seed = {}) {
       return typeof row[col] === 'string' && pattern.test(row[col]);
     }
     if (type === 'is') return (row[col] ?? null) === val;
+    // .not(col, op, val) negates whichever base operator it wraps — only
+    // 'eq' and 'is' are used in this codebase so far.
+    if (type === 'not') return !matchesFilter(row, { type: op, col, val });
     return true;
   }
 
@@ -68,6 +71,10 @@ function createFakeSupabase(seed = {}) {
       },
       is(col, val) {
         filters.push({ type: 'is', col, val });
+        return chain;
+      },
+      not(col, op, val) {
+        filters.push({ type: 'not', col, op, val });
         return chain;
       },
       order(col, { ascending } = {}) {

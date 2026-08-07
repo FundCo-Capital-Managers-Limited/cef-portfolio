@@ -4,6 +4,7 @@ const mockSupabase = createFakeSupabase({
   users: [
     { id: 'user-mgmt', auth_user_id: 'auth-mgmt', email: 'mgmt@cef.example', role: 'management', assetco_id: null, can_access_ic: false },
     { id: 'user-finance', auth_user_id: 'auth-finance', email: 'finance@cef.example', role: 'finance', assetco_id: null, can_access_ic: false },
+    { id: 'user-board', auth_user_id: 'auth-board', email: 'board1@cef.example', role: 'board_member', assetco_id: null, can_access_ic: false },
   ],
   assetcos: [{ id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true }],
   ic_matters: [
@@ -100,5 +101,26 @@ describe('IC Documents (SharePoint reference records)', () => {
     const asFinance = as('auth-finance');
     const res = await asFinance(request(app).get('/api/ic/matters/matter-1/documents'));
     expect(res.status).toBe(403);
+  });
+
+  it('a board member only sees APPROVED/EXECUTED documents, not DRAFT ones', async () => {
+    const asMgmt = as('auth-mgmt');
+    const draftRes = await asMgmt(
+      request(app).post('/api/ic/matters/matter-1/documents').send({ title: 'Draft memo', classification: 'Memo' })
+    );
+    const approvedRes = await asMgmt(
+      request(app).post('/api/ic/matters/matter-1/documents').send({ title: 'Approved memo', classification: 'Memo' })
+    );
+    await asMgmt(request(app).patch(`/api/ic/documents/${approvedRes.body.document.id}`).send({ status: 'APPROVED' }));
+
+    const mgmtList = await asMgmt(request(app).get('/api/ic/matters/matter-1/documents'));
+    expect(mgmtList.body.documents.map((d) => d.id)).toEqual(expect.arrayContaining([draftRes.body.document.id, approvedRes.body.document.id]));
+
+    const boardList = await as('auth-board')(request(app).get('/api/ic/matters/matter-1/documents'));
+    expect(boardList.status).toBe(200);
+    expect(boardList.body.documents.map((d) => d.id)).toEqual([approvedRes.body.document.id]);
+
+    const boardGetDraft = await as('auth-board')(request(app).get(`/api/ic/documents/${draftRes.body.document.id}`));
+    expect(boardGetDraft.status).toBe(404);
   });
 });

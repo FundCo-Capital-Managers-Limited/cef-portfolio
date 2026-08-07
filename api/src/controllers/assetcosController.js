@@ -44,6 +44,7 @@ const PROFILE_FIELD_MAP = {
   website: 'website',
   assetTypes: 'asset_types',
   customerTypes: 'customer_types',
+  businessModels: 'business_models',
   sector: 'sector',
   businessDescription: 'business_description',
   hqState: 'hq_state',

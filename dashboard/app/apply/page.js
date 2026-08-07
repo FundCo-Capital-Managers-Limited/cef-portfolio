@@ -37,6 +37,7 @@ export default function ApplyPage() {
     operatingStates: '',
     assetTypes: '',
     customerTypes: '',
+    businessModels: '',
     primaryContactName: '',
     primaryContactEmail: '',
     primaryContactPhone: '',
@@ -62,6 +63,7 @@ export default function ApplyPage() {
           operatingStates: splitList(form.operatingStates),
           assetTypes: splitList(form.assetTypes),
           customerTypes: splitList(form.customerTypes),
+          businessModels: splitList(form.businessModels),
         }),
       });
       const data = await res.json().catch(() => ({}));
@@ -133,6 +135,9 @@ export default function ApplyPage() {
         </Field>
         <Field label="Customer types (comma-separated)">
           <input className={inputCls} placeholder="RESIDENTIAL, SME" value={form.customerTypes} onChange={update('customerTypes')} />
+        </Field>
+        <Field label="Business model(s) (comma-separated)">
+          <input className={inputCls} placeholder="C&I, C2C, PAYG" value={form.businessModels} onChange={update('businessModels')} />
         </Field>
 
         <hr className="border-gray-200" />

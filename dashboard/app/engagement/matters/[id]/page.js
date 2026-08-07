@@ -3,6 +3,7 @@ import MatterDetail from '../../MatterDetail';
 import DocumentsPanel from '../../DocumentsPanel';
 import ConditionsPanel from '../../ConditionsPanel';
 import ComposeEmailPanel from '../../ComposeEmailPanel';
+import MatterCommentsPanel from '../../MatterCommentsPanel';
 
 export const metadata = { title: 'Matter Detail' };
 
@@ -13,6 +14,7 @@ export default function MatterDetailPage({ params }) {
       <MatterDetail matterId={params.id} />
       <ConditionsPanel matterId={params.id} />
       <DocumentsPanel matterId={params.id} />
+      <MatterCommentsPanel matterId={params.id} />
       <ComposeEmailPanel matterId={params.id} />
     </div>
   );
