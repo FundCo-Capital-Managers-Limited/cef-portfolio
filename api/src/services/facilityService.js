@@ -417,6 +417,43 @@ async function getPortfolioLoanBook() {
 }
 
 /**
+ * Board/executive reporting export (Oluseyi's ask, 2026-08-05 walkthrough):
+ * one row per facility with names resolved and the effective (override-first)
+ * status alongside the computed one, so the export reflects exactly what the
+ * dashboard shows rather than needing a follow-up patch every time a new
+ * facility field ships.
+ */
+async function getPortfolioLoanBookFacilitiesDetailed() {
+  const [{ data: facilities, error }, { data: assetcos, error: assetcosError }, { data: series, error: seriesError }] = await Promise.all([
+    supabase.from('cef_facilities').select('*').order('disbursement_date', { ascending: false }),
+    supabase.from('assetcos').select('id, name'),
+    supabase.from('cef_series').select('id, code, display_name'),
+  ]);
+  if (error) throw error;
+  if (assetcosError) throw assetcosError;
+  if (seriesError) throw seriesError;
+
+  const assetcoById = new Map((assetcos || []).map((a) => [a.id, a]));
+  const seriesById = new Map((series || []).map((s) => [s.id, s]));
+
+  return (facilities || []).map((f) => ({
+    facilityReference: f.facility_reference || f.id,
+    assetCoName: assetcoById.get(f.assetco_id)?.name || f.assetco_id,
+    seriesName: seriesById.get(f.series_id)?.display_name || '',
+    facilityType: f.facility_type,
+    principalAmountNgn: Number(f.principal_amount_ngn || 0),
+    totalRepaidNgn: Number(f.total_repaid_ngn || 0),
+    outstandingBalanceNgn: Number(f.outstanding_balance_ngn ?? f.principal_amount_ngn - f.total_repaid_ngn),
+    effectiveStatus: effectiveStatus(f),
+    computedStatus: f.facility_status,
+    isClassificationOverridden: Boolean(f.classification_override),
+    classificationOverrideReason: f.classification_override_reason || '',
+    disbursementDate: f.disbursement_date || '',
+    maturityDate: f.maturity_date || '',
+  }));
+}
+
+/**
  * Nightly check: flags schedule rows that passed their due_date still
  * PENDING (ALT-14), rows now 7+ days overdue (ALT-15), and facilities
  * approaching maturity with a balance still outstanding (ALT-16). Each
@@ -529,6 +566,7 @@ module.exports = {
   recordRepayment,
   getRepaymentHistory,
   getPortfolioLoanBook,
+  getPortfolioLoanBookFacilitiesDetailed,
   checkFacilityArrears,
   buildScheduleRows,
 };

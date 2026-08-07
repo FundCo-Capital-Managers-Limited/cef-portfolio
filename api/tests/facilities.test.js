@@ -6,6 +6,7 @@ const mockSupabase = createFakeSupabase({
     { id: 'user-exec', auth_user_id: 'auth-exec', email: 'exec@cef.example', role: 'executive', assetco_id: null },
     { id: 'user-risk', auth_user_id: 'auth-risk', email: 'risk@cef.example', role: 'risk', assetco_id: null },
     { id: 'user-finance', auth_user_id: 'auth-finance', email: 'finance@cef.example', role: 'finance', assetco_id: null },
+    { id: 'user-admin-grosolar', auth_user_id: 'auth-admin-grosolar', email: 'admin@grosolar.example', role: 'assetco_admin', assetco_id: 'GROSOLAR' },
   ],
   assetcos: [
     { id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true },
@@ -156,6 +157,22 @@ describe('CEF Facility endpoints', () => {
     expect(res.body.totalFacilitiesCount).toBeGreaterThanOrEqual(4);
     expect(res.body.byAssetCo.length).toBeGreaterThanOrEqual(2);
     expect(res.body.totalFacilitiesNgn).toBeGreaterThan(0);
+  });
+
+  it('GET /api/portfolio/loan-book/export returns a CSV attachment for CEF-wide roles', async () => {
+    const res = await as('auth-exec')(request(app).get('/api/portfolio/loan-book/export'));
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/csv');
+    expect(res.headers['content-disposition']).toContain('attachment');
+    expect(res.text.split('\n')[0]).toBe(
+      'Facility Reference,AssetCo,Series,Facility Type,Principal (NGN),Total Repaid (NGN),Outstanding (NGN),Status,Computed Status,Classification Overridden,Override Reason,Disbursement Date,Maturity Date'
+    );
+    expect(res.text.split('\n').length).toBeGreaterThan(1);
+  });
+
+  it('exporting the loan book is rejected for a non-CEF-wide role', async () => {
+    const res = await as('auth-admin-grosolar')(request(app).get('/api/portfolio/loan-book/export'));
+    expect(res.status).toBe(403);
   });
 });
 

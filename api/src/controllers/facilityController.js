@@ -5,6 +5,23 @@ const facilityRiskDashboardService = require('../services/facilityRiskDashboardS
 const supabase = require('../config/supabase');
 const { recordAudit } = require('../services/auditLog');
 const { FACILITY_TYPES, REPAYMENT_FREQUENCIES, FACILITY_STATUSES, PAYMENT_TYPES } = require('../utils/facilityEnums');
+const { toCsv } = require('../utils/csv');
+
+const LOAN_BOOK_CSV_COLUMNS = [
+  { label: 'Facility Reference', value: (r) => r.facilityReference },
+  { label: 'AssetCo', value: (r) => r.assetCoName },
+  { label: 'Series', value: (r) => r.seriesName },
+  { label: 'Facility Type', value: (r) => r.facilityType },
+  { label: 'Principal (NGN)', value: (r) => r.principalAmountNgn },
+  { label: 'Total Repaid (NGN)', value: (r) => r.totalRepaidNgn },
+  { label: 'Outstanding (NGN)', value: (r) => r.outstandingBalanceNgn },
+  { label: 'Status', value: (r) => r.effectiveStatus },
+  { label: 'Computed Status', value: (r) => r.computedStatus },
+  { label: 'Classification Overridden', value: (r) => (r.isClassificationOverridden ? 'Yes' : 'No') },
+  { label: 'Override Reason', value: (r) => r.classificationOverrideReason },
+  { label: 'Disbursement Date', value: (r) => r.disbursementDate },
+  { label: 'Maturity Date', value: (r) => r.maturityDate },
+];
 
 // AssetCos repay CEF by bank transfer and notify separately, they never
 // record a repayment on the platform directly - canManageAssetco is too
@@ -295,6 +312,21 @@ async function loanBook(req, res, next) {
   }
 }
 
+async function exportLoanBookCsv(req, res, next) {
+  try {
+    if (!CEF_WIDE_ROLES.includes(req.user.role)) {
+      return res.status(403).json({ error: 'Only CEF-wide roles can export the portfolio loan book' });
+    }
+    const rows = await facilityService.getPortfolioLoanBookFacilitiesDetailed();
+    const csv = toCsv(rows, LOAN_BOOK_CSV_COLUMNS);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="cef-loan-book-${new Date().toISOString().slice(0, 10)}.csv"`);
+    return res.status(200).send(csv);
+  } catch (err) {
+    return next(err);
+  }
+}
+
 async function riskSummary(req, res, next) {
   try {
     if (!CEF_WIDE_ROLES.includes(req.user.role)) {
@@ -309,6 +341,7 @@ async function riskSummary(req, res, next) {
 
 module.exports = {
   create, listForAssetco, getOne, update, changeStatus, recordRepayment, repaymentHistory, loanBook, riskSummary,
+  exportLoanBookCsv,
   setClassificationOverride, clearClassificationOverride,
   submitRepaymentNotification, listRepaymentNotifications, listPendingRepaymentNotifications,
   confirmRepaymentNotification, rejectRepaymentNotification,
