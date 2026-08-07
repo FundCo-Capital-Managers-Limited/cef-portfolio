@@ -54,6 +54,25 @@ async function listMeetings() {
   return data || [];
 }
 
+/**
+ * Secretariat dashboard (Abiodun's ask, 2026-08-05 walkthrough): meeting
+ * organization and minutes are secretariat functions, so the dashboard
+ * needs each meeting's minutes status alongside it — a COMPLETED meeting
+ * whose minutes are still DRAFT is exactly the kind of thing secretariat
+ * staff need surfaced, not buried behind a separate click per meeting.
+ */
+async function listMeetingsWithMinutesStatus() {
+  const [{ data: meetings, error }, { data: minutes, error: minutesError }] = await Promise.all([
+    supabase.from('ic_meetings').select('*').order('meeting_date', { ascending: false }),
+    supabase.from('ic_minutes').select('meeting_id, status'),
+  ]);
+  if (error) throw error;
+  if (minutesError) throw minutesError;
+
+  const minutesStatusByMeetingId = new Map((minutes || []).map((m) => [m.meeting_id, m.status]));
+  return (meetings || []).map((m) => ({ ...m, minutes_status: minutesStatusByMeetingId.get(m.id) || 'NOT_STARTED' }));
+}
+
 async function getMeeting(meetingId) {
   const { data: meeting, error } = await supabase.from('ic_meetings').select('*').eq('id', meetingId).maybeSingle();
   if (error) throw error;
@@ -178,6 +197,7 @@ module.exports = {
   getDefaultTeamsLink,
   createMeeting,
   listMeetings,
+  listMeetingsWithMinutesStatus,
   getMeeting,
   updateMeeting,
   addAgendaItem,

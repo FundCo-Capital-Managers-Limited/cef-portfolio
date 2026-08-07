@@ -19,6 +19,15 @@ async function listForMatter(req, res, next) {
   }
 }
 
+async function listAll(req, res, next) {
+  try {
+    const conditions = await icConditionService.listAllWithMatterTitle();
+    res.status(200).json({ conditions });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function update(req, res, next) {
   try {
     const { status, wording, ownerUserId, dueDate } = req.body;
@@ -29,4 +38,4 @@ async function update(req, res, next) {
   }
 }
 
-module.exports = { create, listForMatter, update };
+module.exports = { create, listForMatter, listAll, update };
