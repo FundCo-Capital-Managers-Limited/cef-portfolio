@@ -13,6 +13,7 @@ import FacilityCard from '../../FacilityCard';
 import RegenerateSecretButton from '../../RegenerateSecretButton';
 import RunReconciliationButton from '../../RunReconciliationButton';
 import BackLink from '../../BackLink';
+import AssetcoDataRoomPanel from './AssetcoDataRoomPanel';
 
 const DREEF_BADGE_STYLES = {
   MANDATED: 'bg-green-100 text-green-700',
@@ -231,6 +232,8 @@ export default async function AssetcoProfilePage({ params }) {
           )}
         </div>
       </div>
+
+      <AssetcoDataRoomPanel assetcoId={assetco.id} />
     </div>
   );
 }

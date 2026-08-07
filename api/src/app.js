@@ -28,6 +28,7 @@ const icConditionsRoutes = require('./routes/icConditions');
 const icEmailRoutes = require('./routes/icEmail');
 const icDashboardRoutes = require('./routes/icDashboard');
 const icSecretariatRoutes = require('./routes/icSecretariat');
+const assetcoDataRoomRoutes = require('./routes/assetcoDataRoom');
 const errorHandler = require('./middleware/errorHandler');
 const env = require('./config/env');
 const logger = require('./utils/logger');
@@ -89,6 +90,7 @@ app.use('/api/ic/conditions', icConditionsRoutes);
 app.use('/api/ic/email', icEmailRoutes);
 app.use('/api/ic/dashboard', icDashboardRoutes);
 app.use('/api/ic/secretariat', icSecretariatRoutes);
+app.use('/api/assetco-data-room', assetcoDataRoomRoutes);
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Not found' });

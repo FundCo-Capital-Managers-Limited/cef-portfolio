@@ -12,7 +12,7 @@ async function create(req, res, next) {
 
 async function listForMatter(req, res, next) {
   try {
-    const documents = await icDocumentService.listDocumentsForMatter(req.params.matterId);
+    const documents = await icDocumentService.listDocumentsForMatter(req.params.matterId, req.user);
     res.status(200).json({ documents });
   } catch (err) {
     next(err);
@@ -21,7 +21,7 @@ async function listForMatter(req, res, next) {
 
 async function get(req, res, next) {
   try {
-    const document = await icDocumentService.getDocument(req.params.id);
+    const document = await icDocumentService.getDocument(req.params.id, req.user);
     res.status(200).json({ document });
   } catch (err) {
     next(err);
