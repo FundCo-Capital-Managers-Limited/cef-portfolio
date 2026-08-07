@@ -6,7 +6,9 @@ const mockSupabase = createFakeSupabase({
     { id: 'user-risk', auth_user_id: 'auth-risk', email: 'risk@cef.example', role: 'risk', assetco_id: null },
     { id: 'user-mgmt', auth_user_id: 'auth-mgmt', email: 'mgmt@cef.example', role: 'management', assetco_id: null },
     { id: 'user-it', auth_user_id: 'auth-it', email: 'it@cef.example', role: 'it_admin', assetco_id: null },
+    { id: 'user-admin-grosolar', auth_user_id: 'auth-admin-grosolar', email: 'admin@grosolar.example', role: 'assetco_admin', assetco_id: 'GROSOLAR' },
   ],
+  assetcos: [{ id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true }],
 });
 
 jest.mock('../src/config/supabase', () => mockSupabase);
@@ -85,5 +87,30 @@ describe('Approval workflow (CEF Series)', () => {
 
     const res = await as('auth-finance')(request(app).post(`/api/approvals/${requestId}/approve`));
     expect(res.status).toBe(403);
+  });
+});
+
+describe('Approval trail report', () => {
+  it('shows every request, including ones the caller did not submit, to a CEF-wide role', async () => {
+    const createRes = await as('auth-finance')(request(app).post('/api/series').send({ code: 'SERIES_TRAIL', displayName: 'Series Trail' }));
+    const requestId = createRes.body.approvalRequest.id;
+    await as('auth-it')(request(app).post(`/api/approvals/${requestId}/approve`));
+
+    const reportRes = await as('auth-mgmt')(request(app).get('/api/approvals/report'));
+    expect(reportRes.status).toBe(200);
+    expect(reportRes.body.requests.some((r) => r.id === requestId && r.status === 'approved')).toBe(true);
+  });
+
+  it('is not reachable by a non-CEF-wide role', async () => {
+    const res = await as('auth-admin-grosolar')(request(app).get('/api/approvals/report'));
+    expect(res.status).toBe(403);
+  });
+
+  it('exports the trail as a CSV attachment', async () => {
+    const res = await as('auth-mgmt')(request(app).get('/api/approvals/report/export'));
+    expect(res.status).toBe(200);
+    expect(res.headers['content-type']).toContain('text/csv');
+    expect(res.headers['content-disposition']).toContain('attachment');
+    expect(res.text.split('\n')[0]).toBe('Requested At,Action,Requested By,Status,Decided By,Decided At,Notes');
   });
 });
