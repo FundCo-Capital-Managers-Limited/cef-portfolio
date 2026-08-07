@@ -95,6 +95,34 @@ describe('IC Matters', () => {
     expect(auditEntry.actor_email).toBe('it@cef.example');
   });
 
+  it('defaults delegated authority / trustee no-objection to NOT_REQUIRED, and can be updated', async () => {
+    const asMgmt = as('auth-mgmt');
+    const createRes = await asMgmt(
+      request(app).post('/api/ic/matters').send({ category: 'DISBURSEMENT', decisionType: 'Tranche release', title: 'EML Tranche 2', assetcoId: 'GROSOLAR' })
+    );
+    expect(createRes.body.matter.delegated_authority_status).toBe('NOT_REQUIRED');
+    expect(createRes.body.matter.trustee_no_objection_status).toBe('NOT_REQUIRED');
+    const matterId = createRes.body.matter.id;
+
+    const updateRes = await asMgmt(
+      request(app).patch(`/api/ic/matters/${matterId}`).send({ delegatedAuthorityStatus: 'GRANTED', trusteeNoObjectionStatus: 'RECEIVED' })
+    );
+    expect(updateRes.status).toBe(200);
+    expect(updateRes.body.matter.delegated_authority_status).toBe('GRANTED');
+    expect(updateRes.body.matter.trustee_no_objection_status).toBe('RECEIVED');
+  });
+
+  it('rejects an invalid delegated authority status', async () => {
+    const asMgmt = as('auth-mgmt');
+    const createRes = await asMgmt(
+      request(app).post('/api/ic/matters').send({ category: 'DISBURSEMENT', decisionType: 'x', title: 'Another disbursement' })
+    );
+    const res = await asMgmt(
+      request(app).patch(`/api/ic/matters/${createRes.body.matter.id}`).send({ delegatedAuthorityStatus: 'BOGUS' })
+    );
+    expect(res.status).toBe(400);
+  });
+
   it('404s on an unknown matter id', async () => {
     const asExec = as('auth-exec');
     const res = await asExec(request(app).get('/api/ic/matters/00000000-0000-0000-0000-000000000000'));

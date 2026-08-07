@@ -30,8 +30,12 @@ async function get(req, res, next) {
 
 async function update(req, res, next) {
   try {
-    const { status, decisionType, title, description, dealLeadUserId } = req.body;
-    const matter = await icMatterService.updateMatter(req.params.id, { status, decisionType, title, description, dealLeadUserId }, req.user);
+    const { status, decisionType, title, description, dealLeadUserId, delegatedAuthorityStatus, trusteeNoObjectionStatus } = req.body;
+    const matter = await icMatterService.updateMatter(
+      req.params.id,
+      { status, decisionType, title, description, dealLeadUserId, delegatedAuthorityStatus, trusteeNoObjectionStatus },
+      req.user
+    );
     res.status(200).json({ matter });
   } catch (err) {
     next(err);

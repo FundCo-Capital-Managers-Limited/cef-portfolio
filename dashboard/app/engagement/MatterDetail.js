@@ -18,10 +18,21 @@ const STATUS_STYLES = {
 // decision-locking arrives in a later milestone), just a manual status field.
 const STATUS_OPTIONS = Object.keys(STATUS_STYLES);
 
+const DELEGATED_AUTHORITY_STATUSES = ['NOT_REQUIRED', 'PENDING', 'GRANTED'];
+const TRUSTEE_NO_OBJECTION_STATUSES = ['NOT_REQUIRED', 'PENDING', 'RECEIVED'];
+
+const AUTHORITY_STATUS_STYLES = {
+  NOT_REQUIRED: 'bg-gray-100 text-gray-500',
+  PENDING: 'bg-amber-100 text-amber-700',
+  GRANTED: 'bg-green-100 text-green-700',
+  RECEIVED: 'bg-green-100 text-green-700',
+};
+
 export default function MatterDetail({ matterId }) {
   const [matter, setMatter] = useState(null);
   const [error, setError] = useState(null);
   const [changingStatus, setChangingStatus] = useState(false);
+  const [changingAuthority, setChangingAuthority] = useState(false);
 
   async function load() {
     try {
@@ -46,6 +57,19 @@ export default function MatterDetail({ matterId }) {
       setError(err.message);
     } finally {
       setChangingStatus(false);
+    }
+  }
+
+  async function handleAuthorityChange(field, value) {
+    setChangingAuthority(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/ic/matters/${matterId}`, { method: 'PATCH', body: { [field]: value } });
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setChangingAuthority(false);
     }
   }
 
@@ -81,6 +105,45 @@ export default function MatterDetail({ matterId }) {
           ))}
         </div>
         {error && <p className="text-sm text-red-600 mt-2">{error}</p>}
+      </div>
+
+      <div className="pt-3 border-t border-gray-100 dark:border-gray-800 grid sm:grid-cols-2 gap-3">
+        <div>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Delegated Authority</label>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${AUTHORITY_STATUS_STYLES[matter.delegated_authority_status] || 'bg-gray-100 text-gray-500'}`}>
+              {matter.delegated_authority_status.replace(/_/g, ' ')}
+            </span>
+            <select
+              disabled={changingAuthority}
+              value={matter.delegated_authority_status}
+              onChange={(e) => handleAuthorityChange('delegatedAuthorityStatus', e.target.value)}
+              className="text-xs border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded px-1.5 py-1"
+            >
+              {DELEGATED_AUTHORITY_STATUSES.map((s) => (
+                <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs text-gray-500 dark:text-gray-400 mb-1">Trustee No-Objection</label>
+          <div className="flex items-center gap-2">
+            <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${AUTHORITY_STATUS_STYLES[matter.trustee_no_objection_status] || 'bg-gray-100 text-gray-500'}`}>
+              {matter.trustee_no_objection_status.replace(/_/g, ' ')}
+            </span>
+            <select
+              disabled={changingAuthority}
+              value={matter.trustee_no_objection_status}
+              onChange={(e) => handleAuthorityChange('trusteeNoObjectionStatus', e.target.value)}
+              className="text-xs border border-gray-300 dark:border-gray-700 dark:bg-gray-800 rounded px-1.5 py-1"
+            >
+              {TRUSTEE_NO_OBJECTION_STATUSES.map((s) => (
+                <option key={s} value={s}>{s.replace(/_/g, ' ')}</option>
+              ))}
+            </select>
+          </div>
+        </div>
       </div>
     </div>
   );
