@@ -8,6 +8,7 @@ const mockSupabase = createFakeSupabase({
     { id: 'user-finance', auth_user_id: 'auth-finance', email: 'finance@cef.example', role: 'finance', assetco_id: null, can_access_ic: false },
     { id: 'user-finance-ic', auth_user_id: 'auth-finance-ic', email: 'finance-ic@cef.example', role: 'finance', assetco_id: null, can_access_ic: true },
     { id: 'user-board', auth_user_id: 'auth-board', email: 'board1@cef.example', role: 'board_member', assetco_id: null, can_access_ic: false },
+    { id: 'user-secretariat', auth_user_id: 'auth-secretariat', email: 'clerk1@cef.example', role: 'ic_secretariat', assetco_id: null, can_access_ic: false },
   ],
   assetcos: [{ id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true }],
 });
@@ -68,6 +69,12 @@ describe('IC Matters', () => {
   it('a board_member gets IC access automatically, with no can_access_ic flag needed', async () => {
     const asBoard = as('auth-board');
     const res = await asBoard(request(app).get('/api/ic/matters'));
+    expect(res.status).toBe(200);
+  });
+
+  it('an ic_secretariat user gets IC access automatically, with no can_access_ic flag needed', async () => {
+    const asSecretariat = as('auth-secretariat');
+    const res = await asSecretariat(request(app).get('/api/ic/matters'));
     expect(res.status).toBe(200);
   });
 

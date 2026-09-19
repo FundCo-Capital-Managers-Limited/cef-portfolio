@@ -1,6 +1,6 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse } from 'next/server';
-import { canAccessIc } from './lib/icAccess';
+import { canAccessIc, canAccessPip } from './lib/icAccess';
 
 export async function middleware(request) {
   let response = NextResponse.next({ request });
@@ -51,11 +51,13 @@ export async function middleware(request) {
       return NextResponse.redirect(new URL('/dashboard', request.url));
     }
 
-    // board_member is the one role with no PIP dashboard access at all —
-    // confine them to /engagement entirely, the mirror image of
-    // assetco_dev's confinement to the Developer Console below. Same
-    // "hiding nav links isn't the boundary" reasoning applies.
-    if (isDashboardRoute && profile?.role === 'board_member') {
+    // board_member and ic_secretariat are the roles with no PIP dashboard
+    // access at all — confine them to /engagement entirely, the mirror
+    // image of assetco_dev's confinement to the Developer Console below.
+    // Same "hiding nav links isn't the boundary" reasoning applies. Driven
+    // by the same PIP_EXCLUDED_ROLES list icAccess.js uses for canAccessPip,
+    // so a new IC-only role only needs updating in one place.
+    if (isDashboardRoute && profile && !canAccessPip(profile)) {
       return NextResponse.redirect(new URL('/engagement', request.url));
     }
 

@@ -51,6 +51,13 @@ describe('User management endpoints', () => {
     expect(res.body.user.role).toBe('board_member');
   });
 
+  it('management can create an ic_secretariat account', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users').send({ email: 'clerk1@cef.example', role: 'ic_secretariat' }));
+    expect(res.status).toBe(201);
+    expect(res.body.user.role).toBe('ic_secretariat');
+  });
+
   it('requires assetcoId for an assetco_admin', async () => {
     const withAuth = as('auth-mgmt');
     const res = await withAuth(
