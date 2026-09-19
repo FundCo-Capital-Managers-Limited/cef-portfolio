@@ -13,6 +13,9 @@ const mockSupabase = createFakeSupabase({
 
 jest.mock('../src/config/supabase', () => mockSupabase);
 
+const mockSend = jest.fn().mockResolvedValue({ data: {}, error: null });
+jest.mock('../src/config/resend', () => ({ emails: { send: (...args) => mockSend(...args) } }));
+
 const mockVerifyAccessToken = jest.fn();
 jest.mock('../src/services/jwtVerifier', () => ({
   verifyAccessToken: (...args) => mockVerifyAccessToken(...args),
@@ -27,6 +30,10 @@ function as(authUid) {
 }
 
 describe('User management endpoints', () => {
+  afterEach(() => {
+    mockSend.mockClear();
+  });
+
   it('rejects non-admin roles', async () => {
     const withAuth = as('auth-exec');
     const res = await withAuth(request(app).post('/api/users').send({ email: 'new@cef.example', role: 'finance' }));
@@ -42,6 +49,26 @@ describe('User management endpoints', () => {
 
     const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'user_created');
     expect(auditEntry.entity_id).toBe(res.body.user.id);
+  });
+
+  it('emails the new account its login details on creation', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users').send({ email: 'welcome-check@cef.example', role: 'ops' }));
+    expect(res.status).toBe(201);
+
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    const sent = mockSend.mock.calls[0][0];
+    expect(sent.to).toBe('welcome-check@cef.example');
+    expect(sent.subject).toMatch(/CEF-PIP/);
+    expect(sent.text).toContain(res.body.tempPassword);
+  });
+
+  it('still creates the account even if the welcome email fails to send', async () => {
+    mockSend.mockResolvedValueOnce({ data: null, error: { message: 'Resend is down' } });
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users').send({ email: 'email-fails@cef.example', role: 'ops' }));
+    expect(res.status).toBe(201);
+    expect(res.body.tempPassword).toBeTruthy();
   });
 
   it('management can create a board_member account', async () => {

@@ -2,6 +2,7 @@ const crypto = require('crypto');
 const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
 const { ROLES, CEF_WIDE_ROLES } = require('../utils/userEnums');
+const { sendWelcomeEmail } = require('./welcomeEmailService');
 
 function generateTempPassword() {
   // 16 random bytes as base64url — meets Supabase's password requirements and
@@ -99,6 +100,11 @@ async function createUser({ email, name, role, assetcoId, assetcoIds, canAccessI
   });
 
   logger.info('User account created', { email, role, assetcoId: userRow.assetco_id, assetcoIds, createdBy: createdBy?.email });
+
+  // Fire-and-forget: a failed send must never fail account creation — the
+  // temp password is already returned below either way, which is what the
+  // admin UI falls back to showing on screen (see welcomeEmailService.js).
+  await sendWelcomeEmail({ email, role, tempPassword });
 
   return { user: { ...userRow, assetco_ids: role === 'assetco_dev' ? assetcoIds : undefined }, tempPassword };
 }

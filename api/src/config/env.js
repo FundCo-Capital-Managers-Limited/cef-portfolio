@@ -56,4 +56,14 @@ module.exports = {
     .split(',')
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean),
+  // Comma-separated allowlist for the "your account was created" welcome
+  // email (see welcomeEmailService.js). Separate from
+  // passwordResetAllowedRecipients — same "don't email real inboxes for
+  // dev/test accounts" reasoning as that list, but who should get a welcome
+  // email isn't necessarily the same set of people. Empty means no
+  // restriction (real send to anyone), which is the production default.
+  welcomeEmailAllowedRecipients: (process.env.WELCOME_EMAIL_ALLOWED_RECIPIENTS || '')
+    .split(',')
+    .map((s) => s.trim().toLowerCase())
+    .filter(Boolean),
 };
