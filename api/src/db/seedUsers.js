@@ -22,6 +22,10 @@ const ACCOUNTS = [
   // also on the IC), for testing that can_access_ic actually grants access
   // without changing their PIP role/permissions.
   { email: 'finance-ic@fundco.ng', role: 'finance', canAccessIc: true },
+  // ic_secretariat: moderators/clerks/secretaries who run the IC portal
+  // day to day (scheduling meetings, sending invites, keeping document
+  // links current) — gets IC access automatically, no PIP dashboard access.
+  { email: 'secretariat@fundco.ng', role: 'ic_secretariat' },
   // it@fundco.ng already exists from earlier manual setup — skipped here.
   { email: 'admin@grosolar.example.com', role: 'assetco_admin', assetcoId: 'GROSOLAR' },
   { email: 'admin@emlgrid.example.com', role: 'assetco_admin', assetcoId: 'EMLGRID' },
