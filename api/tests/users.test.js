@@ -4,11 +4,13 @@ const mockSupabase = createFakeSupabase({
   users: [
     { id: 'user-mgmt', auth_user_id: 'auth-mgmt', email: 'mgmt@cef.example', role: 'management', assetco_id: null },
     { id: 'user-exec', auth_user_id: 'auth-exec', email: 'exec@cef.example', role: 'executive', assetco_id: null },
+    { id: 'user-committee', auth_user_id: 'auth-committee', email: 'committee@cef.example', role: 'finance', assetco_id: null },
   ],
   assetcos: [
     { id: 'GROSOLAR', name: 'GroSolar', hmac_secret: 'secret', is_active: true },
     { id: 'EMLGRID', name: 'EML', hmac_secret: 'secret2', is_active: true },
   ],
+  ic_committee_members: [{ id: 'roster-1', user_id: 'user-committee', is_chair: false, is_secretary: false, removed_at: null }],
 });
 
 jest.mock('../src/config/supabase', () => mockSupabase);
@@ -250,5 +252,16 @@ describe('User management endpoints', () => {
     const withAuth = as('auth-mgmt');
     const res = await withAuth(request(app).delete('/api/users/does-not-exist'));
     expect(res.status).toBe(404);
+  });
+
+  it('refuses to delete a user with IC committee/voting history, with a clear message', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).delete('/api/users/user-committee'));
+    expect(res.status).toBe(409);
+    expect(res.body.error).toMatch(/Suspend/);
+
+    // and the account is still there afterward, untouched
+    const listRes = await withAuth(request(app).get('/api/users'));
+    expect(listRes.body.users.find((u) => u.id === 'user-committee')).toBeDefined();
   });
 });

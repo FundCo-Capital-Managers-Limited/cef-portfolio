@@ -250,9 +250,14 @@ async function updateUser(userId, { name, role, assetcoId, assetcoIds }, actor) 
 
 /**
  * Hard delete: removes both the public.users row and the underlying
- * Supabase Auth account. audit_log.actor_user_id is ON DELETE SET NULL (see
- * migration 018) and audit_log.actor_email is denormalized, so history
- * referencing this user survives — only the live account goes away.
+ * Supabase Auth account. Every FK from historical/audit tables (audit_log,
+ * flags, matters, documents, meetings, facility records, ...) is `on delete
+ * set null` (see migration 044 and the ones it lists as prior art, e.g.
+ * 018/021/022) — each of those tables also carries a denormalized
+ * `*_email`/`*_by_email` column, so nulling the user reference loses no
+ * history. The one thing that still hard-blocks deletion, deliberately, is
+ * committee/vote history (ic_committee_members, ic_conflict_declarations,
+ * ic_votes) — see the FK_HISTORY_ERROR handling below.
  */
 async function deleteUser(userId, actor) {
   const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
@@ -264,7 +269,21 @@ async function deleteUser(userId, actor) {
   }
 
   const { error: deleteError } = await supabase.from('users').delete().eq('id', userId);
-  if (deleteError) throw deleteError;
+  if (deleteError) {
+    // Postgres foreign_key_violation. The only FKs still on the default
+    // RESTRICT behavior after migration 044 are ic_committee_members.user_id,
+    // ic_conflict_declarations.user_id, and ic_votes.user_id — real
+    // committee/voting history with no denormalized email fallback, so it
+    // must not be silently nulled or cascaded away. Surface that as an
+    // actionable message instead of the raw Postgres constraint error.
+    if (deleteError.code === '23503') {
+      throw Object.assign(
+        new Error('This user has IC committee or voting history and cannot be deleted. Suspend the account instead.'),
+        { status: 409 }
+      );
+    }
+    throw deleteError;
+  }
 
   await supabase.auth.admin.deleteUser(userRow.auth_user_id).catch((err) => {
     logger.error('Failed to delete Supabase Auth account after users row was removed', {
