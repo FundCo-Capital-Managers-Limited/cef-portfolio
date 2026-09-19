@@ -5,6 +5,18 @@
  * upsert, update). Not a general Supabase mock — extend it if a service starts
  * using a new shape.
  */
+// Mirrors the one real FK-restriction (migration 044) this test double needs
+// to simulate: deleting a users row is blocked by Postgres if it's still
+// referenced from committee/vote history with no denormalized email
+// fallback. Every other users(id) FK is `on delete set null`/`cascade` in
+// the real schema and needs no special handling here — a plain delete is
+// enough for the fake to match reality.
+const USER_DELETE_RESTRICTED_REFERENCES = [
+  { table: 'ic_committee_members', column: 'user_id' },
+  { table: 'ic_conflict_declarations', column: 'user_id' },
+  { table: 'ic_votes', column: 'user_id' },
+];
+
 function createFakeSupabase(seed = {}) {
   const store = JSON.parse(JSON.stringify(seed));
 
@@ -183,7 +195,19 @@ function createFakeSupabase(seed = {}) {
             },
             then(resolve) {
               const rows = table(name);
-              store[name] = rows.filter((r) => !filters.every((f) => matchesFilter(r, f)));
+              const toDelete = rows.filter((r) => filters.every((f) => matchesFilter(r, f)));
+
+              if (name === 'users') {
+                const stillReferenced = toDelete.some((row) =>
+                  USER_DELETE_RESTRICTED_REFERENCES.some((ref) => table(ref.table).some((r) => r[ref.column] === row.id))
+                );
+                if (stillReferenced) {
+                  resolve({ error: { code: '23503', message: 'foreign key violation' } });
+                  return;
+                }
+              }
+
+              store[name] = rows.filter((r) => !toDelete.includes(r));
               resolve({ error: null });
             },
           };
