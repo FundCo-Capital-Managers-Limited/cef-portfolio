@@ -1,4 +1,5 @@
 const passwordResetService = require('../services/passwordResetService');
+const userService = require('../services/userService');
 
 async function forgotPassword(req, res, next) {
   try {
@@ -11,4 +12,14 @@ async function forgotPassword(req, res, next) {
   }
 }
 
-module.exports = { forgotPassword };
+async function changePassword(req, res, next) {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    await userService.changeOwnPassword(req.user, currentPassword, newPassword);
+    res.status(200).json({ message: 'Password changed' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { forgotPassword, changePassword };

@@ -35,6 +35,8 @@ export default function UserManagementPanel({ assetcos }) {
   const [created, setCreated] = useState(null);
   const [resetResult, setResetResult] = useState(null);
   const [resettingId, setResettingId] = useState(null);
+  const [sendingCredentials, setSendingCredentials] = useState(false);
+  const [credentialsSent, setCredentialsSent] = useState(false);
   const [togglingId, setTogglingId] = useState(null);
   const [deletingId, setDeletingId] = useState(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
@@ -91,6 +93,7 @@ export default function UserManagementPanel({ assetcos }) {
     setResettingId(user.id);
     setError(null);
     setResetResult(null);
+    setCredentialsSent(false);
     try {
       const data = await apiFetch(`/api/users/${user.id}/reset-password`, { method: 'POST' });
       setResetResult(data);
@@ -98,6 +101,23 @@ export default function UserManagementPanel({ assetcos }) {
       setError(err.message);
     } finally {
       setResettingId(null);
+    }
+  }
+
+  async function handleSendCredentials() {
+    if (!resetResult) return;
+    setSendingCredentials(true);
+    setError(null);
+    try {
+      await apiFetch(`/api/users/${resetResult.user.id}/send-credentials`, {
+        method: 'POST',
+        body: { tempPassword: resetResult.tempPassword },
+      });
+      setCredentialsSent(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSendingCredentials(false);
     }
   }
 
@@ -262,6 +282,15 @@ export default function UserManagementPanel({ assetcos }) {
             <p className="mt-1 text-xs text-green-700">
               Share this with the user securely. It is shown only once. They should change it on first login.
             </p>
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                onClick={handleSendCredentials}
+                disabled={sendingCredentials || credentialsSent}
+                className="text-xs bg-brand-navy hover:bg-brand-blue transition-colors text-white rounded px-2 py-1 disabled:opacity-50"
+              >
+                {credentialsSent ? 'Sent ✓' : sendingCredentials ? 'Sending…' : `Email this to ${resetResult.user.email}`}
+              </button>
+            </div>
           </div>
         )}
 

@@ -2,7 +2,7 @@ const crypto = require('crypto');
 const supabase = require('../config/supabase');
 const logger = require('../utils/logger');
 const { ROLES, CEF_WIDE_ROLES } = require('../utils/userEnums');
-const { sendWelcomeEmail } = require('./welcomeEmailService');
+const { sendWelcomeEmail, sendPasswordResetCredentialsEmail } = require('./welcomeEmailService');
 
 function generateTempPassword() {
   // 16 random bytes as base64url — meets Supabase's password requirements and
@@ -111,10 +111,10 @@ async function createUser({ email, name, role, assetcoId, assetcoIds, canAccessI
 
 /**
  * Admin-triggered reset: generates a fresh temporary password and sets it
- * directly via the Admin API, rather than emailing a reset link — this repo
- * has no auth-email templates configured yet, and it mirrors the same
- * "show it once on screen" flow createUser already uses, so admins have one
- * consistent way to hand a user working credentials.
+ * directly via the Admin API, showing it once on screen (same flow
+ * createUser already uses) rather than emailing it automatically — the
+ * admin decides afterward whether to hand it over in person or click "Send
+ * to user" (sendUserCredentialsEmail, below) to email it instead.
  */
 async function resetUserPassword(userId, resetBy) {
   const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
@@ -140,6 +140,86 @@ async function resetUserPassword(userId, resetBy) {
   logger.info('User password reset by admin', { email: userRow.email, resetBy: resetBy?.email });
 
   return { user: userRow, tempPassword };
+}
+
+/**
+ * The "Send to user" follow-up action next to Reset Password in the admin
+ * panel. The temp password itself is never stored anywhere (resetUserPassword
+ * only ever returns it once, by design) — the admin's browser already has it
+ * in state from the reset response, and hands it back here rather than the
+ * server regenerating or looking it up. The caller (it_admin/management) can
+ * already set this user's password directly via resetUserPassword, so
+ * trusting the temp password they supply here doesn't cross any new
+ * privilege boundary.
+ */
+async function sendUserCredentialsEmail(userId, tempPassword, actor) {
+  if (!tempPassword || typeof tempPassword !== 'string' || tempPassword.length < 8) {
+    throw Object.assign(new Error('A valid tempPassword is required'), { status: 400 });
+  }
+
+  const { data: userRow, error } = await supabase.from('users').select('*').eq('id', userId).maybeSingle();
+  if (error) throw error;
+  if (!userRow) throw Object.assign(new Error('User not found'), { status: 404 });
+
+  await sendPasswordResetCredentialsEmail({ email: userRow.email, tempPassword });
+
+  await supabase.from('audit_log').insert({
+    actor_type: 'user',
+    actor_user_id: actor?.id || null,
+    actor_email: actor?.email || null,
+    action: 'user_credentials_emailed',
+    entity_type: 'user',
+    entity_id: userRow.id,
+    details: { email: userRow.email },
+  });
+
+  logger.info('User credentials emailed', { email: userRow.email, actor: actor?.email });
+}
+
+/**
+ * Self-service password change for a logged-in user who still knows their
+ * current password (distinct from resetUserPassword/forgot-password, both
+ * of which exist precisely for when they don't). Re-verifies the current
+ * password via a real sign-in attempt rather than trusting the caller's
+ * existing session alone — a session left open on a shared machine
+ * shouldn't be enough by itself to silently take over the account's
+ * credentials. Note: this does mint a throwaway Supabase Auth session as a
+ * side effect of the verification sign-in, which is never used or revoked —
+ * harmless (it just expires on its own), but worth knowing if session count
+ * is ever audited.
+ */
+async function changeOwnPassword(actor, currentPassword, newPassword) {
+  if (!currentPassword || !newPassword) {
+    throw Object.assign(new Error('currentPassword and newPassword are required'), { status: 400 });
+  }
+  if (newPassword.length < 8) {
+    throw Object.assign(new Error('New password must be at least 8 characters'), { status: 400 });
+  }
+
+  const { error: signInError } = await supabase.auth.signInWithPassword({
+    email: actor.email,
+    password: currentPassword,
+  });
+  if (signInError) {
+    throw Object.assign(new Error('Current password is incorrect'), { status: 401 });
+  }
+
+  const { error: updateError } = await supabase.auth.admin.updateUserById(actor.authUserId, {
+    password: newPassword,
+  });
+  if (updateError) throw Object.assign(new Error(updateError.message), { status: 400 });
+
+  await supabase.from('audit_log').insert({
+    actor_type: 'user',
+    actor_user_id: actor.id,
+    actor_email: actor.email,
+    action: 'user_password_changed_self',
+    entity_type: 'user',
+    entity_id: actor.id,
+    details: {},
+  });
+
+  logger.info('User changed their own password', { email: actor.email });
 }
 
 /**
@@ -310,6 +390,8 @@ module.exports = {
   createUser,
   updateUser,
   resetUserPassword,
+  sendUserCredentialsEmail,
+  changeOwnPassword,
   setUserActive,
   deleteUser,
   ROLES,

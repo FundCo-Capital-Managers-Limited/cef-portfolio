@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useEffect, useState } from 'react';
+import { Suspense, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { createClient } from '../../lib/supabaseClient';
@@ -22,6 +22,7 @@ function ResetPasswordForm() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const verifiedTokenRef = useRef(null);
 
   useEffect(() => {
     // Our reset emails link here with ?token_hash=&type=recovery (see
@@ -33,13 +34,22 @@ function ResetPasswordForm() {
     // browser opens the email.
     const tokenHash = searchParams.get('token_hash');
     const type = searchParams.get('type');
-    const supabase = createClient();
 
     if (!tokenHash || type !== 'recovery') {
       setError('This reset link is invalid or has expired. Request a new one from the sign-in page.');
       return;
     }
 
+    // This token is single-use, and React's Strict Mode double-invokes
+    // effects in development — two concurrent verifyOtp calls for the same
+    // token race, the loser gets a generic "expired" error even though the
+    // token was fine, and whichever call resolves last wins the UI state.
+    // Guard so verifyOtp only ever actually fires once per token, no matter
+    // how many times this effect runs.
+    if (verifiedTokenRef.current === tokenHash) return;
+    verifiedTokenRef.current = tokenHash;
+
+    const supabase = createClient();
     supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }).then(({ data, error: verifyError }) => {
       setReady(Boolean(data?.session));
       if (verifyError || !data?.session) {

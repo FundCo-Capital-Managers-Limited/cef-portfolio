@@ -29,7 +29,12 @@ export async function middleware(request) {
   const isAuthRoute = request.nextUrl.pathname.startsWith('/login');
   const isDashboardRoute = request.nextUrl.pathname.startsWith('/dashboard');
   const isEngagementRoute = request.nextUrl.pathname.startsWith('/engagement');
-  const isProtectedRoute = isDashboardRoute || isEngagementRoute;
+  // /account (change-your-own-password) is deliberately outside both
+  // /dashboard and /engagement — every role needs it, including
+  // ic_secretariat/board_member, which are confined away from /dashboard
+  // entirely below. It only needs "is logged in," no role-based redirect.
+  const isAccountRoute = request.nextUrl.pathname.startsWith('/account');
+  const isProtectedRoute = isDashboardRoute || isEngagementRoute || isAccountRoute;
 
   if (!user && isProtectedRoute) {
     const redirectUrl = new URL('/login', request.url);
@@ -91,5 +96,5 @@ export async function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/dashboard/:path*', '/engagement/:path*', '/login'],
+  matcher: ['/dashboard/:path*', '/engagement/:path*', '/account/:path*', '/login'],
 };

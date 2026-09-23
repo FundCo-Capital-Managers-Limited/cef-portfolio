@@ -24,6 +24,17 @@ describe('POST /api/auth/forgot-password', () => {
     expect(res.status).toBe(200);
     expect(mockSend).toHaveBeenCalledTimes(1);
     expect(mockSend.mock.calls[0][0].to).toBe('it@fundco.ng');
+
+    // Regression test: this must be the token_hash link the /reset-password
+    // page's verifyOtp() call expects, never Supabase's own action_link —
+    // sending action_link is what caused every reset link to report
+    // "expired" (it relies on a PKCE code_verifier that only exists in the
+    // browser that originated the request, never true for a link generated
+    // server-side via auth.admin.generateLink).
+    const sentText = mockSend.mock.calls[0][0].text;
+    expect(sentText).toContain('token_hash=');
+    expect(sentText).toContain('type=recovery');
+    expect(sentText).not.toContain('fake-recovery-link.example');
   });
 
   it('skips sending to recipients outside the configured allowlist', async () => {

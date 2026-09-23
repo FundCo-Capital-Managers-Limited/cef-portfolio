@@ -38,6 +38,15 @@ async function resetPassword(req, res, next) {
   }
 }
 
+async function sendCredentials(req, res, next) {
+  try {
+    await userService.sendUserCredentialsEmail(req.params.id, req.body.tempPassword, req.user);
+    res.status(200).json({ sent: true });
+  } catch (err) {
+    next(err);
+  }
+}
+
 async function setActive(req, res, next) {
   try {
     const { isActive } = req.body;
@@ -58,4 +67,4 @@ async function remove(req, res, next) {
   }
 }
 
-module.exports = { list, create, update, resetPassword, setActive, remove };
+module.exports = { list, create, update, resetPassword, sendCredentials, setActive, remove };
