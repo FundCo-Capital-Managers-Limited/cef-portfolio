@@ -165,6 +165,18 @@ function createFakeSupabase(seed = {}) {
           };
         },
       },
+      // Only exercised by userService.changeOwnPassword's re-verification
+      // step. Seed a user with `_password` to test the wrong-password
+      // rejection path; without it, any password "succeeds" (permissive
+      // default so every other test suite touching users doesn't need to
+      // know this exists).
+      async signInWithPassword({ email, password }) {
+        const match = table('users').find((r) => r.email === email);
+        if (match && Object.prototype.hasOwnProperty.call(match, '_password') && match._password !== password) {
+          return { data: null, error: { message: 'Invalid login credentials' } };
+        }
+        return { data: { user: { id: match?.auth_user_id || 'fake-auth-verified' }, session: {} }, error: null };
+      },
     },
     from(name) {
       return {

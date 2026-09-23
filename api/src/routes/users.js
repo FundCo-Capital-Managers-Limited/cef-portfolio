@@ -11,6 +11,7 @@ router.get('/', usersController.list);
 router.post('/', usersController.create);
 router.patch('/:id', usersController.update);
 router.post('/:id/reset-password', usersController.resetPassword);
+router.post('/:id/send-credentials', usersController.sendCredentials);
 router.patch('/:id/active', usersController.setActive);
 router.delete('/:id', usersController.remove);
 

@@ -3,7 +3,7 @@
 import { useRef, useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { UserCircle, ChevronDown, LogOut, ArrowLeftRight } from 'lucide-react';
+import { UserCircle, ChevronDown, LogOut, ArrowLeftRight, KeyRound } from 'lucide-react';
 import { createClient } from '../../lib/supabaseClient';
 
 // Same hover/click dropdown pattern as NavDropdown, applied to the
@@ -72,6 +72,13 @@ export default function UserMenu({ name, email, role, canAccessIc = false }) {
                 Switch to IC Engagement
               </Link>
             )}
+            <Link
+              href="/account"
+              className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-brand-blue transition-colors"
+            >
+              <KeyRound size={15} />
+              Change Password
+            </Link>
             <button
               onClick={handleSignOut}
               className="w-full flex items-center gap-2 px-3 py-2 text-sm text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-brand-blue transition-colors"

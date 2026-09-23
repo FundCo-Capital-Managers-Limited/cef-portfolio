@@ -55,7 +55,7 @@ async function requestPasswordReset(email) {
     from: FROM_ADDRESS,
     to: email,
     subject: 'Reset your CEF-PIP password',
-    text: `A password reset was requested for your CEF-PIP account.\n\nReset it here: ${data.properties.action_link}\n\nIf you didn't request this, you can ignore this email.`,
+    text: `A password reset was requested for your CEF-PIP account.\n\nReset it here: ${resetLink}\n\nIf you didn't request this, you can ignore this email.`,
   });
   if (sendError) {
     logger.error('Password reset email failed to send', { email, error: sendError.message || sendError });

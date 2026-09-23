@@ -193,6 +193,30 @@ describe('User management endpoints', () => {
     expect(res.status).toBe(404);
   });
 
+  it('emails the reset temp password to the user when "Send to user" is used', async () => {
+    const withAuth = as('auth-mgmt');
+    const resetRes = await withAuth(request(app).post('/api/users/user-exec/reset-password'));
+    mockSend.mockClear();
+
+    const sendRes = await withAuth(
+      request(app).post('/api/users/user-exec/send-credentials').send({ tempPassword: resetRes.body.tempPassword })
+    );
+    expect(sendRes.status).toBe(200);
+    expect(mockSend).toHaveBeenCalledTimes(1);
+    const sent = mockSend.mock.calls[0][0];
+    expect(sent.to).toBe('exec@cef.example');
+    expect(sent.text).toContain(resetRes.body.tempPassword);
+
+    const auditEntry = mockSupabase._store.audit_log.find((a) => a.action === 'user_credentials_emailed');
+    expect(auditEntry.entity_id).toBe('user-exec');
+  });
+
+  it('rejects sending credentials without a tempPassword', async () => {
+    const withAuth = as('auth-mgmt');
+    const res = await withAuth(request(app).post('/api/users/user-exec/send-credentials').send({}));
+    expect(res.status).toBe(400);
+  });
+
   it('lists users', async () => {
     const withAuth = as('auth-mgmt');
     const res = await withAuth(request(app).get('/api/users'));
